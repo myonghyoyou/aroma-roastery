@@ -620,7 +620,9 @@ async function start() {
   const state = { morph: 0, steam: 0 };
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
-    scrollTrigger: { trigger: stage, start: 'top top', end: '+=280%', pin: true, scrub: 0.9, anticipatePin: 1, invalidateOnRefresh: true },
+    // pin length from the stage (100svh), not the window: a phone toolbar sliding in or out changes
+    // innerHeight, and a '+=280%' pin grew by 224px mid scroll and pulled the reader back into the stage
+    scrollTrigger: { trigger: stage, start: 'top top', end: () => '+=' + Math.round(stage.clientHeight * 2.8), pin: true, scrub: 0.9, anticipatePin: 1, invalidateOnRefresh: true },
   });
   tl.to(stageName, { opacity: 0, duration: 0.08 }, 0)
     .to(state, { morph: 1, duration: 0.34 }, 0.08)
@@ -738,8 +740,11 @@ async function start() {
     else if (!vis) running = false;
   }).observe(stage);
 
-  let rt;
+  // only a real resize re-lays out and re-measures; the phone toolbar showing or hiding is ignored
+  let rt, lastW = innerWidth, lastH = innerHeight;
   addEventListener('resize', () => {
+    if (innerWidth === lastW && Math.abs(innerHeight - lastH) < lastH * 0.25) return;
+    lastW = innerWidth; lastH = innerHeight;
     clearTimeout(rt);
     rt = setTimeout(() => { layout(); ScrollTrigger.refresh(); }, 150);
   });

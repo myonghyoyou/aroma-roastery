@@ -51,8 +51,8 @@
 
   /* brand */
   .wrap{max-width:1240px;margin:0 auto;padding:0 var(--gut)}
-  .brand{padding:clamp(120px,22vh,220px) 0 clamp(100px,18vh,180px)}
-  .brand p.sentence{font-family:var(--display);font-weight:300;font-size:clamp(30px,4.7vw,70px);line-height:1.28;letter-spacing:-.025em;max-width:15.5em}
+  .brand{padding-block:clamp(120px,22vh,220px) clamp(100px,18vh,180px)} /* block only: the shorthand used to zero .wrap's side gutter */
+  .brand p.sentence{font-family:var(--display);font-weight:300;font-size:clamp(30px,4.7vw,70px);line-height:1.28;letter-spacing:-.025em;max-width:15.5em;text-wrap:balance}
   .brand .after{margin-top:clamp(40px,7vh,72px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:end}
   .brand .after p{max-width:26em;color:var(--ink)}
   .brand ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px 26px;justify-content:flex-end;font-family:var(--display);font-size:17px;color:var(--mute)}
