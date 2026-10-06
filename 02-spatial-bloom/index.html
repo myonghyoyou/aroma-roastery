@@ -396,6 +396,7 @@ const LEAVES = [
 const CX = 297.9, CY = 251.6;   // centre of the symbol in path space
 const K = 0.0155;              // path units -> world units
 const STACK = 9;               // z offset between stacked leaves (path units), matching SVG paint order
+const LAYER = 0.6;             // extra world z between leaves while they travel, more than one leaf is thick
 
 function buildSvg() {
   const paths = ['yellow', 'green', 'orange', 'red']
@@ -661,18 +662,24 @@ if (renderer) {
 
     heroCopy.style.opacity = String(1 - ss(0.0, 0.08, p));
 
+    // c: how closed the symbol is (1 = logo, 0 = fully apart). Leaving and returning share it.
+    // Moving and turning all four leaves at once made them pass through each other. Instead
+    // each leaf turns flat first, slides over its slot on its own depth layer, and only then
+    // the layers close, flat and in paint order, so no two leaves ever cross.
+    const c = 1 - split * (1 - cup);
+    const rc = ss(0, 0.6, c), pc = ss(0, 0.75, c);
+    const layer = LAYER * ss(0, 0.25, c) * (1 - ss(0.75, 1, c));
     leaves.forEach((L, i) => {
       splitP.copy(L.poseB.p);
       if (portrait) {   // spread vertically instead of horizontally on tall screens
         splitP.sub(L.poseA.p);
         splitP.set(splitP.x * 0.42, splitP.y * 2.1, splitP.z).add(L.poseA.p);
       }
-      tmpP.copy(L.poseA.p).lerp(splitP, split);
-      tmpQ.copy(L.poseA.q).slerp(L.poseB.q, split);
+      tmpP.copy(splitP).lerp(L.poseA.p, pc);
+      tmpQ.copy(L.poseB.q).slerp(L.poseA.q, rc);
+      tmpP.z += (L.leaf.stack - 1.5) * layer;
       // gentle drift while apart
-      tmpP.y += Math.sin(t * 0.9 + i * 1.7) * 0.06 * split * (1 - cup) * float;
-      tmpP.lerp(L.poseC.p, cup);
-      tmpQ.slerp(L.poseC.q, cup);
+      tmpP.y += Math.sin(t * 0.9 + i * 1.7) * 0.06 * (1 - c) * float;
       L.pivot.position.copy(tmpP);
       L.pivot.quaternion.copy(tmpQ);
       L.outLeft = portrait ? (i % 2 === 0) : (splitP.x < L.poseA.p.x);
