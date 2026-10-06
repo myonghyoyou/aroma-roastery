@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aroma roastery, Draft 05</title>
+<script>
+  /* Decide the hero mode before first paint: reduced motion gets the static photo grid. */
+  (function () {
+    var root = document.documentElement;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) root.classList.add('rm');
+    /* if the three.js module never reports in (blocked CDN, old browser), fall back to the grid */
+    setTimeout(function () { if (!window.__cyl) root.classList.add('no-gl'); }, 9000);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.css">
+<style>
+  /* Draft 05, "Photo Cylinder". Fixed light theme: the drafts compare brand tones, and 05 is the
+     cool concrete one, so the dark warm photos read as objects on a lookbook table.
+     Type: Wanted Sans (Korean, sans) + Archivo Expanded (Latin and numerals). Sans only, because a
+     fashion lookbook speaks in grotesk; the serif link to the brand is carried by the real wordmark.
+     The logo's four gradients appear only once, as the thin ring under the photo cylinder. */
+  :root {
+    --paper: #DADBD6;
+    --paper-2: #CDCEC8;
+    --ink: #131415;
+    --mute: #4E5154;
+    --line: rgba(19, 20, 21, .2);
+    --green-a: #07913B; --green-b: #7CC36A;
+    --yellow-a: #EDBE00; --yellow-b: #FBE3A0;
+    --red-a: #C10110; --red-b: #EA4609;
+    --orange-a: #DA4914; --orange-b: #EF7000;
+    --kr: "Wanted Sans Variable", "Wanted Sans", system-ui, sans-serif;
+    --lat: "Archivo", "Wanted Sans Variable", system-ui, sans-serif;
+    --gut: clamp(16px, 4vw, 64px);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); color-scheme: light; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--kr); font-weight: 450; line-height: 1.6; letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; }
+  a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+  h1, h2, h3, p, dl, dd, figure { margin: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .lat { font-family: var(--lat); font-stretch: 125%; font-variant-numeric: tabular-nums; }
+
+  /* ---------- shared draft chrome: scrolls away with the page, no background ---------- */
+  .draft-label {
+    position: absolute; top: 14px; left: 14px; z-index: 50;
+    font: 500 11px/1 var(--lat); font-stretch: 112%; letter-spacing: .02em;
+    padding: 6px 9px; border: 1px solid var(--line); color: var(--ink);
+  }
+  .nav {
+    position: absolute; top: 8px; right: calc(var(--gut) - 10px); z-index: 50;
+    display: flex; gap: clamp(10px, 2.2vw, 30px); padding: 0 10px; font-size: 13px; font-weight: 550;
+  }
+  .nav a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+  .nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  .draft-back {
+    position: fixed; right: 16px; bottom: 16px; z-index: 9999;
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px;
+    font: 500 13px/1 "Pretendard Variable", Pretendard, system-ui, sans-serif; letter-spacing: 0;
+    color: #F4EEE6; background: rgba(24, 18, 14, .9); border: 1px solid rgba(244, 238, 230, .16);
+    border-radius: 999px; text-decoration: none; box-shadow: 0 6px 24px rgba(24, 18, 14, .22);
+    transition: background-color .25s cubic-bezier(.16, 1, .3, 1), transform .25s cubic-bezier(.16, 1, .3, 1);
+  }
+  .draft-back b { font-weight: 700; font-variant-numeric: tabular-nums; opacity: .62; }
+  .draft-back:hover { background: rgba(24, 18, 14, 1); }
+  .draft-back:active { transform: translateY(1px); }
+  .draft-back:focus-visible { outline: 2px solid #F4EEE6; outline-offset: 3px; }
+  @media (max-width: 640px) { .draft-back { right: 12px; bottom: 12px; } }
+  @media (prefers-reduced-motion: reduce) { .draft-back { transition: none; } }
+
+  /* ---------- hero: photo cylinder ---------- */
+  .hero { position: relative; }
+  .stage {
+    position: relative; height: 100vh; height: 100svh; width: 100%; overflow: hidden;
+    background: var(--paper); cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  }
+  .stage.is-drag { cursor: grabbing; }
+  .gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* The wordmark sits across the cylinder. difference blending keeps it dark on the paper and
+     light over the dark photos, so it stays readable wherever a photo passes behind it. */
+  .mark {
+    position: absolute; left: 50%; top: 50%; z-index: 2; pointer-events: none;
+    width: min(90vw, 1280px); color: var(--paper); mix-blend-mode: difference;
+    transform: translate(-50%, -54%); will-change: transform, opacity; opacity: 0;
+  }
+  .mark svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .cap {
+    position: absolute; left: var(--gut); bottom: clamp(24px, 5vh, 48px); z-index: 3;
+    max-width: calc(100vw - 2 * var(--gut) - 170px); pointer-events: none;
+    font-size: clamp(20px, 2vw, 28px); font-weight: 600; line-height: 1.2; letter-spacing: -0.02em;
+  }
+  .cap-t { display: inline-block; will-change: transform, opacity; }
+
+  /* static grid: reduced motion, or no WebGL */
+  .fallback { display: none; padding: 96px var(--gut) clamp(64px, 10vw, 120px); }
+  html.rm .stage, html.no-gl .stage { display: none; }
+  html.rm .fallback, html.no-gl .fallback { display: block; }
+  .fallback .fb-mark { width: min(90vw, 1280px); margin: 0 auto clamp(40px, 6vw, 80px); }
+  .fallback .fb-mark svg { display: block; width: 100%; height: auto; }
+  .fb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2vw, 28px); }
+  .fb-grid figure:nth-child(3n+2) { margin-top: clamp(24px, 5vw, 72px); }
+  .fb-grid img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+  .fb-grid figcaption { margin-top: 10px; font-size: 15px; font-weight: 600; }
+
+  /* ---------- brand sentence ---------- */
+  .brand { padding: clamp(112px, 16vw, 240px) var(--gut) clamp(96px, 12vw, 180px); }
+  .brand p {
+    max-width: 16em; font-size: clamp(30px, 5.4vw, 80px); font-weight: 620;
+    line-height: 1.16; letter-spacing: -0.035em; word-break: keep-all;
+  }
+  .brand .ln { display: block; overflow: hidden; padding-bottom: .04em; }
+  .brand .ln > span { display: inline-block; }
+
+  /* ---------- store info ---------- */
+  .visit { padding: 0 var(--gut) clamp(96px, 12vw, 180px); }
+  .visit h2, .archive h2 { font-size: clamp(22px, 2.4vw, 32px); font-weight: 650; letter-spacing: -0.02em; line-height: 1.2; }
+  .visit h2 { margin-bottom: clamp(24px, 3vw, 40px); }
+  .visit-photo { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; }
+  .visit dl {
+    display: grid; grid-template-columns: 1.3fr 1.2fr .6fr; gap: 28px clamp(24px, 4vw, 64px);
+    margin-top: clamp(28px, 3.5vw, 48px);
+  }
+  .visit dt { font-size: 13px; font-weight: 600; color: var(--mute); margin-bottom: 10px; }
+  .visit dd { font-size: clamp(17px, 1.4vw, 20px); line-height: 1.5; word-break: keep-all; }
+  .visit .hours { display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; align-items: baseline; }
+  .visit .hours .lat { font-size: clamp(18px, 1.6vw, 23px); font-weight: 500; }
+  .map {
+    display: inline-flex; align-items: center; min-height: 44px; margin-top: 10px;
+    font-size: 15px; font-weight: 600; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
+  }
+  .map:hover { text-decoration-thickness: 2px; }
+
+  /* ---------- archive + news preview ---------- */
+  .archive { padding: 0 var(--gut) clamp(96px, 12vw, 180px); display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(48px, 6vw, 96px); }
+  .head { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(20px, 2.6vw, 32px); }
+  .tag {
+    display: inline-flex; align-items: center; font-size: 12px; line-height: 1; font-weight: 600;
+    padding: 5px 8px; border: 1px solid currentColor; white-space: nowrap; color: var(--mute);
+  }
+  .feature img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+  .entry-t { font-size: clamp(17px, 1.5vw, 21px); font-weight: 620; letter-spacing: -0.015em; line-height: 1.35; word-break: keep-all; }
+  .entry-d { font-family: var(--lat); font-stretch: 112%; font-size: 13px; color: var(--mute); font-variant-numeric: tabular-nums; }
+  .feature .entry-t { margin-top: 16px; }
+  .feature .entry-d { margin-top: 6px; }
+  .side { display: flex; flex-direction: column; gap: clamp(48px, 6vw, 88px); }
+  .rows { display: grid; gap: clamp(20px, 2vw, 28px); }
+  .row { display: grid; grid-template-columns: 38% 1fr; gap: 18px; align-items: end; }
+  .row img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+  .row .entry-d { margin-top: 6px; }
+  .news { list-style: none; margin: 0; padding: 0; }
+  .news li { display: grid; grid-template-columns: 7.5em 1fr; gap: 16px; align-items: baseline; padding: 16px 0; border-top: 1px solid var(--line); }
+
+  /* ---------- footer ---------- */
+  footer {
+    padding: clamp(56px, 7vw, 96px) var(--gut) 32px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end;
+  }
+  footer .f-mark { width: clamp(140px, 16vw, 220px); }
+  footer .f-mark svg { display: block; width: 100%; height: auto; }
+  footer address { font-style: normal; font-size: 14px; line-height: 1.7; color: var(--mute); margin-top: 20px; word-break: keep-all; }
+  footer .f-links { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 14px; }
+  footer a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+  footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  footer small { font-size: 12px; color: var(--mute); }
+  /* keep the last footer line clear of the fixed back-to-drafts button */
+  footer::after { content: ""; display: block; height: 64px; }
+
+  /* ---------- mobile ---------- */
+  @media (max-width: 900px) {
+    .archive { grid-template-columns: 1fr; }
+    .visit dl { grid-template-columns: 1fr 1fr; }
+    .visit dl > div:first-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    .nav { font-size: 12px; gap: 6px; padding: 0 6px; }
+    .fb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fb-grid figure:nth-child(3n+2) { margin-top: 0; }
+    .fb-grid figure:nth-child(even) { margin-top: 32px; }
+    .visit-photo { aspect-ratio: 4 / 3; }
+    .visit dl { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 34% 1fr; }
+    .news li { grid-template-columns: 1fr; gap: 4px; }
+    footer { grid-template-columns: 1fr; }
+    footer .f-links { align-items: flex-start; }
+  }
+
+  /* ---------- store section (review pass 4) ----------
+     The photo used to float as a wide band inside the page margins and slide in. It is now anchored:
+     a full-bleed half on the left that fills the section height, the info block on the right sharing
+     its bottom line, and the photo opens from its anchored edge with the scroll (clip wipe, no slide). */
+  @media (min-width: 901px) {
+    .visit { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(40px, 5vw, 88px); align-items: end; padding-left: 0; }
+    .visit-photo { width: 100%; height: min(78vh, 760px); aspect-ratio: auto; }
+    .visit-info { padding-bottom: 4px; }
+    .visit dl { grid-template-columns: 1fr; gap: 28px; }
+    /* archive: the right column starts on the photo's top line, below the shared heading height */
+    .archive > .side { padding-top: calc(clamp(22px, 2.4vw, 32px) * 1.2 + clamp(20px, 2.6vw, 32px)); }
+  }
+  .visit dl { grid-template-columns: 1fr 1fr; }
+</style>
+</head>
+<body>
+<!-- wordmark: aroma-wordmark.svg inlined once, reused by <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="font_2_1" d="M.5009918 .038223268C.4889984 .033218385 .47799684 .031219483 .46899415 .031219483 .44799806 .031219483 .43199159 .045196535 .43199159 .076156619V.30186463C.43199159 .39782716 .375 .4658203 .23098755 .4658203 .17199707 .4658203 .114990238 .45481874 .06199646 .43481446 .06498718 .37983705 .068984989 .33984376 .07598877 .28186036H.08099365L.20098877 .44281007C.20899964 .44781495 .21899414 .45080567 .22999573 .45080567 .2679901 .45080567 .29100038 .41581727 .29100038 .33885194V.2548828C.10899353 .24087525 .0309906 .18995667 .0309906 .10211182 .0309906 .032226564 .07998657-.009765625 .15699768-.009765625 .21699524-.009765625 .2649994 .016220093 .29699708 .05419922 .30999757 .01322937 .34899903-.009765625 .4059906-.009765625 .44799806-.009765625 .48098756 .0032196046 .5029907 .033233644L.5009918 .038223268M.22599793 .038223268C.19400025 .038223268 .16999817 .061187746 .16999817 .11608887 .16999817 .17997742 .20399475 .2268982 .29100038 .23887635V.07116699C.2679901 .047210695 .24798584 .038223268 .22599793 .038223268Z"/>
+    <path id="font_2_3" d="M.34098817 .46679688C.2789917 .46679688 .23999024 .438797 .20698548 .39782716L.21398926 .4638672C.15299988 .45385743 .07598877 .4318695 .019989014 .4088745V.4058838L.07699585 .3728943V.035995485C.054992677 .024993897 .037994386 .01499939 .019989014 .0029907227V0H.28799439V.0029907227C.2649994 .01499939 .24499512 .024993897 .21798706 .035995485V.38580323C.23399353 .40579225 .2519989 .41578675 .2659912 .41578675 .2709961 .41578675 .2749939 .41479493 .27799989 .41279603L.37399293 .28385926H.3789978C.3869934 .34197999 .3939972 .39497376 .39698792 .45898438 .37599183 .4637909 .35699464 .46679688 .34098817 .46679688Z"/>
+    <path id="font_2_2" d="M.2689972-.0107421879C.40899659-.0107421879 .5099945 .08616638 .5099945 .22802735 .5099945 .3678894 .40899659 .4658203 .2689972 .4658203 .1289978 .4658203 .027999878 .3678894 .027999878 .22802735 .027999878 .08616638 .1289978-.0107421879 .2689972-.0107421879M.2669983 .0052490236C.20599365 .0052490236 .1789856 .06718445 .1789856 .22802735 .1789856 .38787843 .20599365 .45080567 .2689972 .45080567 .33198548 .45080567 .35899354 .38787843 .35899354 .22802735 .35899354 .06918335 .33099366 .0052490236 .2669983 .0052490236Z"/>
+    <path id="font_3_2" d="M.6879883 .074142459 .7529907 .33488465C.7739868 .41583253 .74398806 .46484376 .6879883 .46484376 .6159973 .46484376 .54100039 .39683534 .47898866 .2549591L.49798585 .33488465C.5169983 .4148407 .48999024 .46484376 .43299867 .46484376 .36299134 .46484376 .29299928 .40083314 .23199463 .26794435L.2539978 .35585023C.2689972 .4148407 .23599243 .4628296 .1659851 .4628296 .09899902 .4258423 .04499817 .37583924 .0029907227 .31489564L.005996704 .30889894 .13198853 .37783814 .034988405-.0107421879 .16799927 .010223389 .21598816 .20202637C.28399659 .34786988 .32199098 .37583924 .35299684 .37583924 .36799623 .37583924 .3769989 .362854 .36999513 .33187867L.2899933-.0107421879 .42199708 .009231567 .46598817 .19702149C.5349884 .3468628 .57598879 .37583924 .6069946 .37583924 .6230011 .37583924 .6319885 .362854 .625 .33187867L.55400088 .0501709C.54499819 .015197754 .57598879-.009765625 .621994-.009765625 .6749878-.009765625 .7789917 .085128787 .81199648 .15106201L.80799868 .154068 .6879883 .074142459Z"/>
+    <path id="font_3_1" d="M.397995 .074157718 .49899293 .46484376 .3959961 .43984986C.37599183 .4568329 .34599305 .46484376 .31098939 .46484376 .1499939 .46484376 .015991211 .30395509 .015991211 .12411499 .015991211 .035186769 .049987794-.009765625 .102996829-.009765625 .17599488-.009765625 .24299622 .07015991 .29899598 .1870575L.2639923 .0501709C.25498963 .015213013 .28799439-.009765625 .33198548-.009765625 .3849945-.009765625 .48799134 .08514404 .5209961 .15109253L.5179901 .15408325 .397995 .074157718M.31399537 .24900818C.24499512 .10620117 .20698548 .07823181 .1789856 .07823181 .15699768 .07823181 .14698792 .095214847 .14698792 .13616944 .14698792 .23806763 .21598816 .45083619 .30499269 .45083619 .32899476 .45083619 .34700013 .43286134 .34700013 .37991334L.31399537 .24900818Z"/>
+    <g id="wm" fill="currentColor">
+      <use href="#font_2_1" transform="matrix(178.1224,0,0,-184.8875,49.9609,334.167)"/>
+      <use href="#font_2_3" transform="matrix(178.1224,0,0,-184.8875,138.84398,334.167)"/>
+      <use href="#font_2_2" transform="matrix(178.1224,0,0,-184.8875,211.33982,334.167)"/>
+      <use href="#font_3_2" transform="matrix(178.1224,0,0,-184.8875,307.167,334.167)"/>
+      <use href="#font_3_1" transform="matrix(178.1224,0,0,-184.8875,452.15864,334.167)"/>
+    </g>
+  </defs>
+</svg>
+
+<div class="draft-label">Draft 05</div>
+<nav class="nav" aria-label="주 메뉴">
+  <a href="#archive">아카이브</a>
+  <a href="#news">소식</a>
+  <a href="https://instagram.com/aroma_roastery" target="_blank" rel="noopener">인스타그램</a>
+</nav>
+
+<main>
+  <section class="hero" aria-label="매장 사진">
+    <h1 class="sr">aroma coffee roastery &amp; showroom</h1>
+    <div class="stage">
+      <canvas class="gl" aria-hidden="true"></canvas>
+      <div class="mark" aria-hidden="true"><svg viewBox="45 225 505 110"><use href="#wm"/></svg></div>
+      <p class="cap"><span class="cap-t">핸드드립 바</span></p>
+    </div>
+    <div class="fallback">
+      <div class="fb-mark" aria-hidden="true"><svg viewBox="45 225 505 110"><use href="#wm"/></svg></div>
+      <div class="fb-grid">
+        <figure><img src="../assets/img/photo-barista-pourover-bar.jpg" alt="바에서 핸드드립을 내리는 바리스타와 원두 카드 진열" loading="lazy"><figcaption>핸드드립 바</figcaption></figure>
+        <figure><img src="../assets/img/photo-coffee-pour-cup.jpg" alt="서버에서 잔으로 커피를 따르는 모습" loading="lazy"><figcaption>브루 커피</figcaption></figure>
+        <figure><img src="../assets/img/photo-pourover-dripper-closeup.jpg" alt="드리퍼 근접 사진" loading="lazy"><figcaption>드리퍼</figcaption></figure>
+        <figure><img src="../assets/img/photo-kainamui-card-steam.jpg" alt="김이 나는 서버와 원두 카드" loading="lazy"><figcaption>원두 카드</figcaption></figure>
+        <figure><img src="../assets/img/photo-server-barista-bokeh.jpg" alt="유리 서버와 흐릿한 바리스타" loading="lazy"><figcaption>스페셜티 커피</figcaption></figure>
+        <figure><img src="../assets/img/photo-coffee-tap-bar.jpg" alt="커피 탭이 있는 바" loading="lazy"><figcaption>커피 탭 바</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="brand" aria-label="브랜드 소개">
+    <p><span class="ln"><span>아로마 로스터리는</span></span> <span class="ln"><span>설득력 있는 스페셜티 커피를</span></span> <span class="ln"><span>로스팅 합니다.</span></span></p>
+  </section>
+
+  <section class="visit" id="visit" aria-labelledby="visit-h">
+    <img class="visit-photo" src="../assets/img/photo-barista-pourover-bar.jpg" alt="바에서 핸드드립을 내리는 바리스타와 원두 카드 진열" loading="lazy">
+    <div class="visit-info">
+    <h2 id="visit-h">매장 정보</h2>
+    <dl>
+      <div>
+        <dt>영업시간</dt>
+        <dd class="hours">
+          <span>평일</span><span class="lat">08:00-18:00</span>
+          <span>주말·공휴일</span><span class="lat">12:00-18:00</span>
+        </dd>
+      </div>
+      <div>
+        <dt>주소</dt>
+        <dd>서울시 강서구 마곡중앙8로 5길 63<br>디엠프라자 107호 아로마로스터리</dd>
+        <dd><a class="map" href="https://map.naver.com/p/search/%EC%95%84%EB%A1%9C%EB%A7%88%EB%A1%9C%EC%8A%A4%ED%84%B0%EB%A6%AC" target="_blank" rel="noopener">네이버 지도에서 보기</a></dd>
+      </div>
+    </dl>
+    </div>
+  </section>
+
+  <section class="archive" aria-label="아카이브와 소식">
+    <div id="archive">
+      <div class="head"><h2>아카이브</h2><span class="tag">예시</span></div>
+      <article class="feature">
+        <img src="../assets/img/photo-kainamui-card-steam.jpg" alt="김이 나는 서버와 원두 카드" loading="lazy">
+        <h3 class="entry-t">가을 커핑 세션 기록</h3>
+        <p class="entry-d">2026.09.24</p>
+      </article>
+    </div>
+    <div class="side">
+      <div class="rows">
+        <article class="row">
+          <img src="../assets/img/photo-pourover-dripper-closeup.jpg" alt="드리퍼 근접 사진" loading="lazy">
+          <div><h3 class="entry-t">로스팅 프로파일 노트: 케냐</h3><p class="entry-d">2026.09.10</p></div>
+        </article>
+        <article class="row">
+          <img src="../assets/img/photo-coffee-pour-cup.jpg" alt="서버에서 잔으로 커피를 따르는 모습" loading="lazy">
+          <div><h3 class="entry-t">핸드드립 레시피 기록</h3><p class="entry-d">2026.08.28</p></div>
+        </article>
+      </div>
+      <div id="news">
+        <div class="head"><h2>소식</h2><span class="tag">예시</span></div>
+        <ul class="news">
+          <li><span class="entry-d">2026.10.01</span><span class="entry-t">10월 매장 운영 안내</span></li>
+          <li><span class="entry-d">2026.09.15</span><span class="entry-t">추석 연휴 영업 안내</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div>
+    <div class="f-mark" aria-hidden="true"><svg viewBox="45 225 505 110"><use href="#wm"/></svg></div>
+    <address>서울시 강서구 마곡중앙8로 5길 63 디엠프라자 107호 아로마로스터리<br>평일 08:00-18:00, 주말·공휴일 12:00-18:00</address>
+  </div>
+  <div class="f-links">
+    <a href="https://instagram.com/aroma_roastery" target="_blank" rel="noopener">@aroma_roastery</a>
+    <small>© aroma coffee roastery &amp; showroom</small>
+  </div>
+</footer>
+
+<a class="draft-back" href="../" aria-label="시안 목록으로 돌아가기"><b>05</b>시안 목록</a>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const root = document.documentElement;
+const RM = root.classList.contains('rm');
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- smooth scroll (off under reduced motion) ---------- */
+if (!RM) {
+  const lenis = new Lenis({ lerp: 0.1, anchors: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ---------- the one section entrance: brand sentence lines rise out of their masks ---------- */
+if (!RM) {
+  gsap.from('.brand .ln > span', {
+    yPercent: 105, duration: 1.1, ease: 'expo.out', stagger: 0.1,
+    scrollTrigger: { trigger: '.brand', start: 'top 72%', once: true }
+  });
+}
+
+/* ---------- WebGL photo cylinder ---------- */
+function glOK() {
+  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); }
+  catch (e) { return false; }
+}
+
+if (RM) {
+  window.__cyl = 'static';
+} else if (!glOK() || root.classList.contains('no-gl')) {
+  window.__cyl = 'static';
+  root.classList.add('no-gl');
+} else {
+  try { initCylinder(); window.__cyl = 'gl'; }
+  catch (err) { console.error(err); window.__cyl = 'static'; root.classList.add('no-gl'); }
+}
+if (document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
+
+function initCylinder() {
+  const PHOTOS = [
+    ['photo-barista-pourover-bar.jpg', '핸드드립 바'],
+    ['photo-coffee-pour-cup.jpg', '브루 커피'],
+    ['photo-pourover-dripper-closeup.jpg', '드리퍼'],
+    ['photo-kainamui-card-steam.jpg', '원두 카드'],
+    ['photo-server-barista-bokeh.jpg', '스페셜티 커피'],
+    ['photo-coffee-tap-bar.jpg', '커피 탭 바']
+  ];
+  const N = PHOTOS.length, SLOT = Math.PI * 2 / N;
+  const R = 4.2, PW = 3.0, PH = 4.0;
+  const TAU = Math.PI * 2;
+
+  const stage = document.querySelector('.stage');
+  const canvas = document.querySelector('.gl');
+  const mark = document.querySelector('.mark');
+  const capT = document.querySelector('.cap-t');
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const BG = new THREE.Color(0xDADBD6);
+  renderer.setClearColor(BG, 1);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
+  const group = new THREE.Group();
+  scene.add(group);
+
+  /* one curved panel, bent on the CPU so raycasting matches what is drawn */
+  const geo = new THREE.PlaneGeometry(PW, PH, 48, 1);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const th = pos.getX(i) / R;
+    pos.setXYZ(i, Math.sin(th) * R, pos.getY(i), Math.cos(th) * R);
+  }
+  pos.needsUpdate = true;
+  geo.computeBoundingSphere();
+
+  const vert = /* glsl */`
+    uniform float uBend;
+    uniform float uVel;
+    varying vec2 vUv;
+    varying float vFace;
+    varying float vDist;
+    void main() {
+      vUv = uv;
+      vec4 wp = modelMatrix * vec4(position, 1.0);
+      float ang = atan(wp.x, wp.z);
+      float s = abs(sin(ang));
+      // edge distortion: photos stretch and shear as they swing past the sides, more when moving fast
+      wp.y *= 1.0 + uBend * s * s + abs(uVel) * 0.35 * s;
+      wp.y += uVel * 0.5 * sin(ang) * (uv.x - 0.5);
+      vec3 n = normalize(mat3(modelMatrix) * normalize(vec3(position.x, 0.0, position.z)));
+      vec3 toCam = cameraPosition - wp.xyz;
+      vDist = length(toCam);
+      vFace = abs(dot(n, normalize(toCam)));
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }`;
+  const frag = /* glsl */`
+    uniform sampler2D uMap;
+    uniform float uImgAspect;
+    uniform float uPlaneAspect;
+    uniform float uVel;
+    uniform float uLoaded;
+    uniform float uFog;
+    uniform float uFogNear;
+    uniform float uFogFar;
+    uniform vec3 uBg;
+    varying vec2 vUv;
+    varying float vFace;
+    varying float vDist;
+    void main() {
+      vec2 uv = vUv;
+      if (!gl_FrontFacing) uv.x = 1.0 - uv.x;      // seen from inside the ring: un-mirror
+      vec2 sc = vec2(1.0);
+      if (uImgAspect > uPlaneAspect) sc.x = uPlaneAspect / uImgAspect; else sc.y = uImgAspect / uPlaneAspect;
+      uv = (uv - 0.5) * sc + 0.5;
+      float sh = clamp(uVel, -1.0, 1.0) * 0.012;
+      vec3 col = vec3(
+        texture2D(uMap, uv + vec2(sh, 0.0)).r,
+        texture2D(uMap, uv).g,
+        texture2D(uMap, uv - vec2(sh, 0.0)).b
+      );
+      float face = smoothstep(0.04, 0.7, vFace);
+      float fog = smoothstep(uFogNear, uFogFar, vDist) * uFog;
+      float k = mix(0.12, 1.0, face) * (1.0 - fog * 0.78) * uLoaded;
+      gl_FragColor = vec4(mix(uBg, col, k), 1.0);
+      #include <colorspace_fragment>
+    }`;
+
+  const meshes = [];
+  const loader = new THREE.TextureLoader();
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+  PHOTOS.forEach(([file], i) => {
+    const uniforms = {
+      uMap: { value: null }, uImgAspect: { value: 0.75 }, uPlaneAspect: { value: PW / PH },
+      uBend: { value: 0.1 }, uVel: { value: 0 }, uLoaded: { value: 0 },
+      uFog: { value: 1 }, uFogNear: { value: 10 }, uFogFar: { value: 20 }, uBg: { value: BG }
+    };
+    const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: vert, fragmentShader: frag, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.y = i * SLOT;
+    mesh.userData = { i, hover: 0 };
+    group.add(mesh);
+    meshes.push(mesh);
+    loader.load('../assets/img/' + file, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = Math.min(8, maxAniso);
+      tex.generateMipmaps = true;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      uniforms.uMap.value = tex;
+      uniforms.uImgAspect.value = tex.image.width / tex.image.height;
+      gsap.to(uniforms.uLoaded, { value: 1, duration: 1.0, ease: 'power3.out', delay: i * 0.06 });
+    });
+  });
+
+  /* brand accent: one thin ring under the photos, the four leaf gradients laid round it */
+  const ringGeo = new THREE.CylinderGeometry(R + 0.06, R + 0.06, 0.022, 256, 1, true);
+  const ringMat = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide, transparent: true,
+    uniforms: { uOn: { value: 0 } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: /* glsl */`
+      uniform float uOn;
+      varying vec2 vUv;
+      vec3 seg(vec3 a, vec3 b, float t) { return mix(a, b, t); }
+      void main() {
+        float x = fract(vUv.x) * 4.0;
+        float q = floor(x); float t = fract(x);
+        vec3 c;
+        if (q < 1.0) c = seg(vec3(0.027,0.569,0.231), vec3(0.486,0.765,0.416), t);       // green
+        else if (q < 2.0) c = seg(vec3(0.929,0.745,0.0), vec3(0.984,0.890,0.627), t);    // yellow
+        else if (q < 3.0) c = seg(vec3(0.855,0.286,0.078), vec3(0.937,0.439,0.0), t);    // orange
+        else c = seg(vec3(0.757,0.004,0.063), vec3(0.918,0.275,0.035), t);               // red
+        gl_FragColor = vec4(c, uOn);
+      }`
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.position.y = -PH / 2 - 0.32;
+  group.add(ring);
+
+  /* ---------- sizing ---------- */
+  let W = 1, H = 1, outDist = 16;
+  const tHalf = (deg) => Math.tan(THREE.MathUtils.degToRad(deg / 2));
+  function resize() {
+    W = stage.clientWidth; H = stage.clientHeight;
+    renderer.setSize(W, H, false);
+    camera.aspect = W / H;
+    const needH = Math.max(PH / 0.62, (PW / 0.8) / camera.aspect);
+    outDist = needH / (2 * tHalf(30)) + R;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ---------- state ---------- */
+  const st = { p: 0, intro: 1, markIn: 0 };
+  let drift = 0, dragRot = 0, dragVel = 0, dragging = false, lastX = 0;
+  let mouseT = 0, mouseC = 0, prevRot = null, vel = 0, active = -1;
+  let visible = true;
+
+  // smooth staircase: the ring dwells with one photo facing front, then sweeps to the next
+  function stair(x) {
+    const s = x / SLOT, n = Math.floor(s), f = s - n;
+    return (n + f - Math.sin(TAU * f) / TAU * 0.9) * SLOT;
+  }
+  const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  // pinned, scrubbed scroll: one full turn of the ring, then the camera dollies inside it
+  gsap.to(st, {
+    p: 1, ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: '+=320%', pin: '.stage', scrub: 1, invalidateOnRefresh: true }
+  });
+  // load moment: the ring spins into place while the photos fade up
+  gsap.to(st, { intro: 0, duration: 2.4, ease: 'expo.out', delay: 0.15 });
+  gsap.to(ringMat.uniforms.uOn, { value: 1, duration: 1.2, ease: 'power3.out', delay: 0.9 });
+  gsap.to(st, { markIn: 1, duration: 1.2, ease: 'power3.out', delay: 0.5 });
+
+  new IntersectionObserver((ents) => { visible = ents[0].isIntersecting; }, { rootMargin: '80px' }).observe(stage);
+
+  /* ---------- pointer: drag inertia, mouse X, hover ---------- */
+  const ray = new THREE.Raycaster();
+  const ndc = new THREE.Vector2(9, 9);
+  stage.addEventListener('pointerdown', (e) => {
+    dragging = true; lastX = e.clientX; dragVel = 0; stage.classList.add('is-drag');
+  });
+  window.addEventListener('pointermove', (e) => {
+    const r = stage.getBoundingClientRect();
+    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    if (e.pointerType === 'mouse') mouseT = ((e.clientX - r.left) / r.width - 0.5) * 0.3;
+    if (dragging) {
+      const dx = e.clientX - lastX; lastX = e.clientX;
+      const k = 3.2 / Math.max(W, 1);
+      dragRot += dx * k; dragVel = dx * k;
+    }
+  });
+  const endDrag = () => { if (!dragging) return; dragging = false; stage.classList.remove('is-drag'); };
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+  stage.addEventListener('pointerleave', () => { ndc.set(9, 9); mouseT = 0; });
+
+  function setCaption(i) {
+    if (i === active) return;
+    const first = active === -1;
+    active = i;
+    if (first) { capT.textContent = PHOTOS[i][1]; return; }
+    gsap.killTweensOf(capT);
+    gsap.to(capT, {
+      opacity: 0, y: -10, duration: 0.25, ease: 'power3.in',
+      onComplete: () => {
+        capT.textContent = PHOTOS[i][1];
+        gsap.fromTo(capT, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out' });
+      }
+    });
+  }
+
+  const look = new THREE.Vector3();
+  function frame(time, dt) {
+    if (!visible) return;
+    const sec = Math.min(dt / 1000, 0.05);
+
+    // rotation: scroll turn + slow drift, snapped by the staircase; drag inertia and mouse on top
+    drift += sec * 0.11;
+    if (!dragging) {
+      dragRot += dragVel; dragVel *= 0.93;
+      if (Math.abs(dragVel) < 0.0015) dragRot += (Math.round(dragRot / SLOT) * SLOT - dragRot) * 0.05;
+    }
+    mouseC += (mouseT - mouseC) * 0.075;
+    const raw = -st.p * TAU - drift;
+    const rot = stair(raw) + dragRot + mouseC - st.intro * 1.6;
+    group.rotation.y = rot;
+    if (prevRot !== null && sec > 0) vel += (((rot - prevRot) / sec) - vel) * 0.15;
+    prevRot = rot;
+    const v = Math.max(-1, Math.min(1, vel * 0.35));
+
+    // camera: outside the ring, then a dolly through the front wall to the centre
+    const d = smooth(0.58, 0.98, st.p);
+    const de = d * d * (3 - 2 * d);
+    const camZ = lerp(outDist, 0.4, de);
+    camera.position.set(lerp(mouseC * 1.2, 0, de), lerp(0.55, 0, de), camZ);
+    camera.fov = lerp(30, 58, de);
+    camera.updateProjectionMatrix();
+    look.set(0, 0, lerp(0, -R, de));
+    camera.lookAt(look);
+
+    // wordmark: holds over the ring, then lifts away as the camera enters
+    const mo = (1 - smooth(0.0, 0.45, d)) * st.markIn;
+    mark.style.opacity = mo;
+    mark.style.transform = `translate(-50%, -54%) scale(${1 + d * 0.5})`;
+    mark.style.visibility = mo < 0.01 ? 'hidden' : 'visible';
+
+    // hover: the photo under the pointer lifts slightly
+    ray.setFromCamera(ndc, camera);
+    const hit = dragging ? null : ray.intersectObjects(meshes, false)[0];
+    const fogNear = Math.abs(camZ) + R * 0.2, fogFar = Math.abs(camZ) + R * 1.9;
+    meshes.forEach((m) => {
+      const target = hit && hit.object === m ? 1 : 0;
+      m.userData.hover += (target - m.userData.hover) * 0.12;
+      m.scale.setScalar(1 + m.userData.hover * 0.045);
+      const u = m.material.uniforms;
+      u.uVel.value = v; u.uFog.value = 1 - de; u.uFogNear.value = fogNear; u.uFogFar.value = fogFar;
+    });
+
+    // the photo facing the camera owns the caption (front when outside, back wall when inside)
+    const target = camZ > R * 0.5 ? 0 : Math.PI;
+    let best = 0, bestD = 9;
+    for (let i = 0; i < N; i++) {
+      const dd = Math.abs(wrap(i * SLOT + rot - target));
+      if (dd < bestD) { bestD = dd; best = i; }
+    }
+    setCaption(best);
+
+    renderer.render(scene, camera);
+  }
+  gsap.ticker.add(frame);
+}
+</script>
+<script>
+  // store photo opens from its anchored left edge as the section scrolls in (scrubbed, no slide)
+  (function () {
+    var img = document.querySelector('.visit-photo');
+    if (!img || !window.gsap || !window.ScrollTrigger) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.fromTo(img, { clipPath: 'inset(0 100% 0 0)' }, {
+      clipPath: 'inset(0 0% 0 0)', ease: 'none',
+      scrollTrigger: { trigger: '.visit', start: 'top 85%', end: 'top 25%', scrub: 0.8 }
+    });
+  })();
+</script>
+</body>
+</html>

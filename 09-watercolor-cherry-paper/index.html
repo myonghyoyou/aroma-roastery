@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="ko" class="locked">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aroma roastery · Draft 09</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=EB+Garamond:ital,wght@0,400..600;1,400..500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --paper:#ECECE5;      /* cold-press cotton, cool, not cream */
+  --card:#F8F7F2;       /* tasting-card stock */
+  --ink:#33261F;        /* sepia umber ink */
+  --ink-2:#5F574F;      /* graphite, 5.9:1 on paper even under the paper tooth */
+  --rule:rgba(51,38,31,.18);
+  --ease:cubic-bezier(.16, 1, .3, 1);
+  --ko:"Gowun Batang", serif;
+  /* serif on purpose: the aroma wordmark is a serif (Mixta) and this draft is a printed
+     watercolor specimen card. EB Garamond shares Gowun Batang's brushed stroke contrast. */
+  --latin:"EB Garamond", "Gowun Batang", serif;
+  --p:150px; --cw:360px; --ch:520px; --cherry:340px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html.lenis, html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-stopped{overflow:hidden}
+html.locked, html.locked body{overflow:hidden}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--ko); font-size:17px; line-height:1.8;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+/* paper tooth over everything, multiplied */
+body::after{
+  content:""; position:fixed; inset:0; z-index:40; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.04' numOctaves='5' seed='4' stitchTiles='stitch'/%3E%3CfeDiffuseLighting lighting-color='%23fff' surfaceScale='1.3'%3E%3CfeDistantLight azimuth='135' elevation='62'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply; opacity:.42;
+}
+a{color:inherit}
+:focus-visible{outline:1.5px solid var(--ink);outline-offset:4px}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.draft{
+  position:fixed; top:14px; left:16px; z-index:60;
+  font:400 12px/1 var(--latin); letter-spacing:.03em; color:var(--ink-2);
+}
+
+/* ---------- stage ---------- */
+.story{position:relative}
+.stage{position:relative; height:100vh; height:100svh; overflow:hidden; background:var(--paper)}
+.layer{position:absolute; inset:0; pointer-events:none}
+.piece{
+  position:absolute; left:50%; top:50%;
+  width:var(--p); height:var(--p); margin:calc(var(--p) / -2) 0 0 calc(var(--p) / -2);
+  visibility:hidden; will-change:transform,opacity; mix-blend-mode:multiply;
+}
+.wc{width:100%;height:100%;display:block}
+.wc svg, .wc img{width:100%;height:100%;display:block;overflow:visible;object-fit:contain}
+
+.drop{
+  position:absolute; left:50%; top:50%; border-radius:50%;
+  background:radial-gradient(circle, var(--c) 0 50%, color-mix(in srgb, var(--c) 68%, #1a0d08) 62%, transparent 70%);
+  opacity:.88; mix-blend-mode:multiply; will-change:transform;
+}
+.drop.landed{opacity:.34; border-radius:46% 54% 50% 50% / 55% 45% 55% 45%; transition:opacity 2.4s var(--ease), transform .3s var(--ease)}
+
+.cherry{
+  position:absolute; left:50%; top:50%; z-index:5;
+  width:var(--cherry); height:var(--cherry);
+  margin:calc(var(--cherry) / -2) 0 0 calc(var(--cherry) / -2);
+  background:none; border:0; cursor:pointer; color:inherit;
+  -webkit-tap-highlight-color:transparent;
+}
+.cherry{mix-blend-mode:multiply}
+.cherry-body{width:100%;height:100%;transform-origin:52% 8%;will-change:transform}
+.cherry:focus-visible{outline-offset:-10px;border-radius:50%}
+
+.hint{
+  position:absolute; left:0; right:0; text-align:center; z-index:6;
+  top:calc(50% + var(--cherry) / 2 + 8px);
+  font-size:15px; letter-spacing:.02em; color:var(--ink-2);
+  opacity:0; transition:opacity .9s var(--ease); pointer-events:none;
+}
+.hint.show{opacity:1}
+/* feedback when someone scrolls before clicking: a small lift, transform only */
+.hint.pulse{animation:pulse .4s var(--ease)}
+@keyframes pulse{35%{transform:translateY(-4px)}}
+
+/* ---------- paper tasting card ---------- */
+.card{
+  position:absolute; left:50%; top:50%;
+  width:var(--cw); height:var(--ch);
+  margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);
+  visibility:hidden; will-change:transform,opacity;
+}
+.card::before{content:""; position:absolute; inset:0; background:var(--card); filter:url(#deckle)}
+.card-art{position:absolute; left:7%; right:7%; top:4%; height:46%}
+.card-text{position:absolute; left:9%; right:9%; top:54%; bottom:7%; display:flex; flex-direction:column; justify-content:flex-end}
+.card-country{font:500 13px/1 var(--latin); letter-spacing:.24em; color:var(--ink-2)}
+.card-bean{
+  font-family:var(--latin); font-style:italic; font-weight:400;
+  font-size:clamp(38px, 10vw, 56px); line-height:1.1; letter-spacing:-.01em;
+  margin:.16em 0 .45em; padding-bottom:.06em;
+}
+.card-flavors{
+  list-style:none; display:flex; flex-wrap:wrap; gap:.1em 1em;
+  border-top:1px dashed var(--rule); padding-top:.9em; font-size:15px; line-height:1.7;
+}
+
+/* ---------- calm sections ---------- */
+.calm{position:relative; z-index:2; background:var(--paper)}
+.sym{display:block; height:auto}
+/* short lead-in: the sentence arrives right after the Buncho card leaves the stage */
+.brand{padding:10vh 8vw 16vh; max-width:1320px; margin:0 auto}
+.brand .sym{width:58px; margin-bottom:44px}
+.brand p{
+  font-size:clamp(27px, 4.3vw, 62px); line-height:1.5; letter-spacing:-.025em;
+  max-width:15.5em; word-break:keep-all;
+}
+/* store: photo is a full-bleed half pinned to the left edge and fills the section height.
+   The text block sits on the same bottom line as the photo (align-items:end). */
+.store{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:end;
+  min-height:min(92vh, 960px);
+}
+.store figure{position:relative; align-self:stretch; min-height:min(92vh, 960px); overflow:hidden}
+.store figure img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block}
+.store-info{padding:0 8vw 0 6vw; max-width:660px}
+.store h2, .archive h2{font-weight:400; font-size:clamp(26px, 2.8vw, 38px); letter-spacing:-.02em; margin-bottom:1.1em}
+.eg{font-size:14px; letter-spacing:0; color:var(--ink-2); margin-left:.7em; vertical-align:middle}
+.info{display:grid; grid-template-columns:7em 1fr; border-top:1px solid var(--rule)}
+.info dt, .info dd{padding:18px 0; border-bottom:1px solid var(--rule)}
+.info dt{color:var(--ink-2); font-size:14px; padding-top:21px}
+.info dd{word-break:keep-all}
+.info .latin{font-family:var(--latin); font-variant-numeric:tabular-nums}
+
+.archive{padding:16vh 8vw 18vh; max-width:1320px; margin:0 auto}
+.arc{list-style:none; border-top:1px solid var(--rule)}
+.arc li{
+  display:grid; grid-template-columns:8.5em minmax(0,1fr) 5em 132px; gap:2.4vw; align-items:center;
+  padding:20px 0; border-bottom:1px solid var(--rule);
+}
+.arc time{font-family:var(--latin); font-size:16px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.arc .t{font-size:clamp(19px, 1.7vw, 24px); letter-spacing:-.015em; word-break:keep-all}
+.arc .k{font-size:13px; color:var(--ink-2)}
+.arc img{width:132px; height:88px; object-fit:cover; display:block; filter:saturate(.85)}
+
+.foot{padding:12vh 8vw 40px; max-width:1320px; margin:0 auto; font-size:14px; color:var(--ink-2)}
+.foot-top{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:6vw; align-items:start; padding-bottom:10vh}
+.foot .mark{display:flex; align-items:center; gap:16px; color:var(--ink)}
+.foot .mark .sym{width:44px}
+.foot .mark .wm{width:96px; height:auto; display:block}
+.foot ul{list-style:none}
+.foot li{margin-bottom:6px}
+.foot a{text-decoration:none; display:inline-flex; align-items:center; min-height:44px; margin:-10px 0}
+.foot a:hover{color:var(--ink); text-decoration:underline; text-underline-offset:4px}
+.foot small{display:block; font-size:12px; border-top:1px solid var(--rule); padding-top:18px}
+
+/* ---------- responsive ---------- */
+@media (max-width: 760px){
+  body{font-size:16px}
+  .store{grid-template-columns:1fr; min-height:0}
+  .store figure{min-height:0; aspect-ratio:4/5; max-height:72vh}
+  .store-info{padding:40px 6vw 0}
+  .info{grid-template-columns:5.5em 1fr}
+  .arc li{grid-template-columns:minmax(0,1fr) 88px; gap:6px 16px}
+  .arc time{grid-row:1; grid-column:1; font-size:13px}
+  .arc .t{grid-row:2; grid-column:1}
+  .arc .k{grid-row:3; grid-column:1}
+  .arc img{grid-row:1 / span 3; grid-column:2; width:88px; height:72px}
+  .foot-top{grid-template-columns:1fr 1fr; gap:36px}
+  .foot .mark{grid-column:1 / -1}
+}
+
+/* ---------- reduced motion (static composition) ---------- */
+html.rm, html.rm body{overflow:auto}
+.rm .stage{height:auto; overflow:visible; display:flex; flex-direction:column; align-items:center; gap:12vh; padding:16vh 0 8vh; background:none}
+.rm .cherry{position:relative; left:auto; top:auto; margin:0; cursor:default}
+.rm .hint, .rm .layer{display:none}
+.rm #cards{display:contents}
+.rm .card{position:relative; left:auto; top:auto; margin:0; visibility:visible; opacity:0; transition:opacity 1.2s var(--ease)}
+.rm .card.in{opacity:1}
+.rm .card-art{display:flex; flex-wrap:wrap; justify-content:center; align-content:center; gap:0}
+.rm .card-art .wc{width:31%; height:auto; aspect-ratio:1; mix-blend-mode:multiply}
+
+  /* ---------- draft chrome (review pass 2) ----------
+     The draft label used to stay fixed and slid over the content. It now scrolls away with
+     the page; the only fixed control is the way back to the
+     draft list in the bottom-right corner. */
+  .draft { position: absolute !important; }
+  .draft-back {
+    position: fixed; right: 16px; bottom: 16px; z-index: 9999;
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px;
+    font: 500 13px/1 "Pretendard Variable", Pretendard, system-ui, sans-serif; letter-spacing: 0;
+    color: #F4EEE6; background: rgba(24, 18, 14, .9); border: 1px solid rgba(244, 238, 230, .16);
+    border-radius: 999px; text-decoration: none; box-shadow: 0 6px 24px rgba(24, 18, 14, .22);
+    transition: background-color .25s cubic-bezier(.16, 1, .3, 1), transform .25s cubic-bezier(.16, 1, .3, 1);
+  }
+  .draft-back b { font-weight: 700; font-variant-numeric: tabular-nums; opacity: .62; }
+  .draft-back:hover { background: rgba(24, 18, 14, 1); }
+  .draft-back:active { transform: translateY(1px); }
+  .draft-back:focus-visible { outline: 2px solid #F4EEE6; outline-offset: 3px; }
+  @media (max-width: 640px) { .draft-back { right: 12px; bottom: 12px; } }
+  @media (prefers-reduced-motion: reduce) { .draft-back { transition: none; } }
+
+  /* ---------- archive alignment (review pass 2) ----------
+     Heading and sample tag share one centre line, list rows centre their columns and the
+     card grids start on one top line with one image ratio. Desktop only, so the existing
+     mobile layouts keep their own rules. */
+  @media (min-width: 900px) {
+    .eg { font-size: 12px !important; line-height: 1 !important; padding: 5px 8px !important; border: 1px solid currentColor !important; border-radius: 2px; transform: none !important; margin: 0 !important; vertical-align: middle; white-space: nowrap; margin-left: .7em !important; }
+    .arc time { font-size: 15px; }
+    .arc .k { font-size: 14px; }
+  }
+
+  /* keep the last footer line clear of the fixed back-to-drafts button */
+  footer::after { content: ""; display: block; height: 64px; }
+</style>
+</head>
+<body>
+
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="g-green" gradientUnits="userSpaceOnUse" x1="0" y1="287" x2="0" y2="241"><stop offset="0" stop-color="#07913B"/><stop offset="1" stop-color="#7CC36A"/></linearGradient>
+    <linearGradient id="g-yellow" gradientUnits="userSpaceOnUse" x1="0" y1="283" x2="0" y2="259"><stop offset="0" stop-color="#EDBE00"/><stop offset="1" stop-color="#FBE3A0"/></linearGradient>
+    <linearGradient id="g-red" gradientUnits="userSpaceOnUse" x1="0" y1="226" x2="0" y2="193"><stop offset="0" stop-color="#C10110"/><stop offset="1" stop-color="#EA4609"/></linearGradient>
+    <linearGradient id="g-orange" gradientUnits="userSpaceOnUse" x1="0" y1="233" x2="0" y2="201"><stop offset="0" stop-color="#DA4914"/><stop offset="1" stop-color="#EF7000"/></linearGradient>
+
+    <!-- watercolor wash: ragged displaced edge + darker pigment rim + granulation -->
+    <filter id="wcA" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".032" numOctaves="3" seed="3" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="1" result="s"/>
+      <feMorphology in="s" operator="erode" radius="2.2" result="e"/>
+      <feComposite in="s" in2="e" operator="out" result="rim"/>
+      <feGaussianBlur in="rim" stdDeviation=".7" result="rb"/>
+      <feComponentTransfer in="rb" result="rd"><feFuncR type="linear" slope=".62"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".6"/><feFuncA type="linear" slope=".85"/></feComponentTransfer>
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="11" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.1 0 0 0 1.38" result="ga"/>
+      <feComposite in="s" in2="ga" operator="in" result="gr"/>
+      <feComponentTransfer in="gr" result="body"><feFuncA type="linear" slope=".8"/></feComponentTransfer>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="rd"/></feMerge>
+    </filter>
+    <filter id="wcB" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".028" numOctaves="3" seed="5" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="11" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation=".9" result="s"/>
+      <feMorphology in="s" operator="erode" radius="1.8" result="e"/>
+      <feComposite in="s" in2="e" operator="out" result="rim"/>
+      <feGaussianBlur in="rim" stdDeviation=".6" result="rb"/>
+      <feComponentTransfer in="rb" result="rd"><feFuncR type="linear" slope=".66"/><feFuncG type="linear" slope=".6"/><feFuncB type="linear" slope=".62"/><feFuncA type="linear" slope=".8"/></feComponentTransfer>
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="17" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.1 0 0 0 1.38" result="ga"/>
+      <feComposite in="s" in2="ga" operator="in" result="gr"/>
+      <feComponentTransfer in="gr" result="body"><feFuncA type="linear" slope=".82"/></feComponentTransfer>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="rd"/></feMerge>
+    </filter>
+    <filter id="wcC" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="3" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation=".8" result="s"/>
+      <feMorphology in="s" operator="erode" radius="1.5" result="e"/>
+      <feComposite in="s" in2="e" operator="out" result="rim"/>
+      <feComponentTransfer in="rim" result="rd"><feFuncR type="linear" slope=".6"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".6"/><feFuncA type="linear" slope=".8"/></feComponentTransfer>
+      <feComponentTransfer in="s" result="body"><feFuncA type="linear" slope=".85"/></feComponentTransfer>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="rd"/></feMerge>
+    </filter>
+    <filter id="wcSoft" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="21" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="10" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="2.4"/>
+    </filter>
+    <filter id="wcBleed" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="3" seed="2" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="24" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="7"/>
+    </filter>
+    <filter id="wcLine" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="13" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation=".35"/>
+    </filter>
+    <filter id="wcFine" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="2" seed="29" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation=".4" result="s"/>
+      <feMorphology in="s" operator="erode" radius=".9" result="e"/>
+      <feComposite in="s" in2="e" operator="out" result="rim"/>
+      <feComponentTransfer in="rim" result="rd"><feFuncR type="linear" slope=".6"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".6"/></feComponentTransfer>
+      <feComponentTransfer in="s" result="body"><feFuncA type="linear" slope=".85"/></feComponentTransfer>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="rd"/></feMerge>
+    </filter>
+    <!-- deckle edge for paper card and pasted photo -->
+    <filter id="deckle" x="-6%" y="-6%" width="112%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="3" seed="9" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feDropShadow in="d" dx="0" dy="8" stdDeviation="10" flood-color="#3a2a1f" flood-opacity=".13"/>
+    </filter>
+  </defs>
+</svg>
+
+<p class="draft">Draft 09</p>
+
+<main>
+  <h1 class="sr">아로마 로스터리</h1>
+  <section class="story" id="story" aria-label="커피 체리 이야기">
+    <div class="stage" id="stage">
+      <div class="layer" id="fxStains"></div>
+      <div class="layer" id="cards">
+        <article class="card" aria-label="COLOMBIA POTOSI">
+          <div class="card-art"></div>
+          <div class="card-text">
+            <p class="card-country">COLOMBIA</p>
+            <h3 class="card-bean">POTOSI</h3>
+            <ul class="card-flavors"><li>석류</li><li>체리콕</li><li>와인</li><li>초콜릿</li><li>라벤더</li></ul>
+          </div>
+        </article>
+        <article class="card" aria-label="KENYA Kainamui">
+          <div class="card-art"></div>
+          <div class="card-text">
+            <p class="card-country">KENYA</p>
+            <h3 class="card-bean">Kainamui</h3>
+            <ul class="card-flavors"><li>키위</li><li>시트러스</li><li>석류</li></ul>
+          </div>
+        </article>
+        <article class="card" aria-label="ETHIOPIA Buncho">
+          <div class="card-art"></div>
+          <div class="card-text">
+            <p class="card-country">ETHIOPIA</p>
+            <h3 class="card-bean">Buncho</h3>
+            <ul class="card-flavors"><li>말린 무화과</li><li>복숭아</li><li>자두</li></ul>
+          </div>
+        </article>
+      </div>
+      <div class="layer" id="pieces"></div>
+      <div class="layer" id="fx"></div>
+      <button class="cherry" id="cherry" type="button" aria-label="커피 체리 터뜨리기"><div class="cherry-body" id="cherryBody"></div></button>
+      <p class="hint" id="hint">체리를 눌러 보세요</p>
+    </div>
+  </section>
+
+  <div class="calm" id="calm">
+    <section class="brand" aria-label="브랜드">
+      <svg class="sym" viewBox="190 68 216 144" aria-hidden="true"><path class="leaf leaf-yellow" fill="url(#g-yellow)" transform="matrix(1,0,0,-1,0,391)" d="M257.576 269.676 315.66 184.595C365.022 194.261 402.588 243.485 402.588 302.755 402.588 308.988 402.646 313.32 402.09 318.37 369.444 318.342 313.241 311.232 257.576 269.676"/><path class="leaf leaf-green" fill="url(#g-green)" transform="matrix(1,0,0,-1,0,391)" d="M193.167 302.755C193.167 236.546 240.047 182.874 297.878 182.874 329.436 182.874 357.737 198.861 376.935 224.144 362.784 238.038 343.765 254.703 318.476 273.582 275.19 305.895 227.832 316.903 194.282 320.306 193.548 314.577 193.167 308.717 193.167 302.755"/><path class="leaf leaf-orange" fill="url(#g-orange)" transform="matrix(1,0,0,-1,0,391)" d="M249.764 217.698 270.769 186.93C279.415 184.284 288.503 182.874 297.878 182.874 344.438 182.874 383.901 217.669 397.514 265.783 365.966 265.376 304.593 258.629 249.764 217.698"/><path class="leaf leaf-red" fill="url(#g-red)" transform="matrix(1,0,0,-1,0,391)" d="M297.878 182.874C315.54 182.874 332.177 187.878 346.773 196.719 338.352 203.739 328.95 211.18 318.476 219 276.931 250.014 231.626 261.402 198.386 265.276 212.131 217.423 251.48 182.874 297.878 182.874"/></svg>
+      <p>아로마 로스터리는 설득력 있는 스페셜티 커피를 로스팅 합니다.</p>
+    </section>
+
+    <section class="store" id="store" aria-labelledby="store-h">
+      <figure class="store-photo" id="storePhoto">
+        <img src="../assets/img/photo-barista-pourover-bar.jpg" alt="바리스타가 핸드드립을 내리는 매장의 바" loading="lazy">
+      </figure>
+      <div class="store-info">
+        <h2 id="store-h">매장 정보</h2>
+        <dl class="info">
+          <dt>영업시간</dt><dd>평일 <span class="latin">08:00-18:00</span><br>주말·공휴일 <span class="latin">12:00-18:00</span></dd>
+          <dt>주소</dt><dd>서울시 강서구 마곡중앙8로 5길 63<br>디엠프라자 107호 아로마로스터리</dd>
+          <dt>인스타그램</dt><dd><a href="https://instagram.com/aroma_roastery" target="_blank" rel="noopener" class="latin">@aroma_roastery</a></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="archive" id="archive" aria-labelledby="arc-h">
+      <h2 id="arc-h">아카이브와 소식<span class="eg">예시</span></h2>
+      <ul class="arc">
+        <li><time datetime="2026-10-01">2026.10.01</time><span class="t">10월 매장 운영 안내</span><span class="k">소식</span><img src="../assets/img/photo-server-barista-bokeh.jpg" alt="" loading="lazy"></li>
+        <li><time datetime="2026-09-27">2026.09.27</time><span class="t">가을 커핑 세션 기록</span><span class="k">아카이브</span><img src="../assets/img/photo-pourover-dripper-closeup.jpg" alt="" loading="lazy"></li>
+        <li><time datetime="2026-09-15">2026.09.15</time><span class="t">로스팅 프로파일 노트: 케냐</span><span class="k">아카이브</span><img src="../assets/img/photo-kainamui-card-steam.jpg" alt="" loading="lazy"></li>
+        <li><time datetime="2026-09-02">2026.09.02</time><span class="t">배치 브루 커피 운영 안내</span><span class="k">소식</span><img src="../assets/img/photo-coffee-tap-bar.jpg" alt="" loading="lazy"></li>
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <div class="foot-top">
+        <div class="mark">
+          <svg class="sym" viewBox="190 68 216 144" aria-hidden="true"><path class="leaf leaf-yellow" fill="url(#g-yellow)" transform="matrix(1,0,0,-1,0,391)" d="M257.576 269.676 315.66 184.595C365.022 194.261 402.588 243.485 402.588 302.755 402.588 308.988 402.646 313.32 402.09 318.37 369.444 318.342 313.241 311.232 257.576 269.676"/><path class="leaf leaf-green" fill="url(#g-green)" transform="matrix(1,0,0,-1,0,391)" d="M193.167 302.755C193.167 236.546 240.047 182.874 297.878 182.874 329.436 182.874 357.737 198.861 376.935 224.144 362.784 238.038 343.765 254.703 318.476 273.582 275.19 305.895 227.832 316.903 194.282 320.306 193.548 314.577 193.167 308.717 193.167 302.755"/><path class="leaf leaf-orange" fill="url(#g-orange)" transform="matrix(1,0,0,-1,0,391)" d="M249.764 217.698 270.769 186.93C279.415 184.284 288.503 182.874 297.878 182.874 344.438 182.874 383.901 217.669 397.514 265.783 365.966 265.376 304.593 258.629 249.764 217.698"/><path class="leaf leaf-red" fill="url(#g-red)" transform="matrix(1,0,0,-1,0,391)" d="M297.878 182.874C315.54 182.874 332.177 187.878 346.773 196.719 338.352 203.739 328.95 211.18 318.476 219 276.931 250.014 231.626 261.402 198.386 265.276 212.131 217.423 251.48 182.874 297.878 182.874"/></svg>
+          <svg class="wm" viewBox="45 225 505 110" role="img" aria-label="aroma"><defs><path id="wm9_a" d="M.5009918 .038223268C.4889984 .033218385 .47799684 .031219483 .46899415 .031219483 .44799806 .031219483 .43199159 .045196535 .43199159 .076156619V.30186463C.43199159 .39782716 .375 .4658203 .23098755 .4658203 .17199707 .4658203 .114990238 .45481874 .06199646 .43481446 .06498718 .37983705 .068984989 .33984376 .07598877 .28186036H.08099365L.20098877 .44281007C.20899964 .44781495 .21899414 .45080567 .22999573 .45080567 .2679901 .45080567 .29100038 .41581727 .29100038 .33885194V.2548828C.10899353 .24087525 .0309906 .18995667 .0309906 .10211182 .0309906 .032226564 .07998657-.009765625 .15699768-.009765625 .21699524-.009765625 .2649994 .016220093 .29699708 .05419922 .30999757 .01322937 .34899903-.009765625 .4059906-.009765625 .44799806-.009765625 .48098756 .0032196046 .5029907 .033233644L.5009918 .038223268M.22599793 .038223268C.19400025 .038223268 .16999817 .061187746 .16999817 .11608887 .16999817 .17997742 .20399475 .2268982 .29100038 .23887635V.07116699C.2679901 .047210695 .24798584 .038223268 .22599793 .038223268Z"/><path id="wm9_r" d="M.34098817 .46679688C.2789917 .46679688 .23999024 .438797 .20698548 .39782716L.21398926 .4638672C.15299988 .45385743 .07598877 .4318695 .019989014 .4088745V.4058838L.07699585 .3728943V.035995485C.054992677 .024993897 .037994386 .01499939 .019989014 .0029907227V0H.28799439V.0029907227C.2649994 .01499939 .24499512 .024993897 .21798706 .035995485V.38580323C.23399353 .40579225 .2519989 .41578675 .2659912 .41578675 .2709961 .41578675 .2749939 .41479493 .27799989 .41279603L.37399293 .28385926H.3789978C.3869934 .34197999 .3939972 .39497376 .39698792 .45898438 .37599183 .4637909 .35699464 .46679688 .34098817 .46679688Z"/><path id="wm9_o" d="M.2689972-.0107421879C.40899659-.0107421879 .5099945 .08616638 .5099945 .22802735 .5099945 .3678894 .40899659 .4658203 .2689972 .4658203 .1289978 .4658203 .027999878 .3678894 .027999878 .22802735 .027999878 .08616638 .1289978-.0107421879 .2689972-.0107421879M.2669983 .0052490236C.20599365 .0052490236 .1789856 .06718445 .1789856 .22802735 .1789856 .38787843 .20599365 .45080567 .2689972 .45080567 .33198548 .45080567 .35899354 .38787843 .35899354 .22802735 .35899354 .06918335 .33099366 .0052490236 .2669983 .0052490236Z"/><path id="wm9_m" d="M.6879883 .074142459 .7529907 .33488465C.7739868 .41583253 .74398806 .46484376 .6879883 .46484376 .6159973 .46484376 .54100039 .39683534 .47898866 .2549591L.49798585 .33488465C.5169983 .4148407 .48999024 .46484376 .43299867 .46484376 .36299134 .46484376 .29299928 .40083314 .23199463 .26794435L.2539978 .35585023C.2689972 .4148407 .23599243 .4628296 .1659851 .4628296 .09899902 .4258423 .04499817 .37583924 .0029907227 .31489564L.005996704 .30889894 .13198853 .37783814 .034988405-.0107421879 .16799927 .010223389 .21598816 .20202637C.28399659 .34786988 .32199098 .37583924 .35299684 .37583924 .36799623 .37583924 .3769989 .362854 .36999513 .33187867L.2899933-.0107421879 .42199708 .009231567 .46598817 .19702149C.5349884 .3468628 .57598879 .37583924 .6069946 .37583924 .6230011 .37583924 .6319885 .362854 .625 .33187867L.55400088 .0501709C.54499819 .015197754 .57598879-.009765625 .621994-.009765625 .6749878-.009765625 .7789917 .085128787 .81199648 .15106201L.80799868 .154068 .6879883 .074142459Z"/><path id="wm9_a2" d="M.397995 .074157718 .49899293 .46484376 .3959961 .43984986C.37599183 .4568329 .34599305 .46484376 .31098939 .46484376 .1499939 .46484376 .015991211 .30395509 .015991211 .12411499 .015991211 .035186769 .049987794-.009765625 .102996829-.009765625 .17599488-.009765625 .24299622 .07015991 .29899598 .1870575L.2639923 .0501709C.25498963 .015213013 .28799439-.009765625 .33198548-.009765625 .3849945-.009765625 .48799134 .08514404 .5209961 .15109253L.5179901 .15408325 .397995 .074157718M.31399537 .24900818C.24499512 .10620117 .20698548 .07823181 .1789856 .07823181 .15699768 .07823181 .14698792 .095214847 .14698792 .13616944 .14698792 .23806763 .21598816 .45083619 .30499269 .45083619 .32899476 .45083619 .34700013 .43286134 .34700013 .37991334L.31399537 .24900818Z"/></defs><g fill="currentColor"><use href="#wm9_a" transform="matrix(178.1224,0,0,-184.8875,49.9609,334.167)"/><use href="#wm9_r" transform="matrix(178.1224,0,0,-184.8875,138.84398,334.167)"/><use href="#wm9_o" transform="matrix(178.1224,0,0,-184.8875,211.33982,334.167)"/><use href="#wm9_m" transform="matrix(178.1224,0,0,-184.8875,307.167,334.167)"/><use href="#wm9_a2" transform="matrix(178.1224,0,0,-184.8875,452.15864,334.167)"/></g></svg>
+        </div>
+        <ul>
+          <li>서울시 강서구 마곡중앙8로 5길 63</li>
+          <li>디엠프라자 107호</li>
+          <li>평일 08:00-18:00</li>
+          <li>주말·공휴일 12:00-18:00</li>
+        </ul>
+        <ul>
+          <li><a href="#archive">아카이브</a></li>
+          <li><a href="#archive">소식</a></li>
+          <li><a href="https://instagram.com/aroma_roastery" target="_blank" rel="noopener">인스타그램</a></li>
+        </ul>
+      </div>
+      <small>aroma coffee roastery &amp; showroom</small>
+    </footer>
+  </div>
+</main>
+
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   WC: procedural watercolor subjects (viewBox 0 0 200 200)
+   WC.create(name, {seed}) -> <div class="wc"> with inline SVG.
+   If ../assets/wc/<name>.png exists, it replaces the painting.
+   ========================================================= */
+const WC = (() => {
+  const f1 = v => Math.round(v * 10) / 10;
+  function rng(seed) {
+    let s = (Math.imul(seed | 0, 2654435761) >>> 0) || 1;
+    return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+  }
+  function curve(p) {
+    const n = p.length;
+    let d = `M${f1(p[0][0])} ${f1(p[0][1])}`;
+    for (let i = 0; i < n; i++) {
+      const p0 = p[(i - 1 + n) % n], p1 = p[i], p2 = p[(i + 1) % n], p3 = p[(i + 2) % n];
+      d += `C${f1(p1[0] + (p2[0] - p0[0]) / 6)} ${f1(p1[1] + (p2[1] - p0[1]) / 6)} ${f1(p2[0] - (p3[0] - p1[0]) / 6)} ${f1(p2[1] - (p3[1] - p1[1]) / 6)} ${f1(p2[0])} ${f1(p2[1])}`;
+    }
+    return d + 'Z';
+  }
+  function blob(cx, cy, rx, ry, o = {}) {
+    const { rot = 0, wob = .08, seed = 1, n = 9 } = o;
+    const r = rng(seed), c = Math.cos(rot), s = Math.sin(rot), off = r() * 6.283, pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = off + i / n * 6.283, k = 1 + (r() * 2 - 1) * wob;
+      const lx = Math.cos(a) * rx * k, ly = Math.sin(a) * ry * k;
+      pts.push([cx + lx * c - ly * s, cy + lx * s + ly * c]);
+    }
+    return curve(pts);
+  }
+  function leaf(x1, y1, x2, y2, w) {
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+    const nx = -dy / L * w, ny = dx / L * w;
+    return `M${f1(x1)} ${f1(y1)}Q${f1(mx + nx)} ${f1(my + ny)} ${f1(x2)} ${f1(y2)}Q${f1(mx - nx)} ${f1(my - ny)} ${f1(x1)} ${f1(y1)}Z`;
+  }
+  const ring = (cx, cy, r) => `M${f1(cx - r)} ${f1(cy)}a${f1(r)} ${f1(r)} 0 1 0 ${f1(2 * r)} 0a${f1(r)} ${f1(r)} 0 1 0 ${f1(-2 * r)} 0`;
+  function rect(cx, cy, w, h, a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    const P = [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => [cx + x * c - y * s, cy + x * s + y * c]);
+    return { d: `M${P.map(p => f1(p[0]) + ' ' + f1(p[1])).join('L')}Z`, P };
+  }
+  function tear(cx, cy, s) {
+    const X = v => f1(cx + v * s), Y = v => f1(cy + v * s);
+    return `M${X(0)} ${Y(-62)}C${X(12)} ${Y(-48)} ${X(50)} ${Y(-8)} ${X(46)} ${Y(30)}C${X(42)} ${Y(62)} ${X(-42)} ${Y(62)} ${X(-46)} ${Y(30)}C${X(-50)} ${Y(-8)} ${X(-12)} ${Y(-48)} ${X(0)} ${Y(-62)}Z`;
+  }
+  // layer primitives
+  const wash  = (d, c, o = .88, fl = 'wcA') => `<path d="${d}" fill="${c}" opacity="${o}" filter="url(#${fl})"/>`;
+  const glaze = (d, c, o = .5) => `<path d="${d}" fill="${c}" opacity="${o}" filter="url(#wcSoft)"/>`;
+  const bleed = (d, c, o = .28) => `<path d="${d}" fill="${c}" opacity="${o}" filter="url(#wcBleed)"/>`;
+  const line  = (d, c, w = 2, o = .8) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" opacity="${o}" filter="url(#wcLine)"/>`;
+  const group = (fl, inner, o = .95, extra = '') => `<g filter="url(#${fl})" opacity="${o}" ${extra}>${inner}</g>`;
+
+  function citrusSlice(cx, cy, r, rind, pith, flesh, n, s, half) {
+    const a0 = half ? Math.PI : 0, span = half ? Math.PI : Math.PI * 2;
+    const outer = rr => half
+      ? `M${f1(cx - rr)} ${f1(cy)}A${f1(rr)} ${f1(rr)} 0 0 1 ${f1(cx + rr)} ${f1(cy)}Z`
+      : blob(cx, cy, rr, rr, { wob: .03, seed: s, n: 10 });
+    let w = '';
+    for (let i = 0; i < n; i++) {
+      const a1 = a0 + span * i / n + .07, a2 = a0 + span * (i + 1) / n - .07, r0 = r * .1, r1 = r * .8;
+      w += `<path d="M${f1(cx + Math.cos(a1) * r0)} ${f1(cy + Math.sin(a1) * r0)}L${f1(cx + Math.cos(a1) * r1)} ${f1(cy + Math.sin(a1) * r1)}A${f1(r1)} ${f1(r1)} 0 0 1 ${f1(cx + Math.cos(a2) * r1)} ${f1(cy + Math.sin(a2) * r1)}L${f1(cx + Math.cos(a2) * r0)} ${f1(cy + Math.sin(a2) * r0)}Z" fill="${flesh}"/>`;
+    }
+    return wash(outer(r), rind, .92, 'wcA') + wash(outer(r * .9), pith, .95, 'wcC') + group('wcB', w, .92);
+  }
+
+  const P = {
+    'coffee-cherry': s =>
+      bleed(blob(102, 120, 64, 62, { wob: .08, seed: s + 2 }), '#C42A3C', .3)
+      + wash(blob(100, 118, 58, 56, { wob: .05, seed: s + 1, n: 10 }), '#B5172F', .92, 'wcA')
+      + glaze(blob(84, 100, 30, 22, { rot: -.6, wob: .15, seed: s + 3 }), '#EC6A6E', .55)
+      + glaze(blob(124, 140, 32, 24, { rot: .5, wob: .2, seed: s + 4 }), '#6A0A1A', .45)
+      + glaze(blob(78, 92, 9, 6, { rot: -.6, wob: .2, seed: s + 5 }), '#F6C9C0', .7)
+      + line(ring(126, 152, 5), '#4A0912', 2.2, .75)
+      + line('M101 64 C99 50 104 36 116 26', '#5B4526', 4, .9)
+      + wash(leaf(114, 30, 174, 18, 15), '#4E8B3A', .88, 'wcB')
+      + glaze(leaf(118, 30, 166, 20, 7), '#86B85A', .45)
+      + line('M116 29 Q142 22 170 19', '#2F5A26', 1.4, .6),
+
+    'pomegranate': s => {
+      const R = rng(s + 9); let seeds = '';
+      for (let i = 0; i < 30; i++) {
+        let x, y; do { x = R() * 2 - 1; y = R() * 2 - 1; } while (x * x + y * y > .8);
+        const col = ['#C3163A', '#D83350', '#9C0E2B', '#E04B62'][i % 4];
+        seeds += `<path d="${blob(104 + x * 38, 116 + y * 30, 4.2, 5.4, { rot: R() * 3, wob: .12, seed: s + 20 + i, n: 6 })}" fill="${col}"/>`;
+      }
+      return wash(blob(100, 110, 64, 60, { wob: .07, seed: s + 2, n: 10 }), '#A51E2E', .92, 'wcA')
+        + wash('M84 54 L88 36 L95 47 L100 31 L105 47 L112 36 L116 54 Z', '#8C1726', .9, 'wcC')
+        + glaze(blob(74, 88, 20, 14, { rot: -.7, seed: s + 3 }), '#D9555A', .45)
+        + wash(blob(104, 116, 46, 38, { rot: -.15, wob: .12, seed: s + 4 }), '#F2D6BE', .96, 'wcB')
+        + line('M70 112 Q100 104 142 120 M100 82 Q96 118 104 150', '#E3B48C', 2, .7)
+        + group('wcFine', seeds);
+    },
+
+    'cherry-cola': s => {
+      const R = rng(s + 7); let b = '';
+      for (let i = 0; i < 16; i++) b += `<path d="${ring(76 + R() * 48, 88 + R() * 74, 1.6 + R() * 3.2)}"/>`;
+      return wash('M60 44 L140 44 L131 172 Q100 182 69 172 Z', '#B7C6CC', .32, 'wcB')
+        + wash('M65 76 L135 76 L130 168 Q100 177 70 168 Z', '#5B1C12', .92, 'wcA')
+        + glaze('M66 80 L134 80 L132 102 Q100 108 68 102 Z', '#8E3A1C', .55)
+        + glaze('M66 76 Q100 70 134 76 L134 84 Q100 79 66 84 Z', '#D9A57A', .6)
+        + group('wcLine', b, .85, 'fill="none" stroke="#EBCFAE" stroke-width="1.3"')
+        + line('M60 44 L69 172 Q100 182 131 172 L140 44', '#7D939B', 1.6, .55)
+        + line('M136 36 C134 22 142 12 152 8', '#4F5A2A', 2.2, .85)
+        + wash(blob(134, 42, 14, 13, { seed: s + 3 }), '#B8162E', .94, 'wcA')
+        + glaze(blob(130, 38, 5, 4, { seed: s + 4 }), '#F2A3A0', .6);
+    },
+
+    'wine': s =>
+      wash('M58 36 Q56 108 100 118 Q144 108 142 36 Z', '#C8CFD2', .14, 'wcB')
+      + wash('M60 70 Q64 112 100 116 Q136 112 140 70 Q100 80 60 70 Z', '#6B0E2E', .92, 'wcA')
+      + glaze(blob(100, 74, 38, 6, { seed: s + 2, wob: .05 }), '#A42A4B', .6)
+      + line('M58 36 Q56 108 100 118 Q144 108 142 36', '#8C989E', 1.5, .5)
+      // stem and foot as thin lines: a filled 6px grey ellipse under the displacement filter smeared into a grey stain
+      + line('M100 118 L100 166', '#98A2A7', 2.2, .6)
+      + line('M76 170 Q100 163 124 170', '#98A2A7', 1.8, .55)
+      + group('wcFine', [[152, 46, 5, 7], [163, 30, 3, 4], [46, 50, 4, 5], [146, 20, 2.5, 3], [38, 36, 2, 2.5]]
+          .map(([x, y, a, b], i) => `<path d="${blob(x, y, a, b, { seed: s + 10 + i, n: 6 })}"/>`).join(''), .9, 'fill="#7A1234"')
+      + line('M140 52 Q156 40 152 24', '#7A1234', 3, .5),
+
+    'chocolate': s => {
+      let out = '';
+      [[88, 88, 74, 52, -.35, 1], [128, 132, 66, 48, .22, 1], [66, 152, 36, 28, .7, 0]].forEach(([cx, cy, w, h, a, grid], i) => {
+        const r = rect(cx, cy, w, h, a), q = r.P;
+        out += wash(r.d, '#4A2414', .93, i % 2 ? 'wcB' : 'wcA')
+          + glaze(rect(cx - 3, cy - 4, w * .78, h * .62, a).d, '#7A4428', .45);
+        if (grid) {
+          const mid = (p, q2) => [(p[0] + q2[0]) / 2, (p[1] + q2[1]) / 2];
+          const m1 = mid(q[0], q[3]), m2 = mid(q[1], q[2]), m3 = mid(q[0], q[1]), m4 = mid(q[3], q[2]);
+          out += line(`M${f1(m1[0])} ${f1(m1[1])}L${f1(m2[0])} ${f1(m2[1])}M${f1(m3[0])} ${f1(m3[1])}L${f1(m4[0])} ${f1(m4[1])}`, '#2B1209', 1.6, .6);
+        }
+      });
+      return out
+        + group('wcFine', [[150, 84, 3, 2.4], [42, 118, 2.4, 2], [112, 172, 2.6, 2]]
+            .map(([x, y, a, b], i) => `<path d="${blob(x, y, a, b, { seed: s + 30 + i, n: 6 })}"/>`).join(''), .85, 'fill="#4A2414"');
+    },
+
+    'lavender': s => {
+      const stems = [[100, 184, 62, 40, 74, 92], [100, 184, 104, 26, 96, 100], [100, 184, 140, 44, 122, 96]];
+      const cols = ['#8B72C4', '#7357AE', '#A690DA'];
+      let out = '', buds = '';
+      stems.forEach(([x0, y0, x1, y1, cx, cy], j) => {
+        out += line(`M${x0} ${y0}Q${cx} ${cy} ${x1} ${y1}`, '#6E8A58', 2.4, .85);
+        for (let i = 0; i < 9; i++) {
+          const t = 1 - i * .055, u = 1 - t;
+          const bx = u * u * x0 + 2 * u * t * cx + t * t * x1, by = u * u * y0 + 2 * u * t * cy + t * t * y1;
+          const dx = 2 * u * (cx - x0) + 2 * t * (x1 - cx), dy = 2 * u * (cy - y0) + 2 * t * (y1 - cy);
+          const ang = Math.atan2(dy, dx), side = i % 2 ? 1 : -1;
+          const px = bx + Math.cos(ang + Math.PI / 2) * side * 4.5, py = by + Math.sin(ang + Math.PI / 2) * side * 4.5;
+          buds += `<path d="${blob(px, py, 6.5, 4.4, { rot: ang + side * .5, wob: .12, seed: s + j * 20 + i, n: 6 })}" fill="${cols[(i + j) % 3]}"/>`;
+        }
+      });
+      return out + group('wcFine', buds)
+        + wash(leaf(98, 176, 74, 140, 5), '#7E9C66', .8, 'wcC') + wash(leaf(102, 176, 128, 146, 5), '#7E9C66', .8, 'wcC');
+    },
+
+    'kiwi': s => {
+      const R = rng(s + 5); let seeds = '', rays = '';
+      for (let i = 0; i < 36; i++) {
+        const a = i / 36 * 6.283 + R() * .08, rr = 21 + R() * 8;
+        seeds += `<path d="${blob(100 + Math.cos(a) * rr * 1.12, 104 + Math.sin(a) * rr, 3.4, 1.5, { rot: a, wob: .1, seed: s + 30 + i, n: 5 })}"/>`;
+      }
+      for (let i = 0; i < 18; i++) {
+        const a = i / 18 * 6.283;
+        rays += `M${f1(100 + Math.cos(a) * 21)} ${f1(104 + Math.sin(a) * 19)}L${f1(100 + Math.cos(a) * 57)} ${f1(104 + Math.sin(a) * 50)}`;
+      }
+      return wash(blob(100, 104, 70, 62, { seed: s + 2, wob: .04, n: 10 }), '#7B5A30', .9, 'wcA')
+        + wash(blob(100, 104, 63, 55, { seed: s + 3, wob: .04, n: 10 }), '#8DBB3C', .94, 'wcB')
+        + glaze(blob(100, 104, 44, 38, { seed: s + 4 }), '#BAD75E', .55)
+        + line(rays, '#D6EA9E', 1.3, .45)
+        + wash(blob(100, 104, 15, 11, { seed: s + 6 }), '#F1EDCB', .95, 'wcC')
+        + group('wcFine', seeds, .9, 'fill="#1F1A10"');
+    },
+
+    'citrus': s =>
+      citrusSlice(82, 90, 50, '#EC861C', '#F8E3B4', '#F4A637', 10, s + 2, false)
+      + citrusSlice(134, 152, 42, '#E6BF1C', '#F7EFC8', '#F1D548', 6, s + 3, true),
+
+    'dried-fig': s => {
+      const R = rng(s + 4); let seeds = '';
+      for (let i = 0; i < 18; i++) {
+        const a = R() * 6.283, rr = 4 + R() * 14;
+        seeds += `<path d="${blob(136 + Math.cos(a) * rr * .8, 138 + Math.sin(a) * rr, 1.6, 2.2, { rot: a, seed: s + 40 + i, n: 5 })}" fill="${i % 3 ? '#F3E2BC' : '#A34F3A'}"/>`;
+      }
+      return wash(tear(80, 96, 1), '#5A2D3E', .92, 'wcA')
+        + glaze(blob(64, 100, 14, 26, { rot: .2, seed: s + 2 }), '#8C566A', .45)
+        + line('M62 84 Q72 96 66 116 M90 70 Q98 90 92 110 M76 128 Q88 136 102 128', '#38172A', 1.3, .5)
+        + line('M80 34 L84 22', '#5E4A2A', 3.5, .9)
+        + wash(tear(136, 132, .72), '#6B3347', .92, 'wcC')
+        + wash(tear(136, 135, .6), '#C8735A', .92, 'wcB')
+        + glaze(blob(136, 140, 12, 16, { seed: s + 3 }), '#E9CB9C', .85)
+        + group('wcFine', seeds);
+    },
+
+    'peach': s =>
+      wash(blob(100, 112, 62, 58, { wob: .06, seed: s + 2, n: 10 }), '#F3B06A', .92, 'wcA')
+      + glaze(blob(118, 96, 40, 34, { rot: .4, seed: s + 3 }), '#E35A3E', .55)
+      + glaze(blob(124, 92, 22, 18, { seed: s + 4 }), '#C2363A', .35)
+      + glaze(blob(78, 130, 24, 18, { seed: s + 5 }), '#F7D28E', .45)
+      + line('M100 56 Q84 104 98 168', '#C64B36', 2, .45)
+      + line('M101 56 C101 46 104 40 108 34', '#6A4A2A', 3.2, .9)
+      + wash(leaf(106, 40, 160, 26, 13), '#5E8F3E', .88, 'wcB')
+      + line('M108 39 Q134 31 156 27', '#355F28', 1.3, .55),
+
+    'plum': s =>
+      wash(blob(100, 114, 56, 62, { rot: .25, wob: .05, seed: s + 2, n: 10 }), '#43235E', .93, 'wcA')
+      + glaze(blob(80, 96, 20, 28, { rot: .3, seed: s + 3 }), '#8C78B6', .5)
+      + glaze(blob(76, 90, 7, 10, { rot: .3, seed: s + 6 }), '#C9BEDD', .45)
+      + glaze(blob(120, 140, 28, 22, { rot: .4, seed: s + 4 }), '#24102F', .45)
+      + line('M104 54 Q86 112 104 174', '#2A143D', 1.6, .45)
+      + line('M104 54 C104 44 108 36 114 30', '#5B4A2E', 3, .9),
+  };
+
+  const COLOR = {
+    'coffee-cherry': '#B3192F', 'pomegranate': '#B3203A', 'cherry-cola': '#5A1D12', 'wine': '#6A0F2E',
+    'chocolate': '#4B2516', 'lavender': '#7E64BC', 'kiwi': '#86B53A', 'citrus': '#EE8A1F',
+    'dried-fig': '#5B2E3E', 'peach': '#F09A5E', 'plum': '#4A2A66'
+  };
+
+  const probes = {};
+  function hasPng(name) {
+    if (!probes[name]) probes[name] = new Promise(res => {
+      const im = new Image();
+      im.onload = () => res(im.naturalWidth > 0);
+      im.onerror = () => res(false);
+      im.src = `../assets/wc/${name}.png`;
+    });
+    return probes[name];
+  }
+  function create(name, { seed = 1 } = {}) {
+    const el = document.createElement('div');
+    el.className = 'wc';
+    el.dataset.name = name;
+    el.innerHTML = `<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">${P[name](seed * 97)}</svg>`;
+    hasPng(name).then(ok => {
+      if (!ok) return;
+      el.innerHTML = `<img src="../assets/wc/${name}.png" alt="" draggable="false">`;
+      el.classList.add('is-png');
+    });
+    return el;
+  }
+  return { create, color: n => COLOR[n], blob, rng, names: Object.keys(P) };
+})();
+
+/* ========================================================= data */
+const COFFEES = [
+  { flavors: ['pomegranate', 'cherry-cola', 'wine', 'chocolate', 'lavender'] },
+  { flavors: ['kiwi', 'citrus', 'pomegranate'] },
+  { flavors: ['dried-fig', 'peach', 'plum'] },
+];
+
+const $ = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const root = document.documentElement;
+const stage = $('#stage'), piecesLayer = $('#pieces'), fxStains = $('#fxStains'), fx = $('#fx');
+const cherryBtn = $('#cherry'), cherryBody = $('#cherryBody'), hint = $('#hint');
+const cards = $$('.card');
+
+cherryBody.appendChild(WC.create('coffee-cherry', { seed: 1 }));
+
+/* ========================================================= metrics */
+const M = { vw: 0, vh: 0, p: 0, cw: 0, ch: 0 };
+function measure() {
+  M.vw = stage.clientWidth || innerWidth;
+  M.vh = stage.clientHeight || innerHeight;
+  const mn = Math.min(M.vw, M.vh);
+  M.p = Math.round(clamp(mn * .19, 84, 196));
+  M.cw = Math.round(Math.min(360, M.vw * .84));
+  M.ch = Math.round(Math.min(520, M.vh * .76, M.cw * 1.5));
+  stage.style.setProperty('--p', M.p + 'px');
+  stage.style.setProperty('--cw', M.cw + 'px');
+  stage.style.setProperty('--ch', M.ch + 'px');
+  stage.style.setProperty('--cherry', Math.round(clamp(mn * .44, 210, 400)) + 'px');
+}
+measure();
+
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (REDUCED || !window.gsap || !window.ScrollTrigger || !window.Lenis) { initStatic(); return; }
+
+/* static composition for reduced motion (or if a CDN fails) */
+function initStatic() {
+  root.classList.remove('locked');
+  root.classList.add('rm');
+  cherryBtn.disabled = true; // nothing to click here: the cards are already laid out below
+  cherryBtn.setAttribute('aria-hidden', 'true');
+  cards.forEach((card, ci) => {
+    const art = $('.card-art', card);
+    COFFEES[ci].flavors.forEach((f, k) => art.appendChild(WC.create(f, { seed: ci * 50 + k })));
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .2 });
+  cards.forEach(c => io.observe(c));
+}
+
+/* ========================================================= motion setup */
+gsap.registerPlugin(ScrollTrigger);
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
+const lenis = new Lenis({ lerp: .085 });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+lenis.stop();
+
+window.addEventListener('resize', measure);
+ScrollTrigger.addEventListener('refreshInit', measure);
+
+/* ---------- pieces: exactly one painting per flavor, on a composed spread ----------
+   SPREAD holds [x, y, size] per flavor, x and y as fractions of the stage (centre = 0),
+   for a wide and a tall stage. The large paintings fill the paper on their own, so no
+   flavor is ever repeated in the same scene. */
+const SLOTS = {
+  5: [[-.62, -.44], [0, -.4], [.62, -.44], [-.32, .45], [.32, .47]],
+  3: [[-.48, -.3], [.48, -.34], [0, .42]],
+};
+const SPREAD = {
+  wide: {
+    5: [[-.37, -.25, 1.55], [.02, -.31, 1.35], [.38, -.17, 1.6], [-.17, .27, 1.5], [.25, .3, 1.4]],
+    3: [[-.32, -.16, 1.8], [.05, .25, 1.65], [.33, -.22, 1.75]],
+  },
+  tall: {
+    5: [[-.25, -.35, 1.3], [.26, -.22, 1.25], [-.05, .0, 1.45], [-.26, .25, 1.25], [.24, .36, 1.3]],
+    3: [[-.18, -.29, 1.55], [.2, .02, 1.5], [-.14, .32, 1.55]],
+  },
+};
+const groups = COFFEES.map((c, ci) => {
+  const n = c.flavors.length, rnd = WC.rng(100 + ci * 31);
+  return c.flavors.map((flavor, k) => {
+    const el = document.createElement('div');
+    el.className = 'piece';
+    el.appendChild(WC.create(flavor, { seed: ci * 50 + k }));
+    piecesLayer.appendChild(el);
+    return { el, flavor, n, slot: k, r: (rnd() - .5) * 36, q: rnd() };
+  });
+});
+
+/* position functions (re-evaluated on refresh) */
+const spot = d => SPREAD[M.vw < M.vh ? 'tall' : 'wide'][d.n][d.slot];
+const sx = d => spot(d)[0] * M.vw * .86;
+const sy = d => spot(d)[1] * M.vh * .82;
+const sS = d => spot(d)[2] * (M.vw < M.vh ? 1.35 : 1);
+const artW = () => M.cw * .86, artH = () => M.ch * .46, artCy = () => -M.ch * .23;
+const slotX = d => SLOTS[d.n][d.slot][0] * artW() / 2;
+const slotY = d => artCy() + SLOTS[d.n][d.slot][1] * artH() / 2;
+const slotS = d => artH() * (d.n === 5 ? .46 : .62) / M.p;
+const slotR = d => (d.q - .5) * 14;
+const CARD_R = [-1.5, 1.2, -.8];
+
+/* ========================================================= intro: spring cherry */
+const S = { x: 0, y: 0, r: 0, vx: 0, vy: 0, vr: 0, tx: 0, ty: 0, tr: 0, lastX: null };
+let springOn = true, springT = 0, last = performance.now();
+function springLoop(now) {
+  const dt = Math.min(.033, (now - last) / 1000); last = now; springT += dt;
+  const k = 150, c = 10, kr = 110, cr = 6.5;
+  S.vx += (k * (S.tx - S.x) - c * S.vx) * dt; S.x += S.vx * dt;
+  S.vy += (k * (S.ty - S.y) - c * S.vy) * dt; S.y += S.vy * dt;
+  S.vr += (kr * (S.tr - S.r) - cr * S.vr) * dt; S.r += S.vr * dt;
+  const sq = clamp(Math.hypot(S.vx, S.vy) * .00035, 0, .06);
+  const breathe = Math.sin(springT * 1.7) * 2.5;
+  cherryBody.style.transform = `translate3d(${S.x.toFixed(2)}px,${(S.y + breathe).toFixed(2)}px,0) rotate(${S.r.toFixed(2)}deg) scale(${(1 + sq).toFixed(3)},${(1 - sq).toFixed(3)})`;
+  if (springOn) requestAnimationFrame(springLoop);
+}
+requestAnimationFrame(springLoop);
+
+let idleT = 0;
+const armIdle = () => { clearTimeout(idleT); idleT = setTimeout(burst, 6000); };
+const capT = setTimeout(burst, 13000);
+const hintT = setTimeout(() => hint.classList.add('show'), 1600);
+armIdle();
+
+function onMove(e) {
+  const nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
+  S.tx = nx * 34; S.ty = ny * 20; S.tr = nx * 8;
+  if (S.lastX !== null) S.vr += clamp((e.clientX - S.lastX) * .35, -14, 14);
+  S.lastX = e.clientX;
+  if (!burst.done) armIdle();
+}
+window.addEventListener('pointermove', onMove, { passive: true });
+
+/* scroll attempts before the click: keep the page still and nudge the hint */
+function nudge(e) {
+  if (burst.done) return;
+  if (e.cancelable && e.type === 'touchmove') e.preventDefault();
+  hint.classList.add('show');
+  hint.classList.remove('pulse'); void hint.offsetWidth; hint.classList.add('pulse');
+  S.vr += 26;
+}
+window.addEventListener('wheel', nudge, { passive: true });
+window.addEventListener('touchmove', nudge, { passive: false });
+window.addEventListener('keydown', e => { if (['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key) && document.activeElement !== cherryBtn) nudge(e); });
+
+cherryBtn.addEventListener('click', burst);
+
+/* ========================================================= burst: paint splatter */
+function burst() {
+  if (burst.done) return;
+  burst.done = true;
+  clearTimeout(idleT); clearTimeout(capT); clearTimeout(hintT);
+  hint.classList.remove('show');
+  cherryBtn.disabled = true;
+  cherryBtn.setAttribute('aria-hidden', 'true');
+
+  gsap.timeline()
+    .to(cherryBtn, { scale: 1.07, duration: .22, ease: 'power3.in' }) // feedback: the skin tightens before it pops
+    .add(() => {
+      springOn = false;
+      spawnDroplets(['#B5172F', '#B5172F', '#8E1024', ...COFFEES[0].flavors.map(WC.color)]);
+      groups[0].forEach((d, i) => {
+        gsap.fromTo(d.el,
+          { x: 0, y: 0, scale: .12, rotation: d.r + (d.q - .5) * 160, autoAlpha: 0 },
+          { x: sx(d), y: sy(d), scale: sS(d), rotation: d.r, autoAlpha: 1, duration: 1.05 + d.q * .5, delay: .05 * i, ease: 'expo.out' });
+      });
+    })
+    .to(cherryBtn, { scale: 1.45, autoAlpha: 0, duration: .3, ease: 'power3.out' });
+
+  gsap.delayedCall(2.35, afterBurst); // .22 squeeze + .55 stagger + 1.55 longest flight
+}
+
+function spawnDroplets(colors) {
+  const drops = [];
+  for (let i = 0; i < 28; i++) {
+    const size = 5 + Math.pow(Math.random(), 2) * 22;
+    const a = Math.random() * Math.PI * 2;
+    const sp = (650 + Math.random() * 1300) * (1.25 - size / 36);
+    const el = document.createElement('i');
+    el.className = 'drop';
+    el.style.cssText = `width:${size.toFixed(1)}px;height:${size.toFixed(1)}px;--c:${colors[i % colors.length]}`;
+    fx.appendChild(el);
+    drops.push({ el, x: 0, y: 0, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 180, life: .3 + Math.random() * .55, t: 0, landed: false });
+  }
+  let prev = performance.now();
+  function step(now) {
+    const dt = Math.min(.033, (now - prev) / 1000); prev = now;
+    let alive = 0;
+    for (const d of drops) {
+      if (d.landed) continue;
+      alive++;
+      d.t += dt;
+      const drag = Math.exp(-2.4 * dt);
+      d.vx *= drag; d.vy = d.vy * drag + 1300 * dt;
+      d.x += d.vx * dt; d.y += d.vy * dt;
+      const sp = Math.hypot(d.vx, d.vy), ang = Math.atan2(d.vy, d.vx) * 57.2958, st = 1 + Math.min(sp / 900, 1.6);
+      d.el.style.transform = `translate(${d.x.toFixed(1)}px,${d.y.toFixed(1)}px) translate(-50%,-50%) rotate(${ang.toFixed(1)}deg) scale(${st.toFixed(2)},${(1 / Math.sqrt(st)).toFixed(2)})`;
+      if (d.t >= d.life) {
+        d.landed = true;
+        d.el.classList.add('landed');
+        d.el.style.transform = `translate(${d.x.toFixed(1)}px,${d.y.toFixed(1)}px) translate(-50%,-50%) rotate(${(Math.random() * 360).toFixed(0)}deg) scale(${(1.15 + Math.random() * .4).toFixed(2)})`;
+        fxStains.appendChild(d.el); // splash mark stays on the paper
+      }
+    }
+    if (alive) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function afterBurst() {
+  root.classList.remove('locked');
+  window.removeEventListener('touchmove', nudge);
+  lenis.start();
+  buildStory();
+  buildStore();
+  ScrollTrigger.refresh();
+}
+
+/* ========================================================= scroll story
+   scattered -> card -> released -> next coffee (x3), pinned + scrubbed */
+function buildStory() {
+  const U = 3.5;
+  const tl = gsap.timeline({
+    defaults: { ease: 'none', immediateRender: false },
+    scrollTrigger: {
+      trigger: '#story',
+      start: 'top top',
+      end: () => '+=' + Math.round(innerHeight * 6),
+      pin: true,
+      scrub: 1,
+      invalidateOnRefresh: true,
+    },
+  });
+
+  // explicit hidden start states: scrubbing back before a tween restores these
+  gsap.set(cards, { autoAlpha: 0 });
+  gsap.set($$('.card-text'), { autoAlpha: 0 });
+  groups.forEach((g, ci) => { if (ci > 0) g.forEach(d => gsap.set(d.el, { autoAlpha: 0 })); });
+
+  tl.fromTo(fxStains, { autoAlpha: 1 }, { autoAlpha: .4, duration: 1 }, .3);
+
+  groups.forEach((g, ci) => {
+    const B = ci * U, card = cards[ci];
+
+    if (ci > 0) { // next coffee splashes in from the centre
+      const A = B - .9;
+      g.forEach((d, k) => {
+        tl.fromTo(d.el,
+          { x: () => sx(d) * .15, y: () => sy(d) * .15, scale: .1, rotation: d.r + 120 * (d.q - .5), autoAlpha: 0 },
+          { x: () => sx(d), y: () => sy(d), scale: () => sS(d), rotation: d.r, autoAlpha: 1, duration: .9, ease: 'expo.out' }, A + k * .025);
+      });
+    }
+
+    // gather into the tasting card. Position eases in and out; scale drops early so the
+    // paintings are already small when they cross the card's title area.
+    g.forEach((d, k) => {
+      const t0 = B + .2 + k * .03;
+      tl.fromTo(d.el,
+        { x: () => sx(d), y: () => sy(d), rotation: d.r },
+        { x: () => slotX(d), y: () => slotY(d), rotation: slotR(d), duration: 1, ease: 'power3.inOut' }, t0);
+      tl.fromTo(d.el, { scale: () => sS(d) }, { scale: () => slotS(d), duration: 1, ease: 'power3.out' }, t0);
+    });
+    tl.fromTo(card, { autoAlpha: 0, y: 70, rotation: -4 }, { autoAlpha: 1, y: 0, rotation: CARD_R[ci], duration: .7, ease: 'power3.out' }, B + .55);
+    // card text arrives once the paintings have nearly settled in the top half
+    tl.fromTo($('.card-text', card), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .45, ease: 'power3.out' }, B + 1.15);
+
+    // release: the card is lifted off the paper, taking its paintings with it
+    const R = B + 2.2;
+    tl.fromTo(card, { y: 0, rotation: CARD_R[ci] }, { y: () => -M.vh * .95, rotation: CARD_R[ci] - 6, duration: 1, ease: 'power3.in' }, R);
+    g.forEach(d => {
+      tl.fromTo(d.el, { y: () => slotY(d) }, { y: () => slotY(d) - M.vh * .95, duration: 1, ease: 'power3.in' }, R);
+    });
+  });
+  // no empty tail: the pin lets go the moment the Buncho card is off the paper,
+  // so the brand sentence follows within about a third of a screen
+}
+
+/* store photo: a scrubbed wipe opens the full-bleed half from the page edge inward.
+   Built after the story pin so its start and end account for the pin spacer. */
+function buildStore() {
+  const img = $('#storePhoto');
+  if (!img) return;
+  gsap.fromTo(img, { clipPath: 'inset(0% 100% 0% 0%)' }, {
+    clipPath: 'inset(0% 0% 0% 0%)', ease: 'none',
+    scrollTrigger: { trigger: '#store', start: 'top 85%', end: 'top 20%', scrub: .8 },
+  });
+}
+
+})();
+</script>
+<a class="draft-back" href="../" aria-label="시안 목록으로 돌아가기"><b>09</b>시안 목록</a>
+</body>
+</html>

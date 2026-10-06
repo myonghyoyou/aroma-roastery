@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aroma 시안</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root {
+    --bg: #F6F4F1;
+    --ink: #1C1714;
+    --muted: #7A706A;
+    --line: #DDD7D1;
+    --green: #07913B; --yellow: #EDBE00; --red: #C10110; --orange: #EF7000;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 20px; padding: 48px 6vw 32px; }
+  header img { width: 72px; height: auto; }
+  h1 { font-size: clamp(22px, 2.4vw, 30px); font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+  ol { list-style: none; margin: 0; padding: 0 6vw 80px; border-top: 1px solid var(--line); }
+  li { border-bottom: 1px solid var(--line); }
+  a { display: grid; grid-template-columns: 4ch 1fr auto; gap: 24px; align-items: baseline; padding: 22px 0; color: inherit; text-decoration: none; }
+  a:hover .name, a:focus-visible .name { background: linear-gradient(90deg, var(--green), var(--yellow), var(--orange), var(--red)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+  .no { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .name { font-size: clamp(22px, 3vw, 40px); font-weight: 600; letter-spacing: -0.02em; }
+  .desc { color: var(--muted); font-size: 15px; max-width: 38ch; text-align: right; }
+  @media (max-width: 640px) {
+    a { grid-template-columns: 3ch 1fr; }
+    .desc { grid-column: 2; text-align: left; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/logo/aroma-symbol.svg" alt="aroma 로고 심볼">
+  <div>
+    <h1>aroma 메인 페이지 시안</h1>
+    <p>시안을 눌러 열어 보세요. 1440×900 화면 기준으로 만들었습니다.</p>
+  </div>
+</header>
+<ol>
+  <li><a href="01-ink-leaves/"><span class="no">01</span><span class="name">잉크처럼 번지는 네 잎</span><span class="desc">마우스로 로고 색을 휘젓는 유체 히어로</span></a></li>
+  <li><a href="02-spatial-bloom/"><span class="no">02</span><span class="name">공간에 떠 있는 심볼</span><span class="desc">스크롤하면 3D 잎이 펼쳐졌다 다시 모입니다</span></a></li>
+  <li><a href="03-kinetic-aroma/"><span class="no">03</span><span class="name">원두 입자</span><span class="desc">입자가 로고로 모였다가 워드마크와 김으로 흩어집니다</span></a></li>
+  <li><a href="04-leaf-window/"><span class="no">04</span><span class="name">잎 모양 창으로 보는 매장</span><span class="desc">잎 모양 창이 열리며 매장 사진이 이어집니다</span></a></li>
+  <li><a href="05-pour-sequence/"><span class="no">05</span><span class="name">사진 실린더</span><span class="desc">매장 사진이 3D 원통을 따라 돌고 카메라가 안으로 들어갑니다</span></a></li>
+  <li><a href="06-grain-field/"><span class="no">06</span><span class="name">로고 색으로 만든 질감</span><span class="desc">흐르는 로고 색 위로 매장 사진이 끝까지 이어집니다</span></a></li>
+  <li><a href="07-cup-fill/"><span class="no">07</span><span class="name">잔을 채우는 네 가지 색</span><span class="desc">스크롤하면 잔 모양 로고가 색으로 차오릅니다</span></a></li>
+  <li><a href="09-watercolor-cherry-paper/"><span class="no">09</span><span class="name">수채화 체리, 종이</span><span class="desc">체리를 누르면 플레이버가 터지고 원두 카드로 모입니다</span></a></li>
+  <li><a href="10-watercolor-cherry-night/"><span class="no">10</span><span class="name">수채화 체리, 밤</span><span class="desc">같은 이야기를 어두운 매장 톤으로 풀었습니다</span></a></li>
+</ol>
+</body>
+</html>
