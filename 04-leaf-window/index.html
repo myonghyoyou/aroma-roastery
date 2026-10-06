@@ -7,10 +7,11 @@
 <title>aroma roastery, Draft 04</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@300;400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;500&display=swap">
 <style>
   /* Fixed dark theme: the drafts compare brand tones, and 04 is the dark one (black wall, warm wood photos).
-     Serif pairing (Hahmlet + Bodoni Moda): the aroma wordmark is a serif (Mixta), so the type ties back to it. */
+     Type (review pass 5): one narrow, neutral gothic (Gothic A1) for Korean and Latin, so the leaf
+     window photos stay the subject. Gothic A1 has no italic, so the Latin keywords stand upright. */
   :root {
     --bg: #1A120D;
     --bg-2: #241912;
@@ -21,8 +22,7 @@
     --yellow-a: #EDBE00; --yellow-b: #FBE3A0;
     --red-a: #C10110; --red-b: #EA4609;
     --orange-a: #DA4914; --orange-b: #EF7000;
-    --kr: "Hahmlet", "Noto Serif KR", serif;
-    --lat: "Bodoni Moda", "Didot", serif;
+    --sans: "Gothic A1", "Apple SD Gothic Neo", system-ui, sans-serif;
     --gut: clamp(20px, 4vw, 64px);
   }
   * { box-sizing: border-box; }
@@ -31,7 +31,8 @@
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font-family: var(--kr); font-weight: 400; line-height: 1.6;
+    font-family: var(--sans); font-weight: 400; line-height: 1.6; letter-spacing: 0;
+    word-break: keep-all; overflow-wrap: break-word;
     -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   img { display: block; max-width: 100%; }
@@ -43,7 +44,7 @@
   /* chrome: one radius system, all corners square */
   .draft-label {
     position: fixed; top: 14px; left: 14px; z-index: 100;
-    font: 500 11px/1 var(--kr); letter-spacing: .02em;
+    font: 500 11px/1 var(--sans); letter-spacing: .02em;
     padding: 6px 9px; border: 1px solid rgba(238,229,218,.35); border-radius: 0;
     color: var(--ink); background: rgba(26,18,13,.55); backdrop-filter: blur(6px);
   }
@@ -89,7 +90,7 @@
   }
   .cap-accent { display: block; height: 2px; width: 96px; transform-origin: left center; }
   .cap[data-pos="tr"] .cap-accent, .cap[data-pos="br"] .cap-accent { margin-left: auto; transform-origin: right center; }
-  .cap-kw { display: block; margin-top: 12px; font: italic 400 17px/1.25 var(--lat); color: var(--ink); text-shadow: 0 1px 2px rgba(20,13,9,.6), 0 0 18px rgba(20,13,9,.7); }
+  .cap-kw { display: block; margin-top: 12px; font: 400 17px/1.25 var(--sans); color: var(--ink); text-shadow: 0 1px 2px rgba(20,13,9,.6), 0 0 18px rgba(20,13,9,.7); }
   .acc-green { background: linear-gradient(90deg, var(--green-a), var(--green-b)); }
   .acc-yellow { background: linear-gradient(90deg, var(--yellow-a), var(--yellow-b)); }
   .acc-orange { background: linear-gradient(90deg, var(--orange-a), var(--orange-b)); }
@@ -105,7 +106,7 @@
     -webkit-mask: url(../assets/logo/aroma-wordmark.svg) center / contain no-repeat;
             mask: url(../assets/logo/aroma-wordmark.svg) center / contain no-repeat;
   }
-  .hero-l { position: absolute; bottom: clamp(28px, 5vh, 56px); left: var(--gut); font: italic 400 clamp(20px, 2.2vw, 32px)/1.2 var(--lat); max-width: 14ch; }
+  .hero-l { position: absolute; bottom: clamp(28px, 5vh, 56px); left: var(--gut); font: 400 clamp(20px, 2.2vw, 32px)/1.2 var(--sans); max-width: 14ch; }
 
   /* after sequence */
   .statement { padding: clamp(120px, 26vh, 260px) var(--gut) clamp(100px, 20vh, 200px); display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; }
@@ -114,7 +115,7 @@
     grid-column: 3 / span 9; margin: 0; font-weight: 300;
     font-size: clamp(30px, 4.4vw, 68px); line-height: 1.32; letter-spacing: -0.025em; text-wrap: balance;
   }
-  .statement .sub { grid-column: 3 / span 6; margin-top: 36px; font: italic 400 clamp(17px, 1.5vw, 21px)/1.4 var(--lat); color: var(--muted); }
+  .statement .sub { grid-column: 3 / span 6; margin-top: 36px; font: 400 clamp(17px, 1.5vw, 21px)/1.4 var(--sans); color: var(--muted); }
 
   /* store (review pass 4): the photo is a full-bleed half pinned to the left edge and fills the
      section height. The text block ends on the photo's bottom edge (the map link's rule sits on it).
@@ -138,7 +139,7 @@
   .visit dl { margin: 0; display: grid; grid-template-columns: 9ch 1fr; }
   .visit dt, .visit dd { padding: 18px 0; border-bottom: 1px solid var(--line); margin: 0; }
   .visit dt { color: var(--muted); font-size: 14px; padding-top: 21px; }
-  .visit dd { font-size: 17px; }
+  .visit dd { font-size: 17px; font-variant-numeric: tabular-nums; }
   .visit dd span { display: block; }
   .visit .map { font-size: 15px; }
 
@@ -165,7 +166,7 @@
   footer .wm { width: 120px; aspect-ratio: 505 / 110; background: var(--ink);
     -webkit-mask: url(../assets/logo/aroma-wordmark.svg) left center / contain no-repeat;
             mask: url(../assets/logo/aroma-wordmark.svg) left center / contain no-repeat; margin-bottom: 18px; }
-  footer p { margin: 0; }
+  footer p { margin: 0; font-variant-numeric: tabular-nums; }
   footer .right { text-align: right; align-self: end; }
 
   @media (max-width: 760px) {

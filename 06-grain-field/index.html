@@ -8,13 +8,18 @@
 <meta name="description" content="아로마 로스터리는 설득력 있는 스페셜티 커피를 로스팅 합니다. 서울시 강서구 마곡중앙8로 5길 63 디엠프라자 107호.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- the hero slogan only: a thin Myeongjo against the moving colour field (user request, review pass 5) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300&display=swap">
 <style>
   /* ---------- tokens ---------- */
   :root {
     --char: #1A110D;       /* page floor behind the canvas, darkest roast */
     --milk: #FBF3E8;       /* every piece of copy sits on the field or a photo in milk */
     --milk-2: rgba(251, 243, 232, .8);
-    --font: "SUIT Variable", "SUIT", "Apple SD Gothic Neo", system-ui, sans-serif;
+    --sans: "SUIT Variable", "SUIT", "Apple SD Gothic Neo", system-ui, sans-serif;
+    --serif: "Noto Serif KR", "AppleMyungjo", serif;
     --gutter: clamp(16px, 3.4vw, 56px);
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     /* legibility without a DOM scrim: a soft halo that travels with the glyphs, so there is no edge to slide */
@@ -28,7 +33,7 @@
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   body {
     margin: 0; background: var(--char); color: var(--milk);
-    font-family: var(--font); font-weight: 450; font-size: 17px; line-height: 1.6;
+    font-family: var(--sans); font-weight: 450; font-size: 17px; line-height: 1.6;
     -webkit-font-smoothing: antialiased; overflow-x: hidden; word-break: keep-all;
   }
   a { color: inherit; }
@@ -58,7 +63,7 @@
   /* ---------- shared draft chrome ---------- */
   .draft-label {
     position: absolute; top: 14px; left: 16px; z-index: 50;
-    font: 600 12px/1 var(--font); letter-spacing: .01em; color: var(--milk);
+    font: 600 12px/1 var(--sans); letter-spacing: .01em; color: var(--milk);
     padding: 6px 0; text-shadow: var(--halo);
   }
   .topbar {
@@ -87,11 +92,13 @@
   .hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; }
   .hero-sentence {
     position: absolute; left: var(--gutter); right: var(--gutter); bottom: clamp(28px, 6vh, 64px);
-    margin: 0; font-weight: 800; font-size: clamp(42px, 9vw, 158px); line-height: 1.0; letter-spacing: -0.05em;
-    text-shadow: 0 2px 4px rgba(26, 17, 13, .25), 0 4px 48px rgba(26, 17, 13, .4);
+    margin: 0; font-family: var(--serif); font-weight: 300; font-synthesis: none;
+    font-size: clamp(40px, 8.2vw, 140px); line-height: 1.18; letter-spacing: -0.025em;
+    /* thin strokes need the tight inner shadow of the halo more than a wide glow */
+    text-shadow: var(--halo);
     will-change: transform, opacity;
   }
-  .hero-sentence .l { display: block; }
+  .hero-sentence .l { display: block; font: inherit; }
 
   /* ---------- passage: the barista photo surfaces through the colour, no copy ---------- */
   .passage { height: 170vh; }
@@ -104,7 +111,7 @@
   }
   .store h2, .archive h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
   .store h2 { margin-bottom: 20px; }
-  .store-address { margin: 0; font-style: normal; font-weight: 760; font-size: clamp(36px, 6.4vw, 108px); line-height: 1.02; letter-spacing: -0.045em; max-width: 14ch; }
+  .store-address { margin: 0; font-style: normal; font-weight: 700; font-size: clamp(36px, 6.4vw, 108px); line-height: 1.15; letter-spacing: -0.035em; max-width: 16ch; }
   .store-address small { display: block; margin-top: .4em; font-size: .36em; font-weight: 600; letter-spacing: -0.02em; color: var(--milk-2); }
   .store-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: clamp(40px, 7vh, 80px) 0 0; padding-top: 18px; border-top: 1px solid rgba(251, 243, 232, .5); max-width: 1100px; }
   .store-facts dt { font-size: 14px; font-weight: 600; color: var(--milk-2); margin-bottom: 6px; }
@@ -121,7 +128,7 @@
   .entries li { min-height: 88vh; min-height: 88svh; display: flex; flex-direction: column; justify-content: center; max-width: 18ch; }
   .entries li:nth-child(even) { margin-left: 14vw; }
   .entries .meta { display: flex; gap: 16px; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-  .entries h3 { margin: 8px 0 0; font-size: clamp(30px, 4.4vw, 68px); font-weight: 760; line-height: 1.08; letter-spacing: -0.035em; }
+  .entries h3 { margin: 8px 0 0; font-size: clamp(30px, 4.4vw, 68px); font-weight: 700; line-height: 1.15; letter-spacing: -0.035em; }
 
   /* ---------- footer: back on the field, now deep roast ---------- */
   .site-footer { padding: clamp(64px, 14vh, 160px) var(--gutter) 32px; overflow: hidden; }
@@ -132,7 +139,7 @@
     -webkit-mask: url(../assets/logo/aroma-wordmark.svg) left center / contain no-repeat;
             mask: url(../assets/logo/aroma-wordmark.svg) left center / contain no-repeat;
   }
-  .footer-grid { display: grid; grid-template-columns: 2fr 1.4fr 1fr; gap: 24px; margin-top: clamp(40px, 7vh, 72px); font-size: 15px; line-height: 1.7; color: var(--milk-2); text-shadow: var(--halo); }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1.4fr 1fr; gap: 24px; margin-top: clamp(40px, 7vh, 72px); font-size: 15px; line-height: 1.7; color: var(--milk-2); text-shadow: var(--halo); font-variant-numeric: tabular-nums; }
   .footer-grid p { margin: 0; }
   .footer-grid ul { list-style: none; margin: 0; padding: 0; justify-self: end; text-align: right; }
   .footer-grid a { display: inline-flex; align-items: center; min-height: 44px; color: var(--milk); text-decoration: none; font-weight: 600; }
@@ -722,6 +729,7 @@
     }
   }
   computeTargets();
+  if (hasGSAP && document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
 
   /* ---------------- render loop ---------------- */
   if (field) {

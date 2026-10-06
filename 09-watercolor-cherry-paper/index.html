@@ -7,7 +7,7 @@
 <title>aroma roastery · Draft 09</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=EB+Garamond:ital,wght@0,400..600;1,400..500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
@@ -33,7 +33,7 @@ html.lenis, html.lenis body{height:auto}
 html.locked, html.locked body{overflow:hidden}
 body{
   background:var(--paper); color:var(--ink);
-  font-family:var(--ko); font-size:17px; line-height:1.8;
+  font-family:var(--ko); font-size:17px; line-height:1.75; word-break:keep-all;
   -webkit-font-smoothing:antialiased; overflow-x:hidden;
 }
 /* paper tooth over everything, multiplied */
@@ -85,7 +85,7 @@ a{color:inherit}
 .hint{
   position:absolute; left:0; right:0; text-align:center; z-index:6;
   top:calc(50% + var(--cherry) / 2 + 8px);
-  font-size:15px; letter-spacing:.02em; color:var(--ink-2);
+  font-size:15px; letter-spacing:0; color:var(--ink-2);
   opacity:0; transition:opacity .9s var(--ease); pointer-events:none;
 }
 .hint.show{opacity:1}
@@ -103,7 +103,7 @@ a{color:inherit}
 .card::before{content:""; position:absolute; inset:0; background:var(--card); filter:url(#deckle)}
 .card-art{position:absolute; left:7%; right:7%; top:4%; height:46%}
 .card-text{position:absolute; left:9%; right:9%; top:54%; bottom:7%; display:flex; flex-direction:column; justify-content:flex-end}
-.card-country{font:500 13px/1 var(--latin); letter-spacing:.24em; color:var(--ink-2)}
+.card-country{font:500 15px/1.2 var(--latin); letter-spacing:.01em; color:var(--ink-2)}
 .card-bean{
   font-family:var(--latin); font-style:italic; font-weight:400;
   font-size:clamp(38px, 10vw, 56px); line-height:1.1; letter-spacing:-.01em;
@@ -148,11 +148,11 @@ a{color:inherit}
   padding:20px 0; border-bottom:1px solid var(--rule);
 }
 .arc time{font-family:var(--latin); font-size:16px; color:var(--ink-2); font-variant-numeric:tabular-nums}
-.arc .t{font-size:clamp(19px, 1.7vw, 24px); letter-spacing:-.015em; word-break:keep-all}
+.arc .t{font-size:clamp(19px, 1.7vw, 24px); letter-spacing:-.02em; word-break:keep-all}
 .arc .k{font-size:13px; color:var(--ink-2)}
 .arc img{width:132px; height:88px; object-fit:cover; display:block; filter:saturate(.85)}
 
-.foot{padding:12vh 8vw 40px; max-width:1320px; margin:0 auto; font-size:14px; color:var(--ink-2)}
+.foot{padding:12vh 8vw 40px; max-width:1320px; margin:0 auto; font-size:14px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .foot-top{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:6vw; align-items:start; padding-bottom:10vh}
 .foot .mark{display:flex; align-items:center; gap:16px; color:var(--ink)}
 .foot .mark .sym{width:44px}
@@ -314,26 +314,26 @@ html.rm, html.rm body{overflow:auto}
     <div class="stage" id="stage">
       <div class="layer" id="fxStains"></div>
       <div class="layer" id="cards">
-        <article class="card" aria-label="COLOMBIA POTOSI">
+        <article class="card" aria-label="Colombia Potosi">
           <div class="card-art"></div>
           <div class="card-text">
-            <p class="card-country">COLOMBIA</p>
-            <h3 class="card-bean">POTOSI</h3>
+            <p class="card-country">Colombia</p>
+            <h3 class="card-bean">Potosi</h3>
             <ul class="card-flavors"><li>석류</li><li>체리콕</li><li>와인</li><li>초콜릿</li><li>라벤더</li></ul>
           </div>
         </article>
-        <article class="card" aria-label="KENYA Kainamui">
+        <article class="card" aria-label="Kenya Kainamui">
           <div class="card-art"></div>
           <div class="card-text">
-            <p class="card-country">KENYA</p>
+            <p class="card-country">Kenya</p>
             <h3 class="card-bean">Kainamui</h3>
             <ul class="card-flavors"><li>키위</li><li>시트러스</li><li>석류</li></ul>
           </div>
         </article>
-        <article class="card" aria-label="ETHIOPIA Buncho">
+        <article class="card" aria-label="Ethiopia Buncho">
           <div class="card-art"></div>
           <div class="card-text">
-            <p class="card-country">ETHIOPIA</p>
+            <p class="card-country">Ethiopia</p>
             <h3 class="card-bean">Buncho</h3>
             <ul class="card-flavors"><li>말린 무화과</li><li>복숭아</li><li>자두</li></ul>
           </div>
