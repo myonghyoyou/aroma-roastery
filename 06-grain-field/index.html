@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- the hero slogan only: a thin Myeongjo against the moving colour field (user request, review pass 5) -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300&display=swap">
+<!-- the hero slogan only, in English: Newsreader has display optical sizes, so its thin cut keeps crisp hairlines at 140px over the moving colour field -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300&display=swap">
 <style>
   /* ---------- tokens ---------- */
   :root {
@@ -19,7 +19,7 @@
     --milk: #FBF3E8;       /* every piece of copy sits on the field or a photo in milk */
     --milk-2: rgba(251, 243, 232, .8);
     --sans: "SUIT Variable", "SUIT", "Apple SD Gothic Neo", system-ui, sans-serif;
-    --serif: "Noto Serif KR", "AppleMyungjo", serif;
+    --serif: "Newsreader", Georgia, serif;
     --gutter: clamp(16px, 3.4vw, 56px);
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     /* legibility without a DOM scrim: a soft halo that travels with the glyphs, so there is no edge to slide */
@@ -93,7 +93,8 @@
   .hero-sentence {
     position: absolute; left: var(--gutter); right: var(--gutter); bottom: clamp(28px, 6vh, 64px);
     margin: 0; font-family: var(--serif); font-weight: 300; font-synthesis: none;
-    font-size: clamp(40px, 8.2vw, 140px); line-height: 1.18; letter-spacing: -0.025em;
+    font-size: clamp(40px, 8.2vw, 140px); line-height: 1.06; letter-spacing: -0.02em; font-optical-sizing: auto;
+    padding-bottom: .08em; /* descender room for p and y */
     /* thin strokes need the tight inner shadow of the halo more than a wide glow */
     text-shadow: var(--halo);
     will-change: transform, opacity;
@@ -207,10 +208,10 @@
 
 <main>
   <section class="hero" id="top">
-    <h1 class="hero-sentence">
-      <span class="l">아로마 로스터리는</span>
-      <span class="l">설득력 있는 스페셜티</span>
-      <span class="l">커피를 로스팅 합니다.</span>
+    <h1 class="hero-sentence" lang="en">
+      <span class="l">Aroma Roastery roasts</span>
+      <span class="l">specialty coffee</span>
+      <span class="l">that persuades.</span>
     </h1>
   </section>
 
