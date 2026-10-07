@@ -106,6 +106,12 @@
     position: absolute; left: 50%; top: 0; transform: translateX(-50%);
     height: 100cqh; width: auto; aspect-ratio: 16 / 9; max-width: none;
   }
+  /* wide stages: 1.4x the stage height (about 1.75x the source on a 900px screen), cropped top and
+     bottom around the server, which sits low in the frame */
+  @container (min-aspect-ratio: 9 / 16) {
+    .stage-photo .clip { width: min(100cqw, 140cqh * 9 / 16); }
+    .stage-photo video { height: 140cqh; top: -24cqh; }
+  }
   .stage-photo::after {
     content: ""; position: absolute; inset: 0;
     background: linear-gradient(180deg, rgba(15, 18, 21, .55) 0%, rgba(15, 18, 21, 0) 40%, rgba(15, 18, 21, .7) 100%);

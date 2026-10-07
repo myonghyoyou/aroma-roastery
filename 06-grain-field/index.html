@@ -643,7 +643,10 @@
         gr.addColorStop(1 - f / sw, '#000'); gr.addColorStop(1, 'rgba(0,0,0,0)');
         eg.fillStyle = gr; eg.fillRect(0, 0, sw, vh);
         eg.globalCompositeOperation = 'source-over';
-        g.drawImage(v.edge, sx, 0);
+        // wide screens: the strip at 1.4x (about 1.75x the source on a 900px screen), cropped top and
+        // bottom around the server; tall screens crop into the strip anyway and keep it at 1x
+        const z = innerWidth > innerHeight ? 1.4 : 1;
+        g.drawImage(v.edge, vw / 2 - sw * z / 2, (vh - vh * z) * 0.6, sw * z, vh * z);
         src = v.cv;
       }
       gl.activeTexture(gl.TEXTURE0 + v.slot);
