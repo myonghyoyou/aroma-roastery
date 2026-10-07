@@ -783,7 +783,8 @@
         if (now - state.lastMove > 2600) state.lensTarget = Math.min(state.lensTarget, 0.35);
         state.mx += (state.tx - state.mx) * 0.08;
         state.my += (state.ty - state.my) * 0.08;
-        state.lens += (state.lensTarget - state.lens) * 0.05;
+        // no lens over the pour video: it fades out as the video surfaces (slot 0)
+        state.lens += (state.lensTarget * (1 - state.w[0]) - state.lens) * 0.05;
         if (state.w[0] > 0.002) field.uploadVideo();
         field.draw((now - t0) / 1000 + 20.0, state);
       };
