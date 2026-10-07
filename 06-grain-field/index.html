@@ -287,8 +287,10 @@
   // texture slot order matters: 0 passage, 1 store, 2-5 archive entries (see data-photo).
   // slots 0 (barista pour) and 2 (steaming server) are videos, the rest are stills
   const VIDEO_SRC = { 0: '../assets/video/barista-pouring.mp4', 2: '../assets/video/server-steaming.mp4' };
-  // the server clip is a 9:16 shot pillarboxed inside a 16:9 frame (black sides, tool mark in the corner):
-  // only that centre strip is used, so it frames the server exactly like the still it replaces
+  // the server clip is a 9:16 shot (only 405 x 720 px) pillarboxed inside a 16:9 frame. Covering a desktop
+  // with that strip alone meant about 3.5x upscaling, so the texture is rebuilt each frame as a 16:9 frame:
+  // the sharp strip at native size in the middle, its own blurred and dimmed copy filling the sides.
+  // A phone crops into the strip and sees only the sharp part.
   const VIDEO_CROP = { 2: 9 / 16 };
   const PHOTOS = [
     'photo-barista-pourover-bar.jpg',
@@ -623,8 +625,25 @@
     function upload(v) {
       let src = v.el;
       if (v.cv) {
-        const vw = v.el.videoWidth, vh = v.el.videoHeight;
-        v.cv.getContext('2d').drawImage(v.el, (vw - v.cv.width) / 2, 0, v.cv.width, vh, 0, 0, v.cv.width, v.cv.height);
+        const vw = v.el.videoWidth, vh = v.el.videoHeight, sw = Math.round(vh * v.crop), sx = (vw - sw) / 2;
+        const g = v.cv.getContext('2d');
+        // sides: the strip shrunk to a few pixels and stretched back up reads as a heavy blur
+        v.small.getContext('2d').drawImage(v.el, sx, 0, sw, vh, 0, 0, v.small.width, v.small.height);
+        const bh = vw / v.crop;
+        g.drawImage(v.small, 0, (vh - bh) * 0.6, vw, bh);
+        g.fillStyle = 'rgba(14, 10, 8, 0.32)';
+        g.fillRect(0, 0, vw, vh);
+        // sharp strip, faded in over its outer fifth so there is no visible seam against the blur
+        const f = sw * 0.2;
+        v.edge.getContext('2d').drawImage(v.el, sx, 0, sw, vh, 0, 0, sw, vh);
+        const eg = v.edge.getContext('2d');
+        eg.globalCompositeOperation = 'destination-in';
+        const gr = eg.createLinearGradient(0, 0, sw, 0);
+        gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(f / sw, '#000');
+        gr.addColorStop(1 - f / sw, '#000'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+        eg.fillStyle = gr; eg.fillRect(0, 0, sw, vh);
+        eg.globalCompositeOperation = 'source-over';
+        g.drawImage(v.edge, sx, 0);
         src = v.cv;
       }
       gl.activeTexture(gl.TEXTURE0 + v.slot);
@@ -637,8 +656,11 @@
       v.el.addEventListener('loadeddata', () => {
         if (v.crop) {
           v.cv = document.createElement('canvas');
-          v.cv.height = v.el.videoHeight;
-          v.cv.width = Math.round(v.el.videoHeight * v.crop);
+          v.cv.width = v.el.videoWidth; v.cv.height = v.el.videoHeight;
+          v.small = document.createElement('canvas');
+          v.small.width = 9; v.small.height = 16;
+          v.edge = document.createElement('canvas');
+          v.edge.width = Math.round(v.el.videoHeight * v.crop); v.edge.height = v.el.videoHeight;
         }
         sizes[v.slot * 2] = v.cv ? v.cv.width : v.el.videoWidth;
         sizes[v.slot * 2 + 1] = v.cv ? v.cv.height : v.el.videoHeight;
