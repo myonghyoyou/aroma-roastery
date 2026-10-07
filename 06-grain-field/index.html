@@ -284,7 +284,9 @@
   const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
   if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
   const STILL_TIME = 37.0;
-  // texture slot order matters: 0 passage, 1 store, 2-5 archive entries (see data-photo)
+  // texture slot order matters: 0 passage, 1 store, 2-5 archive entries (see data-photo).
+  // slot 0 is the barista pour video, the rest are stills
+  const PASSAGE_VIDEO = '../assets/video/barista-pouring.mp4';
   const PHOTOS = [
     'photo-barista-pourover-bar.jpg',
     'photo-coffee-tap-bar.jpg',
@@ -294,6 +296,16 @@
     'photo-coffee-pour-cup.jpg'
   ].map((n) => '../assets/img/' + n);
   const N = PHOTOS.length;
+  // muted + playsinline so phones allow it to play inline without a tap
+  const video = { el: document.createElement('video'), tex: null, playing: false };
+  Object.assign(video.el, { src: PASSAGE_VIDEO, muted: true, loop: true, playsInline: true, preload: 'auto' });
+  video.el.setAttribute('muted', ''); video.el.setAttribute('playsinline', '');
+  // plays only while the pour is surfacing; reduced motion keeps its first frame as a still
+  video.sync = (show) => {
+    if (reduce) return;
+    if (show && !video.playing) { video.playing = true; video.el.play().catch(() => { video.playing = false; }); }
+    else if (!show && video.playing) { video.playing = false; video.el.pause(); }
+  };
 
   /* ---------------- smooth scroll ---------------- */
   let lenis = null;
@@ -581,6 +593,7 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([42, 19, 11, 255]));
       gl.uniform1i(gl.getUniformLocation(prog, 'uT' + i), i);
+      if (i === 0) { video.tex = tex; return; }
       const img = new Image();
       img.decoding = 'async';
       img.onload = () => {
@@ -597,6 +610,23 @@
       img.src = src;
     });
     gl.uniform2fv(U.uSz, sizes);
+
+    // passage video: same cover fit as the stills, re-uploaded each frame only while it is on screen
+    function upload() {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, video.tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video.el);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    }
+    video.el.addEventListener('loadeddata', () => {
+      sizes[0] = video.el.videoWidth; sizes[1] = video.el.videoHeight;
+      gl.uniform2fv(U.uSz, sizes);
+      upload();
+      ready[0] = 1;
+      if (api.onPhoto) api.onPhoto();
+    });
+    api.uploadVideo = () => { if (ready[0] && video.el.readyState >= 2) upload(); };
 
     api.resize = () => {
       // grain reads best near native pixels; cap at 2 and trim a little for fill-rate
@@ -649,6 +679,7 @@
       if (field) field.draw(STILL_TIME, state);
     }
     if (!field && fallback) fallback.style.opacity = String(1 - 0.5 * state.dark);
+    video.sync(state.wT[0] > 0.001);
   };
 
   if (!reduce) {
@@ -753,6 +784,7 @@
         state.mx += (state.tx - state.mx) * 0.08;
         state.my += (state.ty - state.my) * 0.08;
         state.lens += (state.lensTarget - state.lens) * 0.05;
+        if (state.w[0] > 0.002) field.uploadVideo();
         field.draw((now - t0) / 1000 + 20.0, state);
       };
       requestAnimationFrame(loop);

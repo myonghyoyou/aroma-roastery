@@ -398,9 +398,9 @@ function fallback() {
    The SVG is rasterised to an offscreen canvas (the browser applies the
    matrix(1,0,0,-1,0,391) leaf transforms and the gradients), then opaque
    pixels are picked at random. Coordinates are normalised to height 1.
-   edge (0..1) is the share of eight probes around a sample that land outside the
-   shape, so molecules on the rim can be told apart from the ones inside. */
-async function sampleSVG(url, count, pxWidth, takeColor, edgeFrac) {
+   up (0..1) is the share of three probes above a sample that land outside the
+   shape: high on the upper rims, where steam would lift off. */
+async function sampleSVG(url, count, pxWidth, takeColor, probeFrac) {
   const txt = await (await fetch(url)).text();
   const vb = txt.match(/viewBox="([^"]+)"/)[1].split(/[\s,]+/).map(Number);
   const aspect = vb[2] / vb[3];
@@ -421,10 +421,9 @@ async function sampleSVG(url, count, pxWidth, takeColor, edgeFrac) {
   if (!hits.length) throw new Error('empty sample');
   const pos = new Float32Array(count * 2);
   const col = takeColor ? new Float32Array(count * 3) : null;
-  const edge = new Float32Array(count);
-  const er = Math.max(2, ch * edgeFrac);
-  const probes = [];
-  for (let k = 0; k < 8; k++) probes.push([Math.round(Math.cos(k * Math.PI / 4) * er), Math.round(Math.sin(k * Math.PI / 4) * er)]);
+  const up = new Float32Array(count);
+  const er = Math.max(2, ch * probeFrac);
+  const probes = [-0.6, 0, 0.6].map((a) => [Math.round(Math.sin(a) * er), -Math.round(Math.cos(a) * er)]);
   for (let i = 0; i < count; i++) {
     const p = hits[(Math.random() * hits.length) | 0];
     const x = p % cw, y = (p / cw) | 0;
@@ -435,18 +434,18 @@ async function sampleSVG(url, count, pxWidth, takeColor, edgeFrac) {
       const px = x + ox, py = y + oy;
       if (px < 0 || py < 0 || px >= cw || py >= ch || data[(py * cw + px) * 4 + 3] <= 150) out++;
     }
-    edge[i] = out / 8;
+    up[i] = out / 3;
     if (col) {
       col[i * 3] = data[p * 4] / 255;
       col[i * 3 + 1] = data[p * 4 + 1] / 255;
       col[i * 3 + 2] = data[p * 4 + 2] / 255;
     }
   }
-  return { pos, col, edge, aspect, fill: hits.length / (cw * ch) };
+  return { pos, col, up, aspect, fill: hits.length / (cw * ch) };
 }
 
 /* nearby pairs for the faint bonds, found once per form on a uniform grid.
-   Particles that will leave the rim are skipped so no bond trails after them. */
+   Steam particles are skipped so no bond trails after one in flight. */
 function findBonds(P, n, want, rMax, skip) {
   const cell = rMax, grid = new Map();
   const key = (gx, gy) => gx * 73856093 ^ gy * 19349663;
@@ -505,8 +504,8 @@ async function start() {
   let sym, word;
   try {
     [sym, word] = await Promise.all([
-      sampleSVG('../assets/logo/aroma-symbol.svg', N, 720, true, 0.035),
-      sampleSVG('../assets/logo/aroma-wordmark.svg', N, 1100, false, 0.025),
+      sampleSVG('../assets/logo/aroma-symbol.svg', N, 720, true, 0.05),
+      sampleSVG('../assets/logo/aroma-wordmark.svg', N, 1100, false, 0.05),
     ]);
   } catch (e) { fallback(); return; }
 
@@ -539,18 +538,27 @@ async function start() {
   for (let i = 0; i < N; i++) wx[i] = word.pos[i * 2] + (Math.random() - 0.5) * 0.35;
   wordOrder.sort((a, b) => wx[a] - wx[b]);
   const W = new Float32Array(N * 2); // word target indexed by particle
-  // x: rim share in the symbol, y: rim share in the wordmark, z: seed for leaving the rim
-  const edges = new Float32Array(N * 3);
+  const wordUp = new Float32Array(N);
   for (let k = 0; k < N; k++) {
     const p = symOrder[k], w = wordOrder[k];
     W[p * 2] = word.pos[w * 2];
     W[p * 2 + 1] = word.pos[w * 2 + 1];
-    edges[p * 3 + 1] = word.edge[w];
+    wordUp[p] = word.up[w];
   }
-  for (let i = 0; i < N; i++) {
-    edges[i * 3] = sym.edge[i];
-    edges[i * 3 + 2] = Math.random();
+  // Steam particles: about 11% per form, picked mostly from the upper rims and the top of
+  // the form, with some chance mixed in so the rims thin out instead of being stripped bare.
+  // x: steams off the symbol, y: steams off the wordmark, z: seed for height and timing
+  const WISP_SHARE = 0.11;
+  const wisp = new Float32Array(N * 3);
+  function pickWisps(P, upArr, slot) {
+    const score = new Float32Array(N);
+    for (let i = 0; i < N; i++) score[i] = upArr[i] * 0.65 + (P[i * 2 + 1] + 0.5) * 0.35 + Math.random() * 0.3;
+    const cut = Float32Array.from(score).sort()[Math.floor(N * (1 - WISP_SHARE))];
+    for (let i = 0; i < N; i++) wisp[i * 3 + slot] = score[i] >= cut ? 1 : 0;
   }
+  pickWisps(sym.pos, sym.up, 0);
+  pickWisps(W, wordUp, 1);
+  for (let i = 0; i < N; i++) wisp[i * 3 + 2] = Math.random();
 
   const S = sym.pos;
   const pos = new Float32Array(N * 3);
@@ -575,7 +583,7 @@ async function start() {
   geo.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
   geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
   geo.setAttribute('aRand', new THREE.BufferAttribute(R, 4));
-  geo.setAttribute('aEdge', new THREE.BufferAttribute(edges, 3));
+  geo.setAttribute('aWisp', new THREE.BufferAttribute(wisp, 3));
 
   const uniforms = {
     uSize: { value: 1 },
@@ -589,6 +597,8 @@ async function start() {
     uMorph: { value: 0 },
     uForm: { value: 0 },
     uGain: { value: 1 },
+    uSpan: { value: 1 },
+    uVisH: { value: 1 },
   };
 
   // Drift lives on the GPU so it costs nothing per particle on the CPU, and the bond
@@ -621,39 +631,53 @@ async function start() {
       attribute vec3 aColor;
       attribute float aSize;
       attribute vec4 aRand;
-      attribute vec3 aEdge;
-      uniform float uSize, uPR, uCamZ, uSteam, uFade, uMorph, uForm;
+      attribute vec3 aWisp;
+      uniform float uSize, uPR, uCamZ, uSteam, uFade, uMorph, uForm, uSpan, uVisH;
       varying vec3 vColor;
       varying float vAlpha;
       ${DRIFT}
       void main() {
         vec3 p = position + drift(position, aRand);
 
-        // now and then a molecule on the rim leaves the form, out and up, fading like scent off a cup
-        float rim = mix(aEdge.x, aEdge.y, uMorph);
-        float k = uMotion * uForm * smoothstep(0.35, 0.6, rim) * step(aEdge.z, 0.45);
-        float cyc = fract(uTime / (10.0 + aEdge.z * 18.0) + aRand.x * 3.7 + aRand.z);
-        float leave = smoothstep(0.3, 0.45, cyc);
-        if (cyc < 0.3) {
-          float u = cyc / 0.3;
-          vec2 dir = normalize(normalize(p.xy + vec2(1e-4)) * 0.6 + vec2(0.0, 1.0));
-          float dist = (30.0 + aRand.y * 60.0) * uPx * (1.0 - (1.0 - u) * (1.0 - u));
-          p.xy += (dir * dist + vec2(sin(u * 5.0 + aRand.w * 20.0) * 5.0 * u * uPx, 0.0)) * k;
-          leave = 1.0 - smoothstep(0.15, 1.0, u);
+        // Steam off a hot cup: picked molecules peel off the top, gather into one of four slow
+        // plumes, rise and slow down, sway in an S that widens with height, fade, then reappear
+        // on the form. Phases are random per molecule so the flow never pulses.
+        float wk = uMotion * uForm * mix(aWisp.x, aWisp.y, uMorph) * (1.0 - smoothstep(0.0, 0.3, uSteam));
+        float life = 4.0 + aRand.y * 4.0;
+        float phase = fract(uTime / (life / 0.78) + aWisp.z * 7.0 + aRand.x);
+        float u = phase / 0.78;
+        float rise = 0.0;
+        float leave = smoothstep(0.78, 0.9, phase);
+        if (u < 1.0) {
+          float slot = clamp(floor((position.x / uSpan * 0.5 + 0.5) * 4.0), 0.0, 3.0);
+          float src = ((slot + 0.5) / 4.0 - 0.5) * 1.6 * uSpan + sin(uTime * 0.07 + slot * 2.1) * uSpan * 0.08;
+          rise = 1.0 - pow(1.0 - u, 1.8);
+          float y = rise * (0.25 + aWisp.z * 0.2) * uVisH;
+          float x = mix(position.x, src, 0.8 * smoothstep(0.0, 0.45, u)) + (p.x - position.x);
+          x += (aRand.w - 0.5) * (6.0 + 46.0 * rise) * uPx;
+          // the whole plume snakes as one curve, so its molecules share the sway at each height
+          float yp = (position.y + y) / uPx;
+          x += (sin(yp * 0.016 - uTime * 0.55 + slot * 2.3) * 0.75 + sin(yp * 0.037 + uTime * 0.4 + slot) * 0.25) * (3.0 + 38.0 * rise) * uPx;
+          p.x = mix(p.x, x, wk);
+          p.y += y * wk;
+          leave = pow(1.0 - rise, 1.5);
         }
-        leave = mix(1.0, leave, k);
+        leave = mix(1.0, leave, wk);
+        rise *= wk;
 
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
-        // steam: most particles thin out, about one in ten lingers as a faint wisp
+        // steam: over half the particles thin out, the rest stay on as visible wisps over the photo
         float gone = smoothstep(aRand.w * 0.7, aRand.w * 0.7 + 0.3, uSteam);
-        float linger = step(0.9, aRand.w);
-        vAlpha = (1.0 - gone * (1.0 - linger * 0.6)) * uFade * leave * (0.6 + aRand.z * 0.4);
+        float linger = step(0.55, aRand.w);
+        // steam columns over the photo thin out gradually towards the top of the stage
+        float top = 1.0 - uSteam * smoothstep(0.1 * uVisH, 0.55 * uVisH, position.y);
+        vAlpha = (1.0 - gone * (1.0 - linger * 0.8)) * uFade * leave * top * (0.6 + aRand.z * 0.4);
         // core diameter in CSS px; the sprite is three cores wide so the halo has room to fall off
-        float core = uSize * aSize * (1.0 + uSteam * aRand.y * 0.9) * (uCamZ / -mv.z);
+        float core = uSize * aSize * (1.0 + uSteam * aRand.y * 0.9 + rise * 0.8) * (uCamZ / -mv.z);
         gl_PointSize = max(2.0, core * 3.0 * uPR);
         // aroma turns towards steam white as it rises
-        vColor = mix(aColor, vec3(0.93, 0.92, 0.90), uSteam * (0.25 + aRand.z * 0.45));
+        vColor = mix(aColor, vec3(0.93, 0.92, 0.90), max(uSteam * (0.25 + aRand.z * 0.45), rise * 0.5));
       }
     `,
     fragmentShader: /* glsl */`
@@ -682,8 +706,8 @@ async function start() {
   let bondLines = null, bondSym = null, bondWord = null;
   const bondUniforms = { uOpacity: { value: 0 } };
   if (bonds) {
-    const skipS = (i) => edges[i * 3 + 2] <= 0.45 && edges[i * 3] > 0.35;
-    const skipW = (i) => edges[i * 3 + 2] <= 0.45 && edges[i * 3 + 1] > 0.35;
+    const skipS = (i) => wisp[i * 3] > 0;
+    const skipW = (i) => wisp[i * 3 + 1] > 0;
     // W is indexed by particle already, so both pair lists index the same vertices
     bondSym = new THREE.BufferAttribute(findBonds(S, N, 1800, 0.012, skipS), 1);
     bondWord = new THREE.BufferAttribute(findBonds(W, N, 1800, 0.02, skipW), 1);
@@ -721,7 +745,7 @@ async function start() {
   }
 
   /* ---------- layout ---------- */
-  let visW = 1, visH = 1, symScale = 1, wordScale = 1, gainSym = 1, gainWord = 1;
+  let visW = 1, visH = 1, symScale = 1, wordScale = 1, gainSym = 1, gainWord = 1, symSpan = 1, wordSpan = 1;
   // How much each form's pixels are covered by molecule light (about 1.4 px2 each at mean size),
   // turned into a gain so a dense wordmark glows like the symbol instead of burning to white.
   function gainFor(form, scale, h) {
@@ -744,6 +768,10 @@ async function start() {
     uniforms.uSize.value = 1;
     uniforms.uPR.value = pr;
     uniforms.uPx.value = visH / h;
+    uniforms.uVisH.value = visH;
+    symSpan = sym.aspect * symScale * 0.5;
+    wordSpan = word.aspect * wordScale * 0.5;
+    uniforms.uSpan.value = symSpan;
     gainSym = gainFor(sym, symScale, h);
     gainWord = gainFor(word, wordScale, h);
     uniforms.uGain.value = gainSym;
@@ -808,6 +836,7 @@ async function start() {
   const clock = new THREE.Clock();
   let t = 0, introT = 0, running = true;
   const TAU = Math.PI * 2;
+  const colX = new Float32Array(5);
   const smooth = (a, b, x) => { const u = Math.min(1, Math.max(0, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
 
   function step() {
@@ -823,7 +852,8 @@ async function start() {
     uniforms.uTime.value = t;
     uniforms.uMorph.value = morph;
     uniforms.uGain.value = gainSym + (gainWord - gainSym) * morph;
-    // rim molecules only leave a form that has assembled, never mid morph
+    uniforms.uSpan.value = symSpan + (wordSpan - symSpan) * morph;
+    // steam only lifts off a form that has assembled, never mid morph
     const settle = smooth(1.8, 3.2, introT);
     const formed = Math.max(1 - smooth(0.03, 0.15, morph), smooth(0.88, 1, morph));
     uniforms.uForm.value = settle * formed;
@@ -839,6 +869,8 @@ async function start() {
     const mR = visH * 0.15, mR2 = mR * mR;
     const mx = mouse.x, my = mouse.y, mAmt = mouse.amt;
     const riseBase = visH * 0.55, riseVar = visH * 0.95;
+    // five steam columns over the wordmark, wandering slowly so they breathe
+    for (let c = 0; c < 5; c++) colX[c] = ((c + 0.5) / 5 - 0.5) * 1.7 * wordSpan + Math.sin(t * 0.08 + c * 1.9) * visW * 0.025;
 
     for (let i = 0; i < N; i++) {
       const i2 = i * 2, i3 = i * 3, i4 = i * 4;
@@ -866,7 +898,11 @@ async function start() {
           const s = steam * steam;
           const lift = s * (riseBase + r1 * riseVar) * (0.45 + r3 * 0.8);
           ty += lift;
-          tx += Math.sin(t * 0.55 + r2 * TAU + ty * 0.9) * steam * (0.15 + r3 * 0.45) + (r0 - 0.5) * s * visW * 0.25;
+          // gather into the nearest column, which widens and snakes more the higher it climbs
+          const hN = Math.min(1, lift / visH);
+          const c = Math.min(4, Math.max(0, Math.floor((wX / wordSpan * 0.5 + 0.5) * 5)));
+          tx += (colX[c] - tx) * steam * (2 - steam) * 0.85 + (r0 - 0.5) * visW * (0.02 + 0.16 * hN) * steam;
+          tx += (Math.sin(ty * 1.1 - t * 0.5 + c * 2.3) * 0.75 + Math.sin(ty * 2.4 + t * 0.35 + c) * 0.25) * visW * 0.06 * hN;
           tz += steam * (r0 - 0.5) * 3;
         }
       }
