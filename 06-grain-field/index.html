@@ -285,8 +285,11 @@
   if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
   const STILL_TIME = 37.0;
   // texture slot order matters: 0 passage, 1 store, 2-5 archive entries (see data-photo).
-  // slot 0 is the barista pour video, the rest are stills
-  const PASSAGE_VIDEO = '../assets/video/barista-pouring.mp4';
+  // slots 0 (barista pour) and 2 (steaming server) are videos, the rest are stills
+  const VIDEO_SRC = { 0: '../assets/video/barista-pouring.mp4', 2: '../assets/video/server-steaming.mp4' };
+  // the server clip is a 9:16 shot pillarboxed inside a 16:9 frame (black sides, tool mark in the corner):
+  // only that centre strip is used, so it frames the server exactly like the still it replaces
+  const VIDEO_CROP = { 2: 9 / 16 };
   const PHOTOS = [
     'photo-barista-pourover-bar.jpg',
     'photo-coffee-tap-bar.jpg',
@@ -297,15 +300,19 @@
   ].map((n) => '../assets/img/' + n);
   const N = PHOTOS.length;
   // muted + playsinline so phones allow it to play inline without a tap
-  const video = { el: document.createElement('video'), tex: null, playing: false };
-  Object.assign(video.el, { src: PASSAGE_VIDEO, muted: true, loop: true, playsInline: true, preload: 'auto' });
-  video.el.setAttribute('muted', ''); video.el.setAttribute('playsinline', '');
-  // plays only while the pour is surfacing; reduced motion keeps its first frame as a still
-  video.sync = (show) => {
-    if (reduce) return;
-    if (show && !video.playing) { video.playing = true; video.el.play().catch(() => { video.playing = false; }); }
-    else if (!show && video.playing) { video.playing = false; video.el.pause(); }
-  };
+  const videos = Object.keys(VIDEO_SRC).map((k) => {
+    const v = { slot: Number(k), el: document.createElement('video'), tex: null, playing: false, ready: false, crop: VIDEO_CROP[k] || 0, cv: null };
+    Object.assign(v.el, { src: VIDEO_SRC[k], muted: true, loop: true, playsInline: true, preload: 'auto' });
+    v.el.setAttribute('muted', ''); v.el.setAttribute('playsinline', '');
+    // plays only while its slot is showing; reduced motion keeps its first frame as a still
+    v.sync = (show) => {
+      if (reduce) return;
+      if (show && !v.playing) { v.playing = true; v.el.play().catch(() => { v.playing = false; }); }
+      else if (!show && v.playing) { v.playing = false; v.el.pause(); }
+    };
+    return v;
+  });
+  const videoAt = (i) => videos.find((v) => v.slot === i);
 
   /* ---------------- smooth scroll ---------------- */
   let lenis = null;
@@ -593,7 +600,8 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([42, 19, 11, 255]));
       gl.uniform1i(gl.getUniformLocation(prog, 'uT' + i), i);
-      if (i === 0) { video.tex = tex; return; }
+      const vid = videoAt(i);
+      if (vid) { vid.tex = tex; return; }
       const img = new Image();
       img.decoding = 'async';
       img.onload = () => {
@@ -611,22 +619,36 @@
     });
     gl.uniform2fv(U.uSz, sizes);
 
-    // passage video: same cover fit as the stills, re-uploaded each frame only while it is on screen
-    function upload() {
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, video.tex);
+    // videos: same cover fit as the stills, re-uploaded each frame only while their slot is on screen
+    function upload(v) {
+      let src = v.el;
+      if (v.cv) {
+        const vw = v.el.videoWidth, vh = v.el.videoHeight;
+        v.cv.getContext('2d').drawImage(v.el, (vw - v.cv.width) / 2, 0, v.cv.width, vh, 0, 0, v.cv.width, v.cv.height);
+        src = v.cv;
+      }
+      gl.activeTexture(gl.TEXTURE0 + v.slot);
+      gl.bindTexture(gl.TEXTURE_2D, v.tex);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video.el);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
-    video.el.addEventListener('loadeddata', () => {
-      sizes[0] = video.el.videoWidth; sizes[1] = video.el.videoHeight;
-      gl.uniform2fv(U.uSz, sizes);
-      upload();
-      ready[0] = 1;
-      if (api.onPhoto) api.onPhoto();
+    videos.forEach((v) => {
+      v.el.addEventListener('loadeddata', () => {
+        if (v.crop) {
+          v.cv = document.createElement('canvas');
+          v.cv.height = v.el.videoHeight;
+          v.cv.width = Math.round(v.el.videoHeight * v.crop);
+        }
+        sizes[v.slot * 2] = v.cv ? v.cv.width : v.el.videoWidth;
+        sizes[v.slot * 2 + 1] = v.cv ? v.cv.height : v.el.videoHeight;
+        gl.uniform2fv(U.uSz, sizes);
+        upload(v);
+        ready[v.slot] = 1; v.ready = true;
+        if (api.onPhoto) api.onPhoto();
+      });
     });
-    api.uploadVideo = () => { if (ready[0] && video.el.readyState >= 2) upload(); };
+    api.uploadVideos = (w) => { videos.forEach((v) => { if (v.ready && w[v.slot] > 0.002 && v.el.readyState >= 2) upload(v); }); };
 
     api.resize = () => {
       // grain reads best near native pixels; cap at 2 and trim a little for fill-rate
@@ -679,7 +701,7 @@
       if (field) field.draw(STILL_TIME, state);
     }
     if (!field && fallback) fallback.style.opacity = String(1 - 0.5 * state.dark);
-    video.sync(state.wT[0] > 0.001);
+    videos.forEach((v) => v.sync(state.wT[v.slot] > 0.001));
   };
 
   if (!reduce) {
@@ -783,9 +805,10 @@
         if (now - state.lastMove > 2600) state.lensTarget = Math.min(state.lensTarget, 0.35);
         state.mx += (state.tx - state.mx) * 0.08;
         state.my += (state.ty - state.my) * 0.08;
-        // no lens over the pour video: it fades out as the video surfaces (slot 0)
-        state.lens += (state.lensTarget * (1 - state.w[0]) - state.lens) * 0.05;
-        if (state.w[0] > 0.002) field.uploadVideo();
+        // no lens over the videos: it fades out as a video slot surfaces
+        let vw = 0; videos.forEach((v) => { vw = Math.max(vw, state.w[v.slot]); });
+        state.lens += (state.lensTarget * (1 - vw) - state.lens) * 0.05;
+        field.uploadVideos(state.w);
         field.draw((now - t0) / 1000 + 20.0, state);
       };
       requestAnimationFrame(loop);
