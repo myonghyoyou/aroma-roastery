@@ -172,7 +172,7 @@
   .archive time { font-size: 14px; color: var(--soft); font-variant-numeric: tabular-nums; }
   .archive .t { font-family: var(--display); font-size: clamp(19px, 1.7vw, 26px); font-weight: 700; letter-spacing: -.02em; line-height: 1.3; }
   .archive .k { font-size: 13px; color: var(--soft); }
-  .archive li img { width: 132px; aspect-ratio: 4 / 3; object-fit: cover; }
+  .archive li img, .archive li video { width: 132px; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
 
   .site-foot { padding: clamp(60px, 10vh, 120px) 0 28px; border-top: 1px solid var(--line); }
   .site-foot .wordmark { grid-column: 1 / span 6; width: 100%; max-width: 640px; }
@@ -305,7 +305,7 @@
         <time datetime="2026-10-01">2026. 10. 01</time>
         <span class="t">10월 매장 운영 안내</span>
         <span class="k">소식</span>
-        <img src="../assets/img/photo-coffee-tap-bar.jpg" alt="" loading="lazy">
+        <video src="../assets/video/coffee-pour-glass.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
       </li>
       <li>
         <time datetime="2026-09-26">2026. 09. 26</time>
@@ -357,6 +357,8 @@ import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// reduced motion: the archive clip holds its first frame instead of looping
+if (reduced) document.querySelectorAll('.archive video').forEach((v) => { v.removeAttribute('autoplay'); v.pause(); });
 const stage = document.getElementById('stage');
 const canvas = document.getElementById('gl');
 const labelsEl = document.getElementById('labels');

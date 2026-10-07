@@ -285,8 +285,8 @@
   if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
   const STILL_TIME = 37.0;
   // texture slot order matters: 0 passage, 1 store, 2-5 archive entries (see data-photo).
-  // slots 0 (barista pour) and 2 (steaming server) are videos, the rest are stills
-  const VIDEO_SRC = { 0: '../assets/video/barista-pouring.mp4', 2: '../assets/video/server-steaming.mp4' };
+  // slots 0 (barista pour), 1 (tap bar pouring into a glass) and 2 (steaming server) are videos, the rest are stills
+  const VIDEO_SRC = { 0: '../assets/video/barista-pouring.mp4', 1: '../assets/video/coffee-pour-glass.mp4', 2: '../assets/video/server-steaming.mp4' };
   // the server clip is a 9:16 shot (only 405 x 720 px) pillarboxed inside a 16:9 frame. Covering a desktop
   // with that strip alone meant about 3.5x upscaling, so the texture is rebuilt each frame as a 16:9 frame:
   // the sharp strip at native size in the middle, its own blurred and dimmed copy filling the sides.
