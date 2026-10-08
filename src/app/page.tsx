@@ -19,9 +19,9 @@ function FallbackImage({ media }: { media: Media }) {
 
 export default async function Home() {
   const [settings, posts] = await Promise.all([getSiteSettings(), getPosts()]);
-  // the newest posts that have a cover: each one owns a shader slot
-  const entries = posts.filter((p): p is Post & { cover: Media } => !!p.cover).slice(0, HOME_ENTRIES);
-  const slots: Media[] = [settings.passageMedia, settings.storeMedia, ...entries.map((p) => p.cover)];
+  // the newest posts that carry a home clip: each one owns a shader slot
+  const entries = posts.filter((p): p is Post & { homeClip: Media } => !!p.homeClip).slice(0, HOME_ENTRIES);
+  const slots: Media[] = [settings.passageMedia, settings.storeMedia, ...entries.map((p) => p.homeClip)];
   while (slots.length < SLOT_COUNT) slots.push(EMPTY_SLOT);
   const hasSample = entries.some((p) => p.sample);
 
@@ -75,7 +75,7 @@ export default async function Home() {
                   <time dateTime={p.date}>{formatDate(p.date)}</time>
                 </div>
                 <h3><Link href={postHref(p)}>{p.title}</Link></h3>
-                <FallbackImage media={p.cover} />
+                <FallbackImage media={p.homeClip} />
               </li>
             ))}
           </ol>

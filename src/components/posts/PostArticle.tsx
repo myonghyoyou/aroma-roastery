@@ -13,6 +13,14 @@ function BodyBlock({ block }: { block: Block }) {
       return <blockquote>{block.text}</blockquote>;
     case 'list':
       return <ul>{block.items.map((t) => <li key={t}>{t}</li>)}</ul>;
+    case 'gallery':
+      return (
+        <div className={`article-gallery is-${block.layout}`}>
+          {block.photos.map((ph) => (
+            <span key={ph.src} className="article-media"><CoverMedia media={ph} className="cover-fill" /></span>
+          ))}
+        </div>
+      );
     case 'media':
       return (
         <figure>

@@ -1,0 +1,233 @@
+[
+ {
+  "id": "bar-wide",
+  "src": "/assets/mock/bar-wide.jpg",
+  "w": 1600,
+  "h": 900,
+  "alt": "브루 바에서 핸드드립을 내리는 바리스타"
+ },
+ {
+  "id": "bar-wide-mono",
+  "src": "/assets/mock/bar-wide-mono.jpg",
+  "w": 1600,
+  "h": 900,
+  "alt": "브루 바에서 핸드드립을 내리는 바리스타 (흑백)"
+ },
+ {
+  "id": "bar-cups",
+  "src": "/assets/mock/bar-cups.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "선반에 놓인 커피잔"
+ },
+ {
+  "id": "bar-cups-mono",
+  "src": "/assets/mock/bar-cups-mono.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "선반에 놓인 커피잔 (흑백)"
+ },
+ {
+  "id": "bar-cards",
+  "src": "/assets/mock/bar-cards.jpg",
+  "w": 1436,
+  "h": 808,
+  "alt": "진열대에 꽂힌 원두 카드"
+ },
+ {
+  "id": "bar-pour",
+  "src": "/assets/mock/bar-pour.jpg",
+  "w": 1280,
+  "h": 1600,
+  "alt": "드리퍼에 물을 붓는 손"
+ },
+ {
+  "id": "bar-drippers",
+  "src": "/assets/mock/bar-drippers.jpg",
+  "w": 1119,
+  "h": 1118,
+  "alt": "나란히 놓인 두 드리퍼"
+ },
+ {
+  "id": "bar-grinders",
+  "src": "/assets/mock/bar-grinders.jpg",
+  "w": 1200,
+  "h": 1600,
+  "alt": "그라인더가 놓인 바 뒤편"
+ },
+ {
+  "id": "bar-barista",
+  "src": "/assets/mock/bar-barista.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "핸드드립을 내리는 바리스타"
+ },
+ {
+  "id": "drip-full",
+  "src": "/assets/mock/drip-full.jpg",
+  "w": 1280,
+  "h": 1600,
+  "alt": "스케일 위 드리퍼에 물을 붓는 모습"
+ },
+ {
+  "id": "drip-close",
+  "src": "/assets/mock/drip-close.jpg",
+  "w": 1383,
+  "h": 1382,
+  "alt": "추출 중인 드리퍼 근접"
+ },
+ {
+  "id": "drip-close-mono",
+  "src": "/assets/mock/drip-close-mono.jpg",
+  "w": 1383,
+  "h": 1382,
+  "alt": "추출 중인 드리퍼 근접 (흑백)"
+ },
+ {
+  "id": "drip-kettle",
+  "src": "/assets/mock/drip-kettle.jpg",
+  "w": 1600,
+  "h": 1201,
+  "alt": "드립 포트에서 떨어지는 물줄기"
+ },
+ {
+  "id": "drip-hand",
+  "src": "/assets/mock/drip-hand.jpg",
+  "w": 1571,
+  "h": 1047,
+  "alt": "스케일 옆에 놓인 손"
+ },
+ {
+  "id": "bokeh-full",
+  "src": "/assets/mock/bokeh-full.jpg",
+  "w": 1280,
+  "h": 1600,
+  "alt": "유리 서버 너머의 바리스타"
+ },
+ {
+  "id": "bokeh-server",
+  "src": "/assets/mock/bokeh-server.jpg",
+  "w": 1600,
+  "h": 1000,
+  "alt": "유리 서버와 잔"
+ },
+ {
+  "id": "bokeh-server-mono",
+  "src": "/assets/mock/bokeh-server-mono.jpg",
+  "w": 1600,
+  "h": 1000,
+  "alt": "유리 서버와 잔 (흑백)"
+ },
+ {
+  "id": "bokeh-garland",
+  "src": "/assets/mock/bokeh-garland.jpg",
+  "w": 1600,
+  "h": 900,
+  "alt": "조명과 가랜드 장식"
+ },
+ {
+  "id": "bokeh-bar",
+  "src": "/assets/mock/bokeh-bar.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "커피 탭 앞의 바리스타"
+ },
+ {
+  "id": "bokeh-shelf",
+  "src": "/assets/mock/bokeh-shelf.jpg",
+  "w": 1200,
+  "h": 1600,
+  "alt": "선반의 소품과 탭 카드"
+ },
+ {
+  "id": "cup-full",
+  "src": "/assets/mock/cup-full.jpg",
+  "w": 1280,
+  "h": 1600,
+  "alt": "잔에 커피를 따르는 모습"
+ },
+ {
+  "id": "cup-close",
+  "src": "/assets/mock/cup-close.jpg",
+  "w": 1600,
+  "h": 1067,
+  "alt": "하얀 잔과 받침"
+ },
+ {
+  "id": "cup-close-mono",
+  "src": "/assets/mock/cup-close-mono.jpg",
+  "w": 1600,
+  "h": 1067,
+  "alt": "하얀 잔과 받침 (흑백)"
+ },
+ {
+  "id": "cup-stream",
+  "src": "/assets/mock/cup-stream.jpg",
+  "w": 1600,
+  "h": 1600,
+  "alt": "서버에서 떨어지는 커피 줄기"
+ },
+ {
+  "id": "cup-card",
+  "src": "/assets/mock/cup-card.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "트레이 위 원두 카드"
+ },
+ {
+  "id": "steam-full",
+  "src": "/assets/mock/steam-full.jpg",
+  "w": 1280,
+  "h": 1600,
+  "alt": "김이 오르는 서버와 원두 카드"
+ },
+ {
+  "id": "steam-card",
+  "src": "/assets/mock/steam-card.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "카이나무이 원두 카드"
+ },
+ {
+  "id": "steam-card-mono",
+  "src": "/assets/mock/steam-card-mono.jpg",
+  "w": 1600,
+  "h": 1200,
+  "alt": "카이나무이 원두 카드 (흑백)"
+ },
+ {
+  "id": "steam-rise",
+  "src": "/assets/mock/steam-rise.jpg",
+  "w": 1200,
+  "h": 1600,
+  "alt": "서버 위로 오르는 김"
+ },
+ {
+  "id": "steam-bar",
+  "src": "/assets/mock/steam-bar.jpg",
+  "w": 1600,
+  "h": 900,
+  "alt": "흐릿한 매장 바 풍경"
+ },
+ {
+  "id": "steam-cup",
+  "src": "/assets/mock/steam-cup.jpg",
+  "w": 1600,
+  "h": 1600,
+  "alt": "하얀 머그와 받침"
+ },
+ {
+  "id": "tap-full",
+  "src": "/assets/mock/tap-full.jpg",
+  "w": 853,
+  "h": 1280,
+  "alt": "원두 그림 카드가 달린 커피 탭"
+ },
+ {
+  "id": "tap-row",
+  "src": "/assets/mock/tap-row.jpg",
+  "w": 853,
+  "h": 640,
+  "alt": "나란히 선 커피 탭"
+ }
+]
