@@ -25,8 +25,10 @@ type VideoSlot = {
   playing: boolean;
   ready: boolean;
   crop: number;
+  focusX: number;
   focusY: number;
   trimBottom: number;
+  trimRight: number;
   /** framing canvas for focus/trim clips, sized to the screen aspect */
   fr: HTMLCanvasElement | null;
   cv: HTMLCanvasElement | null;
@@ -68,7 +70,8 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     el.setAttribute('playsinline', '');
     const v: VideoSlot = {
       slot, el, tex: null, playing: false, ready: false, crop: m.crop ?? 0,
-      focusY: m.focusY ?? 0.5, trimBottom: m.trimBottom ?? 0, fr: null, cv: null, small: null, edge: null,
+      focusX: m.focusX ?? 0.5, focusY: m.focusY ?? 0.5, trimBottom: m.trimBottom ?? 0, trimRight: m.trimRight ?? 0,
+      fr: null, cv: null, small: null, edge: null,
       // plays only while its slot is showing; reduced motion keeps its first frame as a still
       sync: (show) => {
         if (reduce) return;
@@ -202,13 +205,15 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         g.drawImage(v.edge, vw / 2 - sw * z / 2, (vh - vh * z) * 0.6, sw * z, vh * z);
         src = v.cv;
       } else if (v.fr) {
-        // tall clips: crop to the screen aspect around the subject (focusY) and above the trimmed
-        // bottom band, so the shader's cover fit shows exactly that window
-        const vw = v.el.videoWidth, vh = v.el.videoHeight, usable = vh * (1 - v.trimBottom);
+        // crop to the screen aspect around the subject (focusX, focusY), inside the frame minus its
+        // trimmed bottom and right bands, so the shader's cover fit shows exactly that window
+        const vw = v.el.videoWidth, vh = v.el.videoHeight;
+        const uw = vw * (1 - v.trimRight), uh = vh * (1 - v.trimBottom);
         const A = innerWidth / innerHeight;
-        let sw = vw, sh = vw / A, sx = 0, sy = 0;
-        if (sh > usable) { sh = usable; sw = usable * A; sx = (vw - sw) / 2; }
-        else sy = Math.min(Math.max(v.focusY * vh - sh / 2, 0), usable - sh);
+        let sw = uw, sh = uw / A;
+        if (sh > uh) { sh = uh; sw = uh * A; }
+        const clamp = (x: number, max: number) => Math.min(Math.max(x, 0), max);
+        const sx = clamp(v.focusX * vw - sw / 2, uw - sw), sy = clamp(v.focusY * vh - sh / 2, uh - sh);
         const w = Math.round(sw), h = Math.round(sh);
         if (v.fr.width !== w || v.fr.height !== h) {
           v.fr.width = w; v.fr.height = h;
@@ -235,7 +240,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
           v.edge = document.createElement('canvas');
           v.edge.width = Math.round(v.el.videoHeight * v.crop); v.edge.height = v.el.videoHeight;
         }
-        if (!v.crop && (v.trimBottom || v.focusY !== 0.5)) v.fr = document.createElement('canvas');
+        if (!v.crop && (v.trimBottom || v.trimRight || v.focusX !== 0.5 || v.focusY !== 0.5)) v.fr = document.createElement('canvas');
         sizes[v.slot * 2] = v.cv ? v.cv.width : v.el.videoWidth;
         sizes[v.slot * 2 + 1] = v.cv ? v.cv.height : v.el.videoHeight;
         gl.uniform2fv(U.uSz, sizes);

@@ -16,10 +16,12 @@ export type Media = {
   crop?: number;
   /** still shown instead of a video where WebGL is unavailable */
   poster?: string;
-  /** vertical point (0 top, 1 bottom) a wide screen centres on when it crops a tall clip */
+  /** point (0 to 1) the crop centres on when the screen shows only part of the frame */
+  focusX?: number;
   focusY?: number;
-  /** share of the frame height cut from the bottom, e.g. to drop a generator watermark */
+  /** shares of the frame cut from the bottom and right edges, e.g. to drop a generator watermark */
   trimBottom?: number;
+  trimRight?: number;
 };
 
 export type SiteSettings = {
@@ -84,8 +86,9 @@ const SAMPLE_SETTINGS: SiteSettings = {
   ],
   mapUrl: 'https://naver.me/GoDXYZG3',
   instagram: { handle: '@aroma_roastery', url: 'https://instagram.com/aroma_roastery' },
-  passageMedia: { src: '/assets/video/barista-pouring.mp4', kind: 'video', alt: '바리스타가 드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-barista-pourover-bar.jpg' },
-  storeMedia: { src: '/assets/video/coffee-pour-glass.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg' },
+  // both clips carry a generator mark in the lower right corner: trimmed off, never shown
+  passageMedia: { src: '/assets/video/barista-pouring.mp4', kind: 'video', alt: '바리스타가 드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-barista-pourover-bar.jpg', trimRight: 0.05, trimBottom: 0.06 },
+  storeMedia: { src: '/assets/video/coffee-pour-glass.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg', trimRight: 0.16, focusX: 0.68, focusY: 0.6 },
 };
 
 // clips the home page plays for its four featured posts
