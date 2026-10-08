@@ -1,11 +1,10 @@
 import { cacheLife } from 'next/cache';
-import { MOCK_ARCHIVE } from '@/lib/mock-archive';
+import { getInstagramArchive } from '@/lib/instagram';
 
 /*
  * Content layer. Every page reads store info and posts through these functions only.
- * Today they return the sample content from the approved draft; the Notion source
- * (a "posts" database and a "site settings" page, see the PRD) plugs in here later
- * without the pages changing.
+ * Archive posts come from the store's Instagram (see instagram.ts); store info and news are
+ * still the sample content from the approved draft until their source is connected.
  */
 
 export type Media = {
@@ -43,7 +42,11 @@ export type PostType = 'archive' | 'news';
 export type ArchiveCategory = 'roasting' | 'cupping' | 'event' | 'store';
 
 /** A still photo with its pixel size, so layouts can reserve space and keep the ratio. */
-export type Photo = Media & { kind: 'image'; w: number; h: number; caption?: string };
+export type Photo = Media & {
+  kind: 'image'; w: number; h: number; caption?: string;
+  /** the cover image of a video post: the site shows stills only, the video plays on Instagram */
+  fromVideo?: boolean;
+};
 
 /** Post body, block by block. The Notion renderer will map Notion blocks onto these. */
 export type Block =
@@ -72,6 +75,8 @@ export type Post = {
   body: Block[];
   /** a clip for the home page's colour field; list and post pages always show photos */
   homeClip?: Media;
+  /** the post on Instagram, for archive posts read from the live feed */
+  permalink?: string;
   /** true while the post is placeholder content, shown with a "예시" tag */
   sample: boolean;
 };
@@ -148,9 +153,20 @@ const SAMPLE_NEWS: Post[] = [
   },
 ];
 
-const SAMPLE_POSTS: Post[] = [...SAMPLE_NEWS, ...MOCK_ARCHIVE].map((p) =>
-  HOME_CLIPS[p.slug] ? { ...p, homeClip: HOME_CLIPS[p.slug] } : p,
-);
+/**
+ * Every post, newest first, with the home page's clips attached. The sample posts have clips picked
+ * for them; live posts (whose slugs nobody knows in advance) take the clips in order, newest first.
+ */
+async function allPosts(): Promise<Post[]> {
+  'use cache';
+  cacheLife('hours');
+  const posts = [...SAMPLE_NEWS, ...(await getInstagramArchive())].sort((a, b) => b.date.localeCompare(a.date));
+  if (posts.some((p) => HOME_CLIPS[p.slug])) {
+    return posts.map((p) => (HOME_CLIPS[p.slug] ? { ...p, homeClip: HOME_CLIPS[p.slug] } : p));
+  }
+  const pool = Object.values(HOME_CLIPS);
+  return posts.map((p, i) => (i < pool.length ? { ...p, homeClip: pool[i] } : p));
+}
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   'use cache';
@@ -162,14 +178,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 export async function getPosts(type?: PostType): Promise<Post[]> {
   'use cache';
   cacheLife('hours');
-  const posts = type ? SAMPLE_POSTS.filter((p) => p.type === type) : SAMPLE_POSTS;
-  return [...posts].sort((a, b) => b.date.localeCompare(a.date));
+  const posts = await allPosts();
+  return type ? posts.filter((p) => p.type === type) : posts;
 }
 
 export async function getPost(type: PostType, slug: string): Promise<Post | null> {
   'use cache';
   cacheLife('hours');
-  return SAMPLE_POSTS.find((p) => p.type === type && p.slug === slug) ?? null;
+  return (await allPosts()).find((p) => p.type === type && p.slug === slug) ?? null;
 }
 
 /** The neighbours of a post inside its own type, newest first. */

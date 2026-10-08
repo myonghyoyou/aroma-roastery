@@ -25,7 +25,7 @@ export function SiteFooter({ settings, mark = true }: { settings: SiteSettings; 
           ))}
         </p>
         <ul>
-          <li><Link href="/archive-lab">아카이브</Link></li>
+          <li><Link href="/archive">아카이브</Link></li>
           <li><Link href="/news">소식</Link></li>
           <li><a href={instagram.url} target="_blank" rel="noopener">Instagram</a></li>
         </ul>
