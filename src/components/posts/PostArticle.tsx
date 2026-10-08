@@ -16,7 +16,7 @@ function BodyBlock({ block }: { block: Block }) {
     case 'media':
       return (
         <figure>
-          <span className="article-media"><CoverMedia media={block.media} play="view" className="cover-fill" /></span>
+          <span className="article-media"><CoverMedia media={block.media} className="cover-fill" /></span>
           {block.caption && <figcaption>{block.caption}</figcaption>}
         </figure>
       );
@@ -24,8 +24,7 @@ function BodyBlock({ block }: { block: Block }) {
 }
 
 /*
- * One post: the title on the still field, then the cover as framed media (it plays while on screen),
- * then the body in a reading column. Nothing plays behind the text.
+ * One post: the title on the still field, then the cover photo, then the body in a reading column.
  */
 export function PostArticle({ post, newer, older }: { post: Post; newer: Post | null; older: Post | null }) {
   const list = `/${post.type}`;
@@ -44,7 +43,7 @@ export function PostArticle({ post, newer, older }: { post: Post; newer: Post | 
 
       {post.cover && (
         <figure className="article-figure">
-          <CoverMedia media={post.cover} play="view" className="cover-fill" />
+          <CoverMedia media={post.cover} className="cover-fill" />
         </figure>
       )}
 

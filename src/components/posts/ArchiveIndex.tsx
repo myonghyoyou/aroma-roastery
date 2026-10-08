@@ -12,14 +12,14 @@ export function ArchiveIndex({ posts }: { posts: Post[] }) {
     <ol className="index-list">
       {posts.map((p) => (
         <li key={p.slug}>
-          <Link href={postHref(p)} className="index-row" data-cover-host>
+          <Link href={postHref(p)} className="index-row">
             <time dateTime={p.date}>{formatDate(p.date)}</time>
             <span className="index-text">
               <span className="index-title">{p.title}</span>
               <span className="index-summary">{p.summary}</span>
             </span>
             <span className="index-thumb">
-              {p.cover ? <CoverMedia media={p.cover} play="hover" className="cover-fill" /> : <span className="cover-empty" />}
+              {p.cover ? <CoverMedia media={p.cover} className="cover-fill" /> : <span className="cover-empty" />}
             </span>
           </Link>
         </li>
