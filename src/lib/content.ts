@@ -96,7 +96,7 @@ const SAMPLE_SETTINGS: SiteSettings = {
   instagram: { handle: '@aroma_roastery', url: 'https://instagram.com/aroma_roastery' },
   // both clips carry a generator mark in the lower right corner: trimmed off, never shown
   passageMedia: { src: '/assets/video/barista-pouring.mp4', kind: 'video', alt: '바리스타가 드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-barista-pourover-bar.jpg', trimRight: 0.05, trimBottom: 0.06 },
-  storeMedia: { src: '/assets/video/coffee-pour-glass.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg', trimRight: 0.16, focusX: 0.68, focusY: 0.6, loopDip: 0.9 },
+  storeMedia: { src: '/assets/video/coffee-pour-tap.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg', focusY: 0.62, trimBottom: 0.13 },
 };
 
 // clips the home page plays for its four featured posts
