@@ -3,22 +3,20 @@
 import { useEffect, useRef } from 'react';
 import type { Media } from '@/lib/content';
 
-type Play = 'hover' | 'view' | 'auto' | 'controlled' | 'never';
+type Play = 'hover' | 'view';
 
 /*
  * A post cover as plain DOM media. Videos stay light: no download until needed, then they play
  *   hover: while the pointer is over the closest [data-cover-host] ancestor (fine pointers),
  *          falling back to 'view' on touch screens
  *   view:  while at least half of it is on screen
- *   auto:  always (detail page hero)
- *   controlled: while the `active` prop is true (the archive index backdrop)
  * Clips that need the pillarbox crop (media.crop) show their still instead: that crop only exists
  * in the WebGL path on the home page. Reduced motion always shows the still.
  */
-export function CoverMedia({ media, play = 'view', active = false, className }: { media: Media; play?: Play; active?: boolean; className?: string }) {
+export function CoverMedia({ media, play = 'view', className }: { media: Media; play?: Play; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const still = media.kind === 'image' ? media.src : media.poster;
-  const asVideo = media.kind === 'video' && !media.crop && play !== 'never';
+  const asVideo = media.kind === 'video' && !media.crop;
   // trimBottom: the element is made taller than its (overflow hidden) frame, so the trimmed band
   // (a generator watermark) falls below the frame edge
   const style = {
@@ -32,10 +30,7 @@ export function CoverMedia({ media, play = 'view', active = false, className }: 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const start = () => { v.preload = 'auto'; v.play().catch(() => {}); };
     const stop = () => v.pause();
-    const mode = play === 'hover' && !window.matchMedia('(hover: hover)').matches ? 'view' : play;
-    if (mode === 'auto') { start(); return stop; }
-    if (mode === 'controlled') { if (active) start(); else stop(); return; }
-    if (mode === 'hover') {
+    if (play === 'hover' && window.matchMedia('(hover: hover)').matches) {
       const host = v.closest<HTMLElement>('[data-cover-host]') ?? v;
       host.addEventListener('pointerenter', start);
       host.addEventListener('pointerleave', stop);
@@ -52,7 +47,7 @@ export function CoverMedia({ media, play = 'view', active = false, className }: 
     const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0.5 });
     io.observe(v);
     return () => { io.disconnect(); stop(); };
-  }, [play, active]);
+  }, [play]);
 
   if (asVideo) {
     return (

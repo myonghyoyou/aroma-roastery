@@ -24,19 +24,14 @@ function BodyBlock({ block }: { block: Block }) {
 }
 
 /*
- * One post. With a cover, the cover fills the first screen and the title sits on it, lit by the same
- * text halo as the home page (no scrim). Without one, the title sits on the warm field.
+ * One post: the title on the still field, then the cover as framed media (it plays while on screen),
+ * then the body in a reading column. Nothing plays behind the text.
  */
 export function PostArticle({ post, newer, older }: { post: Post; newer: Post | null; older: Post | null }) {
   const list = `/${post.type}`;
   return (
-    <article className={`article${post.cover ? ' has-cover' : ''}`}>
+    <article className="article">
       <header className="article-head">
-        {post.cover && (
-          <span className="article-cover" aria-hidden="true">
-            <CoverMedia media={post.cover} play="auto" className="cover-fill" />
-          </span>
-        )}
         <div className="article-title">
           <p className="article-meta">
             <Link href={list}>{TYPE_LABEL[post.type]}</Link>
@@ -46,6 +41,12 @@ export function PostArticle({ post, newer, older }: { post: Post; newer: Post | 
           <h1>{post.title}</h1>
         </div>
       </header>
+
+      {post.cover && (
+        <figure className="article-figure">
+          <CoverMedia media={post.cover} play="view" className="cover-fill" />
+        </figure>
+      )}
 
       <div className="article-body">
         {post.body.map((b, i) => <BodyBlock key={i} block={b} />)}
