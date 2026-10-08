@@ -25,6 +25,10 @@ type VideoSlot = {
   playing: boolean;
   ready: boolean;
   crop: number;
+  focusY: number;
+  trimBottom: number;
+  /** framing canvas for focus/trim clips, sized to the screen aspect */
+  fr: HTMLCanvasElement | null;
   cv: HTMLCanvasElement | null;
   small: HTMLCanvasElement | null;
   edge: HTMLCanvasElement | null;
@@ -58,11 +62,13 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   const videos: VideoSlot[] = slots.flatMap((m, slot) => {
     if (m.kind !== 'video') return [];
     const el = document.createElement('video');
-    Object.assign(el, { src: m.src, muted: true, loop: true, playsInline: true, preload: 'auto' });
+    // the passage and store clips load at once; archive clips wait until the reader reaches the store
+    Object.assign(el, { src: m.src, muted: true, loop: true, playsInline: true, preload: slot < 2 ? 'auto' : 'metadata' });
     el.setAttribute('muted', '');
     el.setAttribute('playsinline', '');
     const v: VideoSlot = {
-      slot, el, tex: null, playing: false, ready: false, crop: m.crop ?? 0, cv: null, small: null, edge: null,
+      slot, el, tex: null, playing: false, ready: false, crop: m.crop ?? 0,
+      focusY: m.focusY ?? 0.5, trimBottom: m.trimBottom ?? 0, fr: null, cv: null, small: null, edge: null,
       // plays only while its slot is showing; reduced motion keeps its first frame as a still
       sync: (show) => {
         if (reduce) return;
@@ -190,6 +196,22 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         const z = innerWidth > innerHeight ? 1.6 : 1;
         g.drawImage(v.edge, vw / 2 - sw * z / 2, (vh - vh * z) * 0.6, sw * z, vh * z);
         src = v.cv;
+      } else if (v.fr) {
+        // tall clips: crop to the screen aspect around the subject (focusY) and above the trimmed
+        // bottom band, so the shader's cover fit shows exactly that window
+        const vw = v.el.videoWidth, vh = v.el.videoHeight, usable = vh * (1 - v.trimBottom);
+        const A = innerWidth / innerHeight;
+        let sw = vw, sh = vw / A, sx = 0, sy = 0;
+        if (sh > usable) { sh = usable; sw = usable * A; sx = (vw - sw) / 2; }
+        else sy = Math.min(Math.max(v.focusY * vh - sh / 2, 0), usable - sh);
+        const w = Math.round(sw), h = Math.round(sh);
+        if (v.fr.width !== w || v.fr.height !== h) {
+          v.fr.width = w; v.fr.height = h;
+          sizes[v.slot * 2] = w; sizes[v.slot * 2 + 1] = h;
+          gl!.uniform2fv(U.uSz, sizes);
+        }
+        v.fr.getContext('2d')!.drawImage(v.el, sx, sy, sw, sh, 0, 0, w, h);
+        src = v.fr;
       }
       gl!.activeTexture(gl!.TEXTURE0 + v.slot);
       gl!.bindTexture(gl!.TEXTURE_2D, v.tex);
@@ -208,6 +230,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
           v.edge = document.createElement('canvas');
           v.edge.width = Math.round(v.el.videoHeight * v.crop); v.edge.height = v.el.videoHeight;
         }
+        if (!v.crop && (v.trimBottom || v.focusY !== 0.5)) v.fr = document.createElement('canvas');
         sizes[v.slot * 2] = v.cv ? v.cv.width : v.el.videoWidth;
         sizes[v.slot * 2 + 1] = v.cv ? v.cv.height : v.el.videoHeight;
         gl.uniform2fv(U.uSz, sizes);
@@ -273,6 +296,8 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       field?.draw(STILL_TIME, state);
     }
     if (!field && fallback) fallback.style.opacity = String(1 - 0.5 * state.dark);
+    // reaching the store starts buffering the archive clips, so each is ready before its entry
+    if (state.past) videos.forEach((v) => { if (v.el.preload !== 'auto') v.el.preload = 'auto'; });
     videos.forEach((v) => v.sync(state.wT[v.slot] > 0.001));
   };
 

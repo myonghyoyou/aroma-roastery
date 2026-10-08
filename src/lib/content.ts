@@ -15,6 +15,10 @@ export type Media = {
   crop?: number;
   /** still shown instead of a video where WebGL is unavailable */
   poster?: string;
+  /** vertical point (0 top, 1 bottom) a wide screen centres on when it crops a tall clip */
+  focusY?: number;
+  /** share of the frame height cut from the bottom, e.g. to drop a generator watermark */
+  trimBottom?: number;
 };
 
 export type SiteSettings = {
@@ -71,7 +75,7 @@ const SAMPLE_POSTS: Post[] = [
     type: 'archive',
     title: '로스팅 프로파일 노트: 케냐',
     date: '2026-09-12',
-    cover: { src: '/assets/img/photo-pourover-dripper-closeup.jpg', kind: 'image', alt: '드리퍼 근접 사진' },
+    cover: { src: '/assets/video/dripper-pour.mp4', kind: 'video', alt: '드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-pourover-dripper-closeup.jpg', focusY: 0.38, trimBottom: 0.12 },
     sample: true,
   },
   {
@@ -79,7 +83,7 @@ const SAMPLE_POSTS: Post[] = [
     type: 'news',
     title: '10월 매장 운영 안내',
     date: '2026-09-30',
-    cover: { src: '/assets/img/photo-server-barista-bokeh.jpg', kind: 'image', alt: '유리 서버와 바리스타' },
+    cover: { src: '/assets/video/server-vapor.mp4', kind: 'video', alt: '김이 오르는 유리 서버와 바리스타', poster: '/assets/img/photo-server-barista-bokeh.jpg', focusY: 0.6, trimBottom: 0.12 },
     sample: true,
   },
   {
@@ -87,7 +91,7 @@ const SAMPLE_POSTS: Post[] = [
     type: 'archive',
     title: '브루 바 9월 기록',
     date: '2026-09-05',
-    cover: { src: '/assets/img/photo-coffee-pour-cup.jpg', kind: 'image', alt: '서버에서 잔으로 커피를 따르는 모습' },
+    cover: { src: '/assets/video/cup-pour.mp4', kind: 'video', alt: '서버에서 잔으로 커피를 따르는 모습', poster: '/assets/img/photo-coffee-pour-cup.jpg', focusY: 0.55, trimBottom: 0.12 },
     sample: true,
   },
 ];
