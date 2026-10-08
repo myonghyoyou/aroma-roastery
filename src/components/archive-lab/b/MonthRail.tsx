@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { getLenis } from '@/components/site/SmoothScroll';
 import { monthLabel, type RailMonth } from './calendar';
 
 /*
@@ -50,7 +51,9 @@ export function MonthRail({ months }: { months: RailMonth[] }) {
     if (!target) return;
     e.preventDefault();
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    const lenis = getLenis();
+    if (lenis) lenis.scrollTo(target);
+    else target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     history.replaceState(null, '', `#${id}`);
     setActive(id);
     target.querySelector<HTMLElement>('[data-month-label]')?.focus({ preventScroll: true });

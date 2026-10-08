@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { getSiteSettings } from '@/lib/content';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
+import { SmoothScroll } from './SmoothScroll';
 
 /*
  * Shell for every page other than home: the same top bar and footer, on a still version of the
@@ -12,6 +13,7 @@ export async function SubPage({ current, children }: { current?: 'archive' | 'ne
   const settings = await getSiteSettings();
   return (
     <div className="sub">
+      <SmoothScroll />
       <div className="sub-field" aria-hidden="true" />
       <SiteHeader current={current} instagramUrl={settings.instagram.url} />
       <main className="sub-main">{children}</main>
