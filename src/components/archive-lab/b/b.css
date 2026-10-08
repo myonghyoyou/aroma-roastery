@@ -1,0 +1,291 @@
+/* =====================================================================
+   Archive lab, concept B: a calm editorial calendar.
+   Year, then month; the month label sticks while its posts pass by.
+   Every class is prefixed lab-b- so the concepts never collide.
+   ===================================================================== */
+
+.lab-b-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.lab-b-fill { display: block; width: 100%; height: 100%; object-fit: cover; }
+.lab-b-muted { color: var(--milk-2); font-weight: 500; }
+
+/* shared rule colour */
+.lab-b-head, .lab-b-layout, .lab-b-post {
+  --lab-b-rule: rgba(251, 243, 232, .2);
+  --lab-b-rule-soft: rgba(251, 243, 232, .1);
+  --lab-b-green: #07913B;
+  --lab-b-rail-h: 0px;
+}
+
+/* ---------- heading ---------- */
+.lab-b-head { padding: clamp(120px, 20vh, 200px) 0 clamp(36px, 6vh, 64px); }
+.lab-b-head-row { display: flex; align-items: center; gap: 14px; }
+.lab-b-head h1 { margin: 0; font-size: clamp(34px, 4vw, 56px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
+.lab-b-head p { margin: 14px 0 0; font-size: 16px; color: var(--milk-2); max-width: 30em; }
+
+/* ---------- category dot ---------- */
+.lab-b-cat { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; font-weight: 600; color: var(--milk-2); }
+.lab-b-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+/* ---------- layout: rail plus timeline ---------- */
+.lab-b-layout {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  column-gap: clamp(24px, 4vw, 72px);
+  padding-bottom: clamp(80px, 14vh, 160px);
+}
+
+/* the rail */
+.lab-b-rail { min-width: 0; }
+.lab-b-rail-list {
+  position: sticky; top: 32px;
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column;
+}
+.lab-b-rail-item { display: flex; flex-direction: column; }
+.lab-b-rail-year {
+  font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .02em;
+  color: var(--milk-2); padding: 0 0 8px; margin-top: 4px;
+}
+.lab-b-rail-item:not(:first-child) .lab-b-rail-year { margin-top: 20px; }
+.lab-b-rail-link {
+  position: relative;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 36px; padding: 0 0 0 14px;
+  font-size: 15px; font-weight: 600; text-decoration: none;
+  color: rgba(251, 243, 232, .55);
+  border-left: 1px solid var(--lab-b-rule);
+  transition: color .2s ease;
+}
+.lab-b-rail-link:hover { color: var(--milk); }
+.lab-b-rail-link.is-active { color: var(--milk); }
+.lab-b-rail-link.is-active::before {
+  content: ""; position: absolute; left: -1px; top: 8px; bottom: 8px; width: 2px; background: var(--lab-b-green);
+}
+.lab-b-rail-count { font-family: var(--display); font-size: 12px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
+
+/* ---------- timeline ---------- */
+.lab-b-timeline { min-width: 0; }
+.lab-b-year + .lab-b-year { margin-top: clamp(64px, 10vh, 120px); }
+.lab-b-year-label {
+  margin: 0; padding-bottom: 18px;
+  font-family: var(--display); font-weight: 600;
+  font-size: clamp(36px, 4.2vw, 56px); line-height: 1; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--lab-b-rule);
+}
+
+.lab-b-month {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  column-gap: clamp(16px, 2.6vw, 40px);
+  padding: clamp(32px, 5vh, 52px) 0;
+  border-bottom: 1px solid var(--lab-b-rule);
+  scroll-margin-top: 16px;
+}
+/* the side column runs the full height of the month, so the label can stick inside it */
+.lab-b-month-side { min-width: 0; }
+.lab-b-month-label {
+  position: sticky; top: 32px;
+  margin: 0; display: flex; flex-direction: column; gap: 6px;
+  font-weight: 600;
+}
+.lab-b-month-label:focus { outline: none; }
+.lab-b-month-label:focus-visible { outline: 2px solid var(--milk); outline-offset: 4px; }
+.lab-b-month-num {
+  font-family: var(--display); font-weight: 600; font-size: clamp(32px, 3vw, 42px);
+  line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+}
+.lab-b-month-name { font-size: 13px; color: var(--milk-2); }
+
+.lab-b-entries { list-style: none; margin: 0; padding: 0; }
+.lab-b-entries > li + li { margin-top: clamp(32px, 5vh, 48px); padding-top: clamp(32px, 5vh, 48px); border-top: 1px solid var(--lab-b-rule-soft); }
+
+/* one post */
+.lab-b-entry { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); column-gap: clamp(12px, 2vw, 24px); }
+.lab-b-day { margin: 0; }
+.lab-b-day time { display: flex; flex-direction: column; gap: 4px; }
+.lab-b-day-num { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
+.lab-b-day-week { font-size: 12px; font-weight: 600; color: var(--milk-2); }
+.lab-b-entry-body { min-width: 0; }
+.lab-b-entry-title { margin: 8px 0 0; font-size: clamp(18px, 1.5vw, 22px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.35; }
+.lab-b-entry-title a { text-decoration: none; }
+.lab-b-entry-title a:hover, .lab-b-entry-title a:focus-visible { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
+.lab-b-entry-summary { margin: 6px 0 0; font-size: 15px; color: var(--milk-2); max-width: 36em; }
+
+/* the photo strip: one height, each photo at its own width */
+.lab-b-strip {
+  --lab-b-strip-h: 128px;
+  display: flex; gap: 6px; height: var(--lab-b-strip-h); margin-top: 18px;
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+  text-decoration: none;
+}
+.lab-b-strip::-webkit-scrollbar { display: none; }
+.lab-b-strip-ph { flex: none; height: 100%; overflow: hidden; background: rgba(251, 243, 232, .06); }
+.lab-b-strip-ph img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.lab-b-strip-more {
+  flex: none; display: grid; place-items: center;
+  height: 100%; min-width: 72px; padding: 0 14px;
+  border: 1px solid var(--lab-b-rule);
+  font-family: var(--display); font-weight: 600; font-size: 18px; font-variant-numeric: tabular-nums;
+  color: var(--milk);
+}
+.lab-b-strip:hover .lab-b-strip-more { border-color: var(--milk); }
+
+/* ---------- mobile list: rail becomes a sticky chip row ---------- */
+@media (max-width: 760px) {
+  .lab-b-layout { display: block; --lab-b-rail-h: 57px; }
+
+  .lab-b-rail {
+    position: sticky; top: 0; z-index: 20;
+    margin: 0 calc(var(--gutter) * -1);
+    background: rgba(26, 17, 13, .92);
+    border-bottom: 1px solid var(--lab-b-rule);
+  }
+  .lab-b-rail-list {
+    position: relative; top: auto;
+    flex-direction: row; align-items: center; gap: 6px;
+    height: var(--lab-b-rail-h); padding: 0 var(--gutter);
+    overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  .lab-b-rail-list::-webkit-scrollbar { display: none; }
+  .lab-b-rail-item { flex-direction: row; align-items: center; gap: 6px; flex: none; }
+  .lab-b-rail-year, .lab-b-rail-item:not(:first-child) .lab-b-rail-year { margin: 0 2px 0 0; padding: 0; }
+  .lab-b-rail-item:not(:first-child) .lab-b-rail-year { margin-left: 10px; }
+  .lab-b-rail-link {
+    min-height: 36px; padding: 0 12px; gap: 8px;
+    border: 1px solid var(--lab-b-rule); border-radius: 2px;
+    font-size: 14px;
+  }
+  .lab-b-rail-link.is-active { border-color: var(--milk); }
+  .lab-b-rail-link.is-active::before { left: 10px; right: 10px; top: auto; bottom: 5px; width: auto; height: 2px; }
+
+  .lab-b-year-label { margin-top: 28px; }
+  .lab-b-month { display: block; padding-top: 0; scroll-margin-top: var(--lab-b-rail-h); }
+  .lab-b-month-side {
+    position: sticky; top: var(--lab-b-rail-h); z-index: 10;
+    margin: 0 calc(var(--gutter) * -1) 20px;
+    padding: 12px var(--gutter);
+    background: rgba(26, 17, 13, .92);
+  }
+  .lab-b-month-label { position: static; flex-direction: row; align-items: baseline; gap: 10px; }
+  .lab-b-month-num { font-size: 24px; }
+
+  .lab-b-entry { grid-template-columns: 2.6rem minmax(0, 1fr); }
+  .lab-b-day-num { font-size: 22px; }
+  .lab-b-strip { --lab-b-strip-h: 88px; margin-right: calc(var(--gutter) * -1); padding-right: var(--gutter); }
+  .lab-b-strip-more { min-width: 56px; font-size: 16px; }
+}
+
+/* =====================================================================
+   Detail
+   ===================================================================== */
+.lab-b-post {
+  --lab-b-indent: clamp(0px, 12vw, 200px);
+  padding: clamp(88px, 14vh, 132px) 0 clamp(80px, 12vh, 140px);
+}
+.lab-b-back { margin: 0; font-size: 14px; font-weight: 600; }
+.lab-b-back a { display: inline-flex; align-items: center; min-height: 44px; color: var(--milk-2); text-decoration: none; }
+.lab-b-back a:hover { color: var(--milk); text-decoration: underline; text-underline-offset: 5px; }
+.lab-b-back.is-end { margin-top: 40px; }
+
+.lab-b-cover { margin: 8px 0 0; aspect-ratio: 16 / 9; max-height: 82vh; width: 100%; overflow: hidden; background: rgba(251, 243, 232, .06); }
+
+.lab-b-post-head { margin: clamp(28px, 4vh, 44px) 0 0 var(--lab-b-indent); max-width: 44em; }
+.lab-b-post-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin: 0;
+  font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.lab-b-post-meta time { font-family: var(--display); letter-spacing: .01em; }
+.lab-b-post-meta time .lab-b-muted { font-family: var(--sans); margin-left: 4px; }
+.lab-b-post-title { margin: 16px 0 0; font-size: clamp(28px, 3.4vw, 46px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.22; }
+.lab-b-post-summary { margin: 14px 0 0; font-size: 18px; color: var(--milk-2); max-width: 36em; }
+
+/* body */
+.lab-b-body { margin-top: clamp(40px, 6vh, 64px); }
+.lab-b-body > * { margin: 0; }
+.lab-b-body > * + * { margin-top: 24px; }
+.lab-b-p, .lab-b-h, .lab-b-quote, .lab-b-list { margin-left: var(--lab-b-indent) !important; max-width: 36em; }
+.lab-b-p { font-size: 17.5px; line-height: 1.85; }
+.lab-b-h { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.4; }
+.lab-b-body > .lab-b-h { margin-top: 48px; }
+.lab-b-list { padding-left: 1.2em; font-size: 17.5px; line-height: 1.8; }
+.lab-b-quote {
+  padding: 4px 0 4px 20px;
+  border-left: 2px solid var(--lab-b-green);
+  font-size: 19px; font-weight: 600; line-height: 1.6; letter-spacing: -0.01em;
+}
+.lab-b-body > .lab-b-quote { margin-top: 40px; margin-bottom: 16px; }
+
+.lab-b-gallery { margin: 0; }
+.lab-b-body > .lab-b-gallery { margin-top: clamp(36px, 6vh, 56px); }
+.lab-b-body > .lab-b-gallery + * { margin-top: clamp(36px, 6vh, 56px); }
+.lab-b-gallery.is-pair, .lab-b-gallery.is-grid, .lab-b-gallery.is-media { margin-left: var(--lab-b-indent); }
+.lab-b-caption { margin-top: 10px; font-size: 13px; color: var(--milk-2); }
+
+.lab-b-pair { display: flex; gap: 8px; }
+.lab-b-pair-ph { flex-basis: 0; flex-shrink: 1; min-width: 0; overflow: hidden; background: rgba(251, 243, 232, .06); }
+
+.lab-b-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lab-b-grid-ph { display: block; aspect-ratio: 4 / 5; overflow: hidden; background: rgba(251, 243, 232, .06); }
+
+.lab-b-full-ph {
+  display: block; aspect-ratio: var(--r);
+  width: min(100%, calc(86vh * var(--r)));
+  overflow: hidden; background: rgba(251, 243, 232, .06);
+}
+.lab-b-full-ph + .lab-b-full-ph { margin-top: 8px; }
+
+.lab-b-media-ph { display: block; max-width: 900px; overflow: hidden; }
+.lab-b-media-ph .lab-b-fill { height: auto; }
+
+/* same year */
+.lab-b-year-more { margin: clamp(72px, 12vh, 128px) 0 0 var(--lab-b-indent); max-width: 52rem; }
+.lab-b-section-h { display: flex; align-items: baseline; gap: 12px; margin: 0 0 12px; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.lab-b-year-more-y { font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--milk-2); }
+.lab-b-year-list { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--lab-b-rule); }
+.lab-b-year-list li { border-top: 1px solid var(--lab-b-rule); }
+.lab-b-year-row {
+  display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; align-items: baseline; gap: 16px;
+  padding: 14px 0; text-decoration: none;
+}
+.lab-b-year-row time { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--milk-2); font-variant-numeric: tabular-nums; }
+.lab-b-year-row-title { font-size: 17px; font-weight: 600; line-height: 1.4; }
+.lab-b-year-row-cat { font-size: 13px; font-weight: 600; color: var(--milk-2); }
+.lab-b-year-row:hover .lab-b-year-row-title { text-decoration: underline; text-underline-offset: 5px; }
+
+/* newer and older */
+.lab-b-adj { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 56px 0 0 var(--lab-b-indent); max-width: 52rem; }
+.lab-b-adj-item { display: flex; flex-direction: column; gap: 4px; padding-top: 16px; border-top: 1px solid var(--lab-b-rule); text-decoration: none; }
+.lab-b-adj-item.is-older { text-align: right; }
+.lab-b-adj-dir { font-size: 13px; font-weight: 600; color: var(--milk-2); }
+.lab-b-adj-date { font-family: var(--display); font-size: 13px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
+.lab-b-adj-item strong { font-size: 17px; font-weight: 700; line-height: 1.4; }
+.lab-b-adj-item:hover strong { text-decoration: underline; text-underline-offset: 5px; }
+.lab-b-back.is-end { margin-left: var(--lab-b-indent); }
+
+@media (max-width: 760px) {
+  .lab-b-post { --lab-b-indent: 0px; }
+  .lab-b-cover { aspect-ratio: 3 / 2; }
+  .lab-b-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lab-b-pair { gap: 6px; }
+  .lab-b-grid { gap: 6px; }
+  .lab-b-year-row { grid-template-columns: 3.4rem minmax(0, 1fr); }
+  .lab-b-year-row-cat { grid-column: 2; }
+  .lab-b-adj { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .lab-b-adj-item.is-older { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-b-rail-link { transition: none; }
+}
+
+/* grid and flex items default to their content's minimum width; a long photo strip used to
+   widen its column and push the page sideways on phones */
+.lab-b-month, .lab-b-month > *, .lab-b-entries, .lab-b-entry, .lab-b-entry > * { min-width: 0; }
+
+/* the strip is the containing block for the screen reader text in its "+n" cell; without it that
+   absolutely placed text escaped the scroller and widened the page */
+.lab-b-strip { position: relative; }
