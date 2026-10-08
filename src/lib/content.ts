@@ -22,6 +22,9 @@ export type Media = {
   /** shares of the frame cut from the bottom and right edges, e.g. to drop a generator watermark */
   trimBottom?: number;
   trimRight?: number;
+  /** seconds the clip sinks into the field around its loop point: for clips whose camera never
+      returns to its first framing, so the restart is hidden instead of seen as a jump */
+  loopDip?: number;
 };
 
 export type SiteSettings = {
@@ -88,7 +91,7 @@ const SAMPLE_SETTINGS: SiteSettings = {
   instagram: { handle: '@aroma_roastery', url: 'https://instagram.com/aroma_roastery' },
   // both clips carry a generator mark in the lower right corner: trimmed off, never shown
   passageMedia: { src: '/assets/video/barista-pouring.mp4', kind: 'video', alt: '바리스타가 드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-barista-pourover-bar.jpg', trimRight: 0.05, trimBottom: 0.06 },
-  storeMedia: { src: '/assets/video/coffee-pour-glass.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg', trimRight: 0.16, focusX: 0.68, focusY: 0.6 },
+  storeMedia: { src: '/assets/video/coffee-pour-glass.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg', trimRight: 0.16, focusX: 0.68, focusY: 0.6, loopDip: 0.9 },
 };
 
 // clips the home page plays for its four featured posts
@@ -96,7 +99,7 @@ const CLIP = {
   serverSteam: { src: '/assets/video/server-steaming.mp4', kind: 'video', alt: '김이 오르는 서버와 원두 카드', crop: 9 / 16, poster: '/assets/img/photo-kainamui-card-steam.jpg' },
   dripper: { src: '/assets/video/dripper-pour.mp4', kind: 'video', alt: '드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-pourover-dripper-closeup.jpg', focusY: 0.38, trimBottom: 0.12 },
   serverVapor: { src: '/assets/video/server-vapor.mp4', kind: 'video', alt: '김이 오르는 유리 서버와 바리스타', poster: '/assets/img/photo-server-barista-bokeh.jpg', focusY: 0.6, trimBottom: 0.12 },
-  cupPour: { src: '/assets/video/cup-pour.mp4', kind: 'video', alt: '서버에서 잔으로 커피를 따르는 모습', poster: '/assets/img/photo-coffee-pour-cup.jpg', focusY: 0.55, trimBottom: 0.12 },
+  cupPour: { src: '/assets/video/cup-pour.mp4', kind: 'video', alt: '서버에서 잔으로 커피를 따르는 모습', poster: '/assets/img/photo-coffee-pour-cup.jpg', focusY: 0.55, trimBottom: 0.12, loopDip: 0.9 },
 } satisfies Record<string, Media>;
 const HOME_CLIPS: Record<string, Media> = {
   'october-store-hours': CLIP.serverVapor,

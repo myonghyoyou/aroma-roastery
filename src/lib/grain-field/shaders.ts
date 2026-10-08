@@ -21,6 +21,7 @@ export const FRAGMENT_SHADER = `
   uniform float uDark;   // overall dimming of the colour field
   uniform float uShade;  // 1 when copy sits on a photo: photo dims, more on the left
   uniform float uW[6];   // photo weights (sum <= 1)
+uniform float uDip;    // photo darkening at a clip's loop point
   uniform vec2 uSz[6];   // photo pixel sizes
   uniform sampler2D uT0;
   uniform sampler2D uT1;
@@ -196,6 +197,7 @@ export const FRAGMENT_SHADER = `
       if (uW[4] > 0.001) ph += uW[4] * photo(uT4, uSz[4], uvl, aspect, zoom);
       if (uW[5] > 0.001) ph += uW[5] * photo(uT5, uSz[5], uvl, aspect, zoom);
       ph /= max(wsum, 0.0001);
+      ph *= 1.0 - uDip;
 
       // copy runs on the left: dim the photo there, inside the shader
       float side = 1.0 - smoothstep(0.0, 0.75, uv.x);

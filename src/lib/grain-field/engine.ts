@@ -29,6 +29,7 @@ type VideoSlot = {
   focusY: number;
   trimBottom: number;
   trimRight: number;
+  loopDip: number;
   /** framing canvas for focus/trim clips, sized to the screen aspect */
   fr: HTMLCanvasElement | null;
   cv: HTMLCanvasElement | null;
@@ -70,7 +71,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     el.setAttribute('playsinline', '');
     const v: VideoSlot = {
       slot, el, tex: null, playing: false, ready: false, crop: m.crop ?? 0,
-      focusX: m.focusX ?? 0.5, focusY: m.focusY ?? 0.5, trimBottom: m.trimBottom ?? 0, trimRight: m.trimRight ?? 0,
+      focusX: m.focusX ?? 0.5, focusY: m.focusY ?? 0.5, trimBottom: m.trimBottom ?? 0, trimRight: m.trimRight ?? 0, loopDip: m.loopDip ?? 0,
       fr: null, cv: null, small: null, edge: null,
       // plays only while its slot is showing; reduced motion keeps its first frame as a still
       sync: (show) => {
@@ -127,7 +128,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     shaders.forEach((s) => { gl.detachShader(prog, s); gl.deleteShader(s); });
     gl.useProgram(prog);
     const U: Record<string, WebGLUniformLocation | null> = {};
-    ['uRes', 'uTime', 'uMouse', 'uLens', 'uPage', 'uFloor', 'uDark', 'uShade', 'uW', 'uSz'].forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
+    ['uRes', 'uTime', 'uMouse', 'uLens', 'uPage', 'uFloor', 'uDark', 'uShade', 'uDip', 'uW', 'uSz'].forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
 
     // one big triangle covers the screen
     const buffer = gl.createBuffer();
@@ -264,6 +265,16 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     api.draw = (time, s) => {
       // a slot that has not loaded yet simply stays as colour
       for (let i = 0; i < N; i++) wbuf[i] = s.w[i] * ready[i];
+      // loopDip clips go dark over the last and first half of the dip, so the jump back to the
+      // first frame happens in the dark (fading the weight instead would flash the bright field)
+      let wsum = 0, dip = 0;
+      for (let i = 0; i < N; i++) wsum += wbuf[i];
+      videos.forEach((v) => {
+        const D = v.el.duration, t = v.el.currentTime, h = v.loopDip / 2;
+        if (!h || !(D > 0) || wsum < 0.002) return;
+        dip += (wbuf[v.slot] / wsum) * (1 - smooth01(0, h, t) * smooth01(0, h, D - t));
+      });
+      gl.uniform1f(U.uDip, Math.min(dip, 1));
       gl.uniform1f(U.uTime, time);
       gl.uniform2f(U.uMouse, s.mx, s.my);
       gl.uniform1f(U.uLens, s.lens);
