@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import type { SiteSettings } from '@/lib/content';
 
-/** Footer shared by every page: the gradient wordmark, address, hours and links. */
-export function SiteFooter({ settings }: { settings: SiteSettings }) {
+/**
+ * Footer shared by every page: address, hours and links. The large gradient wordmark closes the home
+ * page only; subpages (archive, news) leave it out.
+ */
+export function SiteFooter({ settings, mark = true }: { settings: SiteSettings; mark?: boolean }) {
   const { address, hours, instagram } = settings;
   return (
     <footer className="site-footer">
-      <div className="footer-mark" role="img" aria-label="aroma" />
+      {mark && <div className="footer-mark" role="img" aria-label="aroma" />}
       <div className="footer-grid">
         <p>
           aroma coffee roastery &amp; showroom

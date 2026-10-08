@@ -17,7 +17,7 @@ export async function SubPage({ current, children }: { current?: 'archive' | 'ne
       <div className="sub-field" aria-hidden="true" />
       <SiteHeader current={current} instagramUrl={settings.instagram.url} />
       <main className="sub-main">{children}</main>
-      <SiteFooter settings={settings} />
+      <SiteFooter settings={settings} mark={false} />
     </div>
   );
 }

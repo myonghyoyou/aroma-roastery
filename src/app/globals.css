@@ -135,6 +135,7 @@ main { text-shadow: var(--halo); }
           mask: url(/assets/logo/aroma-wordmark.svg) left center / contain no-repeat;
 }
 .footer-grid { display: grid; grid-template-columns: 2fr 1.4fr 1fr; gap: 24px; margin-top: clamp(40px, 7vh, 72px); font-size: 15px; line-height: 1.7; color: var(--milk-2); text-shadow: var(--halo); font-variant-numeric: tabular-nums; }
+.footer-grid:first-child { margin-top: 0; }
 .footer-grid p { margin: 0; }
 .footer-grid ul { list-style: none; margin: 0; padding: 0; justify-self: end; text-align: right; }
 .footer-grid a { display: inline-flex; align-items: center; min-height: 44px; color: var(--milk); text-decoration: none; font-weight: 600; }
