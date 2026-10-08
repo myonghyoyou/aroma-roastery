@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# aroma roastery web
 
-## Getting Started
+The homepage for aroma coffee roastery & showroom (마곡). It is built with Next.js 16 (App Router, TypeScript, Tailwind CSS 4) and deployed on Vercel. Content will come from Notion.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run build && npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `src/app/page.tsx`: the main page. Its markup and look come from the approved design (draft 06, "grain field").
+- `src/components/home/GrainStage.tsx`: a client shell that mounts the fixed WebGL field behind the server-rendered page.
+- `src/lib/grain-field/`: the field engine and its shaders.
+  - Scroll choreography uses GSAP ScrollTrigger and Lenis.
+  - `mountGrainField` returns a cleanup function, so client navigation leaves nothing behind.
+  - Texture slots:
+    - 0: hero passage
+    - 1: store
+    - 2 to 5: the first four posts on the main page
+- `src/lib/content.ts`: the only place pages get content from.
+  - `getSiteSettings()` returns store info and hours.
+  - `getPosts()` returns archive and news posts.
+  - It returns sample data today. The Notion source plugs in here: a `posts` database and a `site settings` page.
+- `src/app/globals.css`: the design CSS, ported from the draft, plus Tailwind theme tokens.
+- `public/assets/`: photos, the pouring and steaming videos, and logo SVGs.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Fonts
 
-## Learn More
+Both fonts are self-hosted through `next/font/local`:
 
-To learn more about Next.js, take a look at the following resources:
+- SUIT (OFL) for Korean and body text.
+- General Sans (Indian Type Foundry, free for commercial use via Fontshare) for the hero slogan.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- This is a private MVP for the 2026-10-17 meeting, so search indexing is turned off in `layout.tsx`.
+- Still to do:
+  - Notion integration
+  - archive and news pages
+  - Vercel deployment

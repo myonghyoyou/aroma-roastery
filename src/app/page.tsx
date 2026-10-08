@@ -1,69 +1,118 @@
-import Image from "next/image";
+import { GrainStage } from '@/components/home/GrainStage';
+import { formatDate, getPosts, getSiteSettings, TYPE_LABEL, type Media } from '@/lib/content';
+import { SLOT_COUNT } from '@/lib/grain-field/engine';
 
-export default function Home() {
+const HOME_ENTRIES = SLOT_COUNT - 2; // slots 0 and 1 belong to the passage and the store
+
+// filler for unused slots: never surfaced, because no zone on the page points at it
+const EMPTY_SLOT: Media = { src: '/assets/img/photo-barista-pourover-bar.jpg', kind: 'image', alt: '' };
+
+function FallbackImage({ media }: { media: Media }) {
+  const src = media.kind === 'video' ? media.poster : media.src;
+  if (!src) return null;
+  // eslint-disable-next-line @next/next/no-img-element -- shown only where WebGL is unavailable
+  return <img className="ph-fallback" src={src} alt={media.alt} loading="lazy" />;
+}
+
+export default async function Home() {
+  const [settings, posts] = await Promise.all([getSiteSettings(), getPosts()]);
+  const entries = posts.slice(0, HOME_ENTRIES);
+  const slots: Media[] = [settings.passageMedia, settings.storeMedia, ...entries.map((p) => p.cover)];
+  while (slots.length < SLOT_COUNT) slots.push(EMPTY_SLOT);
+  const hasSample = entries.some((p) => p.sample);
+  const [weekday, weekend] = settings.hours;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <GrainStage slots={slots}>
+      <header className="topbar">
+        <a className="brand" href="#top" aria-label="aroma 처음으로">
+          {/* eslint-disable-next-line @next/next/no-img-element -- small inline SVG logo */}
+          <img className="symbol" src="/assets/logo/aroma-symbol.svg" alt="" />
+        </a>
+        <nav aria-label="주요 메뉴">
+          <ul>
+            <li><a href="#archive">아카이브</a></li>
+            <li><a href="#archive">소식</a></li>
+            <li><a href={settings.instagram.url} target="_blank" rel="noopener">Instagram</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <section className="hero" id="top">
+          <h1 className="hero-sentence" lang="en">
+            <span className="l">Aroma Roastery roasts</span>
+            <span className="l">specialty coffee</span>
+            <span className="l">that persuades.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
+
+        {/* scroll room for the colour-to-video passage; the picture itself is drawn by the shader */}
+        <div className="passage" aria-hidden="true" />
+
+        <section className="store" id="store" aria-labelledby="store-title" data-photo="1">
+          <h2 id="store-title">매장 정보</h2>
+          <address className="store-address">
+            {settings.address.line1}
+            <br />
+            {settings.address.line2}
+            <small>{settings.address.building} {settings.address.storeName}</small>
+          </address>
+          <dl className="store-facts">
+            {settings.hours.map((h) => (
+              <div key={h.label}><dt>{h.label}</dt><dd>{h.value}</dd></div>
+            ))}
+            <div>
+              <dt>지도</dt>
+              <dd><a href={settings.mapUrl} target="_blank" rel="noopener">네이버 지도에서 보기</a></dd>
+            </div>
+          </dl>
+          <FallbackImage media={settings.storeMedia} />
+        </section>
+
+        <section className="archive" id="archive" aria-labelledby="archive-title">
+          <div className="archive-head">
+            <h2 id="archive-title">기록과 소식</h2>
+            {hasSample && <span className="tag-sample">예시</span>}
+          </div>
+          {/* each entry's cover is surfaced by the shader while the entry crosses the middle of the screen.
+              Sample entries are placeholders, so they are not links. */}
+          <ol className="entries">
+            {entries.map((p, i) => (
+              <li key={p.slug} data-photo={i + 2}>
+                <div className="meta">
+                  <span>{TYPE_LABEL[p.type]}</span>
+                  <time dateTime={p.date}>{formatDate(p.date)}</time>
+                </div>
+                <h3>{p.title}</h3>
+                <FallbackImage media={p.cover} />
+              </li>
+            ))}
+          </ol>
+        </section>
       </main>
-    </div>
+
+      <footer className="site-footer">
+        <div className="footer-mark" role="img" aria-label="aroma" />
+        <div className="footer-grid">
+          <p>
+            aroma coffee roastery &amp; showroom
+            <br />
+            {settings.address.line1} {settings.address.line2} {settings.address.building}
+          </p>
+          <p>
+            {weekday.label} {weekday.value}
+            <br />
+            {weekend.label} {weekend.value}
+          </p>
+          <ul>
+            <li><a href="#archive">아카이브</a></li>
+            <li><a href="#archive">소식</a></li>
+            <li><a href={settings.instagram.url} target="_blank" rel="noopener">Instagram</a></li>
+          </ul>
+        </div>
+        <p className="copyright">© 2026 aroma roastery</p>
+      </footer>
+    </GrainStage>
   );
 }
