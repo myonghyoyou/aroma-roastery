@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import './sub.css';
 
 // Korean and body text: SUIT (OFL). The hero slogan: General Sans (Indian Type Foundry, free for
 // commercial and web use via Fontshare), the open alternative to the licensed PP Neue Montreal.

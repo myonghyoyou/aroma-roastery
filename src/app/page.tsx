@@ -1,5 +1,8 @@
+import Link from 'next/link';
 import { GrainStage } from '@/components/home/GrainStage';
-import { formatDate, getPosts, getSiteSettings, TYPE_LABEL, type Media } from '@/lib/content';
+import { SiteFooter } from '@/components/site/SiteFooter';
+import { SiteHeader } from '@/components/site/SiteHeader';
+import { formatDate, getPosts, getSiteSettings, postHref, TYPE_LABEL, type Media, type Post } from '@/lib/content';
 import { SLOT_COUNT } from '@/lib/grain-field/engine';
 
 const HOME_ENTRIES = SLOT_COUNT - 2; // slots 0 and 1 belong to the passage and the store
@@ -16,27 +19,15 @@ function FallbackImage({ media }: { media: Media }) {
 
 export default async function Home() {
   const [settings, posts] = await Promise.all([getSiteSettings(), getPosts()]);
-  const entries = posts.slice(0, HOME_ENTRIES);
+  // the newest posts that have a cover: each one owns a shader slot
+  const entries = posts.filter((p): p is Post & { cover: Media } => !!p.cover).slice(0, HOME_ENTRIES);
   const slots: Media[] = [settings.passageMedia, settings.storeMedia, ...entries.map((p) => p.cover)];
   while (slots.length < SLOT_COUNT) slots.push(EMPTY_SLOT);
   const hasSample = entries.some((p) => p.sample);
-  const [weekday, weekend] = settings.hours;
 
   return (
     <GrainStage slots={slots}>
-      <header className="topbar">
-        <a className="brand" href="#top" aria-label="aroma 처음으로">
-          {/* eslint-disable-next-line @next/next/no-img-element -- small inline SVG logo */}
-          <img className="symbol" src="/assets/logo/aroma-symbol.svg" alt="" />
-        </a>
-        <nav aria-label="주요 메뉴">
-          <ul>
-            <li><a href="#archive">아카이브</a></li>
-            <li><a href="#archive">소식</a></li>
-            <li><a href={settings.instagram.url} target="_blank" rel="noopener">Instagram</a></li>
-          </ul>
-        </nav>
-      </header>
+      <SiteHeader home instagramUrl={settings.instagram.url} />
 
       <main>
         <section className="hero" id="top">
@@ -75,8 +66,7 @@ export default async function Home() {
             <h2 id="archive-title">기록과 소식</h2>
             {hasSample && <span className="tag-sample">예시</span>}
           </div>
-          {/* each entry's cover is surfaced by the shader while the entry crosses the middle of the screen.
-              Sample entries are placeholders, so they are not links. */}
+          {/* each entry's cover is surfaced by the shader while the entry crosses the middle of the screen */}
           <ol className="entries">
             {entries.map((p, i) => (
               <li key={p.slug} data-photo={i + 2}>
@@ -84,7 +74,7 @@ export default async function Home() {
                   <span>{TYPE_LABEL[p.type]}</span>
                   <time dateTime={p.date}>{formatDate(p.date)}</time>
                 </div>
-                <h3>{p.title}</h3>
+                <h3><Link href={postHref(p)}>{p.title}</Link></h3>
                 <FallbackImage media={p.cover} />
               </li>
             ))}
@@ -92,27 +82,7 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="site-footer">
-        <div className="footer-mark" role="img" aria-label="aroma" />
-        <div className="footer-grid">
-          <p>
-            aroma coffee roastery &amp; showroom
-            <br />
-            {settings.address.line1} {settings.address.line2} {settings.address.building}
-          </p>
-          <p>
-            {weekday.label} {weekday.value}
-            <br />
-            {weekend.label} {weekend.value}
-          </p>
-          <ul>
-            <li><a href="#archive">아카이브</a></li>
-            <li><a href="#archive">소식</a></li>
-            <li><a href={settings.instagram.url} target="_blank" rel="noopener">Instagram</a></li>
-          </ul>
-        </div>
-        <p className="copyright">© 2026 aroma roastery</p>
-      </footer>
+      <SiteFooter settings={settings} />
     </GrainStage>
   );
 }

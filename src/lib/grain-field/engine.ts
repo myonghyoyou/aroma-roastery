@@ -106,7 +106,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
 
   function createField(): Field | null {
     const gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'high-performance' });
-    if (!gl) return null;
+    if (!gl || gl.isContextLost()) return null;
     if (gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) < N) return null;
     const compile = (type: number, src: string) => {
       const s = gl.createShader(type)!;
@@ -115,17 +115,20 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       return s;
     };
     const prog = gl.createProgram()!;
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERTEX_SHADER));
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
+    const shaders = [compile(gl.VERTEX_SHADER, VERTEX_SHADER), compile(gl.FRAGMENT_SHADER, FRAGMENT_SHADER)];
+    shaders.forEach((s) => gl.attachShader(prog, s));
     gl.bindAttribLocation(prog, 0, 'aPosition');
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) ?? 'link');
+    // the linked program keeps what it needs; the shader objects can go
+    shaders.forEach((s) => { gl.detachShader(prog, s); gl.deleteShader(s); });
     gl.useProgram(prog);
     const U: Record<string, WebGLUniformLocation | null> = {};
     ['uRes', 'uTime', 'uMouse', 'uLens', 'uPage', 'uFloor', 'uDark', 'uShade', 'uW', 'uSz'].forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
 
     // one big triangle covers the screen
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
@@ -135,8 +138,10 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     const ready = new Float32Array(N);
     const api: Field = { onPhoto: null, uploadVideos: () => {}, resize: () => {}, draw: () => {}, dispose: () => {} };
     const images: HTMLImageElement[] = [];
+    const textures: WebGLTexture[] = [];
     slots.forEach((m, i) => {
       const tex = gl.createTexture();
+      textures.push(tex);
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -264,9 +269,13 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       gl.uniform1fv(U.uW, wbuf);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
+    // free GPU objects but keep the context alive: Next keeps a left page's DOM around for instant
+    // back navigation and re-runs the effect on the same canvas, so a lost context would stay lost
     api.dispose = () => {
       images.forEach((img) => { img.onload = null; img.src = ''; });
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      textures.forEach((t) => gl.deleteTexture(t));
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(prog);
     };
     api.resize();
     return api;
