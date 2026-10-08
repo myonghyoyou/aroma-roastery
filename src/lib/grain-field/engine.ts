@@ -396,6 +396,75 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   computeTargets();
   document.fonts?.ready.then(() => { if (!disposed) ScrollTrigger.refresh(); });
 
+  /* ---------------- panel steps ---------------- */
+  // A wheel notch, a swipe or a key press moves exactly one panel. Lenis carries the scroll from stop to
+  // stop, so every scrubbed fade above still plays on the way. Reduced motion keeps native scrolling.
+  if (lenis) {
+    const l = lenis;
+    const top = (el: Element) => el.getBoundingClientRect().top + window.scrollY;
+    const stops = () => {
+      const H = window.innerHeight;
+      const s = [0];
+      // the passage ends with its video fully surfaced
+      if (passageEl instanceof HTMLElement) s.push(top(passageEl) + passageEl.offsetHeight - H);
+      // each sticky copy layer: the middle of the stretch where it is fully shown (after its fade in at
+      // 20% of a screen, before its fade out 125% of a screen from the end)
+      root.querySelectorAll<HTMLElement>('.panel-copy[data-panel]').forEach((el) => {
+        const scope = el.parentElement;
+        if (scope) s.push(top(scope) + (0.2 * H + scope.offsetHeight - 1.25 * H) / 2);
+      });
+      s.push(l.limit);
+      return s.map(Math.round).sort((a, b) => a - b);
+    };
+    let moving = false;
+    let release = 0;
+    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const go = (dir: 1 | -1) => {
+      if (moving) return;
+      const y = l.targetScroll;
+      const list = stops();
+      const next = dir > 0 ? list.find((s) => s > y + 4) : list.reverse().find((s) => s < y - 4);
+      if (next === undefined) return;
+      moving = true;
+      const done = () => { moving = false; window.clearTimeout(release); };
+      // the timer is a safety net in case Lenis never reports completion
+      release = window.setTimeout(done, 1800);
+      l.scrollTo(next, { duration: 1.1, easing: easeInOut, lock: true, onComplete: done });
+    };
+
+    let lastWheel = 0, lastAbs = 0, touchSum = 0, touchFired = false;
+    l.options.virtualScroll = ({ deltaY, event }) => {
+      if (event.ctrlKey) return true; // pinch zoom
+      if (event.type === 'wheel') {
+        event.preventDefault();
+        // a trackpad keeps sending shrinking deltas after the fingers lift: that tail is not a new step
+        const now = performance.now(), a = Math.abs(deltaY);
+        const tail = now - lastWheel < 200 && a <= lastAbs * 1.2;
+        lastWheel = now; lastAbs = a;
+        if (!tail && a > 2) go(deltaY > 0 ? 1 : -1);
+      } else if (event.type === 'touchstart') {
+        touchSum = 0; touchFired = false;
+      } else if (event.type === 'touchmove') {
+        if (event.cancelable) event.preventDefault();
+        touchSum += deltaY;
+        if (!touchFired && Math.abs(touchSum) > 36) { touchFired = true; go(touchSum > 0 ? 1 : -1); }
+      }
+      // touchend is left alone so a tap still clicks
+      return false;
+    };
+
+    window.addEventListener('keydown', (e) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      const t = e.target instanceof HTMLElement ? e.target : null;
+      if (t?.closest('input, textarea, select, button, [contenteditable="true"]')) return;
+      const down = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey);
+      const up = e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey);
+      if (!down && !up) return;
+      e.preventDefault();
+      go(down ? 1 : -1);
+    }, { signal });
+  }
+
   /* ---------------- render loop ---------------- */
   if (field) {
     const f = field;
