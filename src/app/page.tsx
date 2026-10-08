@@ -42,6 +42,7 @@ export default async function Home() {
         <div className="passage" aria-hidden="true" />
 
         <section className="store" id="store" aria-labelledby="store-title" data-photo="1">
+          <div className="panel-copy store-copy" data-panel>
           <h2 id="store-title">매장 정보</h2>
           <address className="store-address">
             {settings.address.line1}
@@ -59,10 +60,11 @@ export default async function Home() {
             </div>
           </dl>
           <FallbackImage media={settings.storeMedia} />
+          </div>
         </section>
 
         <section className="archive" id="archive" aria-labelledby="archive-title">
-          <div className="archive-head">
+          <div className="archive-head" data-panel>
             <h2 id="archive-title">기록과 소식</h2>
             {hasSample && <span className="tag-sample">예시</span>}
           </div>
@@ -70,12 +72,14 @@ export default async function Home() {
           <ol className="entries">
             {entries.map((p, i) => (
               <li key={p.slug} data-photo={i + 2}>
+                <div className="panel-copy entry-copy" data-panel>
                 <div className="meta">
                   <span>{TYPE_LABEL[p.type]}</span>
                   <time dateTime={p.date}>{formatDate(p.date)}</time>
                 </div>
                 <h3><Link href={postHref(p)}>{p.title}</Link></h3>
                 <FallbackImage media={p.homeClip} />
+                </div>
               </li>
             ))}
           </ol>

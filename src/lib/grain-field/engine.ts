@@ -352,11 +352,28 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       });
     });
     if (!reduce && sentence) {
-      // hierarchy hand-off: the sentence steps back as the photo starts to surface.
-      // linear ease on purpose, scrub 0.8 gives the softness.
-      gsap.to(sentence, {
-        yPercent: -18, opacity: 0, ease: 'none',
-        scrollTrigger: { trigger: passageEl, start: 'top bottom', end: 'top 25%', scrub: 0.8 },
+      // the sentence stays where it is (fixed) and only fades as the video starts to surface
+      gsap.fromTo(sentence, { autoAlpha: 1 }, {
+        autoAlpha: 0, ease: 'none', immediateRender: false,
+        scrollTrigger: { trigger: passageEl, start: 'top bottom', end: 'top 35%', scrub: 0.6 },
+      });
+    }
+    if (!reduce) {
+      // every other panel's copy is a sticky layer: it holds still for as long as its section scrolls
+      // past and fades in at the start and out before the end, so no copy is ever seen moving
+      // Fades run over a fixed 20% of the screen height, whatever the section length, and the fade out
+      // ends 5% before the layer is released, so it is fully gone before it would start to scroll.
+      root.querySelectorAll<HTMLElement>('[data-panel]').forEach((el) => {
+        const scope = el.parentElement;
+        if (!scope) return;
+        gsap.fromTo(el, { autoAlpha: 0 }, {
+          autoAlpha: 1, ease: 'none',
+          scrollTrigger: { trigger: scope, start: 'top top', end: 'top -20%', scrub: true },
+        });
+        gsap.fromTo(el, { autoAlpha: 1 }, {
+          autoAlpha: 0, ease: 'none', immediateRender: false,
+          scrollTrigger: { trigger: scope, start: 'bottom 125%', end: 'bottom 105%', scrub: true },
+        });
       });
     }
   }, root);
