@@ -3,7 +3,7 @@ import Link from 'next/link';
 type Section = 'archive' | 'news';
 
 const NAV: { href: string; label: string; section: Section }[] = [
-  { href: '/archive', label: '아카이브', section: 'archive' },
+  { href: '/archive-lab', label: '아카이브', section: 'archive' },
   { href: '/news', label: '소식', section: 'news' },
 ];
 
