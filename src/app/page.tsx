@@ -37,6 +37,13 @@ export default async function Home() {
             <span className="l">로스팅 합니다.</span>
             <span className="en" lang="en">Aroma Roastery roasts specialty coffee that persuades.</span>
           </h1>
+          {/* first-time readers saw one finished screen and never scrolled; this says there is more below */}
+          <div className="scroll-cue" aria-hidden="true">
+            <span>아래로</span>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" />
+            </svg>
+          </div>
         </section>
 
         {/* scroll room for the colour-to-video passage; the picture itself is drawn by the shader */}

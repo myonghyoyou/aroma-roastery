@@ -350,7 +350,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   const passageEl = root.querySelector('.passage');
   const storeEl = root.querySelector('.store');
   const footerEl = root.querySelector('.site-footer');
-  const sentence = root.querySelector('.hero-sentence');
+  const sentence = root.querySelectorAll('.hero-sentence, .scroll-cue');
   const zones = Array.from(root.querySelectorAll<HTMLElement>('[data-photo]')).map((el) => ({ el, photo: Number(el.dataset.photo) }));
 
   let passageST: ScrollTrigger | null = null;
@@ -375,8 +375,8 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         },
       });
     });
-    if (!reduce && sentence) {
-      // the sentence stays where it is (fixed) and only fades as the video starts to surface
+    if (!reduce && sentence.length) {
+      // the sentence and the scroll cue stay where they are (fixed) and only fade as the video starts to surface
       gsap.fromTo(sentence, { autoAlpha: 1 }, {
         autoAlpha: 0, ease: 'none', immediateRender: false,
         scrollTrigger: { trigger: passageEl, start: 'top bottom', end: 'top 35%', scrub: 0.6 },
@@ -411,13 +411,17 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     }
   }, root);
   computeTargets();
+  // a hash (/#store, from another page or typed in) lands on that panel's stop, not its top edge
+  const toHash = (instant: boolean) => {
+    const target = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    if (target) toPanel?.(target, instant);
+  };
   document.fonts?.ready.then(() => {
     if (disposed) return;
     ScrollTrigger.refresh();
-    // arriving from another page with a hash (/#store): start on that panel's stop, not its top edge
-    const target = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
-    if (target) toPanel?.(target, true);
+    toHash(true);
   });
+  window.addEventListener('hashchange', () => toHash(false), { signal });
 
   /* ---------------- panel stops ---------------- */
   // Scrolling is free, so a flick can cross several panels at once. Once the page comes to rest it

@@ -22,6 +22,8 @@ export function SiteHeader({ current, instagramUrl, home = false }: { current?: 
       )}
       <nav aria-label="주요 메뉴">
         <ul>
+          {/* store info sits in the middle of the home scroll, so it gets its own way in from every page */}
+          <li>{home ? <a href="#store">매장 정보</a> : <Link href="/#store">매장 정보</Link>}</li>
           {NAV.map((n) => (
             <li key={n.href}>
               <Link href={n.href} aria-current={current === n.section ? 'page' : undefined}>{n.label}</Link>
