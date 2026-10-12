@@ -443,24 +443,28 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         }
       });
 
-      // The footer wordmark closes the page the same way the copy comes in, warm and soft, and rises:
-      // it is revealed from its bottom edge up while lifting a little, out of a blur and a warm glow.
-      // A drop shadow would be cut away by the logo's mask, so the warmth is a brighter, richer colour.
+      // The footer wordmark closes the page the same way the copy comes in, warm and soft, and rises a
+      // little from below out of a blur. No wipe: a hard-edged reveal sweeping up read as mechanical.
+      // It starts once the page has nearly arrived, so the rise does not mix with the scroll, and its
+      // parts settle at their own pace: the fade first, then the focus, the lift last and longest.
+      // A drop shadow would be cut away by the logo's mask, so the warmth is a slightly richer colour.
       const wordmark = root.querySelector<HTMLElement>('.footer-mark');
       if (wordmark) {
         gsap.set(wordmark, { autoAlpha: 0 });
-        let markIn: gsap.core.Tween | null = null;
+        let markIn: gsap.core.Timeline | null = null;
         ScrollTrigger.create({
-          trigger: wordmark, start: 'top 92%',
+          trigger: wordmark, start: 'top 80%',
           onEnter: () => {
             markIn?.kill();
-            markIn = gsap.fromTo(wordmark,
-              { autoAlpha: 0, y: 28, clipPath: 'inset(100% 0% 0% 0%)', filter: 'blur(8px) brightness(1.35) saturate(1.25)' },
-              { autoAlpha: 1, y: 0, clipPath: 'inset(0% 0% 0% 0%)', filter: 'blur(0px) brightness(1) saturate(1)', duration: 1.4, ease: 'power3.out', delay: 0.1, clearProps: 'filter,clipPath,transform' });
+            gsap.set(wordmark, { autoAlpha: 0, y: 24, filter: 'blur(10px) brightness(1.08) saturate(1.12)' });
+            markIn = gsap.timeline({ delay: 0.25, onComplete: () => { gsap.set(wordmark, { clearProps: 'filter,transform' }); } })
+              .to(wordmark, { autoAlpha: 1, duration: 1.1, ease: 'sine.out' }, 0)
+              .to(wordmark, { filter: 'blur(0px) brightness(1) saturate(1)', duration: 1.5, ease: 'power2.out' }, 0)
+              .to(wordmark, { y: 0, duration: 1.9, ease: 'expo.out' }, 0);
           },
           onLeaveBack: () => {
             markIn?.kill(); markIn = null;
-            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter,clipPath,transform' });
+            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter,transform' });
           },
         });
       }
@@ -631,7 +635,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     // hovered or has keyboard focus. Asleep, it takes no taps.
     let sleepTimer = 0;
     let hovering = false;
-    const wake = (ms = 1500) => {
+    const wake = (ms = 700) => {
       rail.classList.add('is-awake');
       window.clearTimeout(sleepTimer);
       sleepTimer = window.setTimeout(() => {

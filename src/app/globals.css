@@ -198,9 +198,9 @@ main { text-shadow: var(--halo); }
   position: fixed; right: max(4px, calc(var(--gutter) - 22px)); top: 50%; transform: translateY(-50%); z-index: 20;
   display: flex; flex-direction: column; gap: 6px;
   /* asleep until the page moves (the engine adds .is-awake); it fades out slowly, back in quickly */
-  opacity: 0; pointer-events: none; transition: opacity .6s ease .1s;
+  opacity: 0; pointer-events: none; transition: opacity .3s ease;
 }
-.rail.is-awake, .rail:focus-within { opacity: 1; pointer-events: auto; transition-duration: .25s; transition-delay: 0s; }
+.rail.is-awake, .rail:focus-within { opacity: 1; pointer-events: auto; transition-duration: .2s; }
 /* the button is a 24px wide target; the mark itself is a 2px line inside it */
 .rail button { position: relative; display: block; width: 24px; height: clamp(20px, calc(var(--vh) * 4.4), 40px); padding: 0; border: 0; background: none; cursor: pointer; }
 .rail button::before {
