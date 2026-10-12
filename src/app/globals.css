@@ -208,10 +208,14 @@ main { text-shadow: var(--halo); }
 .rail button:hover::before { background: rgba(251, 243, 232, .6); }
 .rail button[aria-current="true"]::before { width: 3px; margin-left: -1.5px; background: var(--milk); }
 .rail button:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
-/* on a phone the copy keeps clear of the rail */
+/* on a phone the rail is about half as tall and finer, and the copy keeps clear of it */
 @media (max-width: 600px) {
-  .store-copy, .entry-copy { padding-right: 30px; }
-  .hero-sentence { right: 30px; }
+  .rail { right: 4px; gap: 4px; }
+  .rail button { width: 18px; height: clamp(12px, calc(var(--vh) * 2.2), 18px); }
+  .rail button::before { width: 1.5px; margin-left: -0.75px; }
+  .rail button[aria-current="true"]::before { width: 2px; margin-left: -1px; }
+  .store-copy, .entry-copy { padding-right: 26px; }
+  .hero-sentence { right: 26px; }
 }
 
 /* archive titles: give the line room instead of a one-word-per-line column */
