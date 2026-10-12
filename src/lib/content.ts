@@ -104,7 +104,7 @@ const CLIP = {
   serverSteam: { src: '/assets/video/server-steaming.mp4', kind: 'video', alt: '김이 오르는 서버와 원두 카드', crop: 9 / 16, poster: '/assets/img/photo-kainamui-card-steam.jpg' },
   dripper: { src: '/assets/video/dripper-pour.mp4', kind: 'video', alt: '드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-pourover-dripper-closeup.jpg', focusY: 0.38, trimBottom: 0.12 },
   serverVapor: { src: '/assets/video/server-vapor.mp4', kind: 'video', alt: '김이 오르는 유리 서버와 바리스타', poster: '/assets/img/photo-server-barista-bokeh.jpg', focusY: 0.6, trimBottom: 0.12 },
-  cupPour: { src: '/assets/video/cup-pour.mp4', kind: 'video', alt: '서버에서 잔으로 커피를 따르는 모습', poster: '/assets/img/photo-coffee-pour-cup.jpg', focusY: 0.55, trimBottom: 0.12, loopDip: 0.9 },
+  cupPour: { src: '/assets/video/cup-pour.mp4', kind: 'video', alt: '서버에서 잔으로 커피를 따르는 모습', poster: '/assets/img/photo-coffee-pour-cup.jpg', focusY: 0.55, trimBottom: 0.12 },
 } satisfies Record<string, Media>;
 const HOME_CLIPS: Record<string, Media> = {
   'october-store-hours': CLIP.serverVapor,

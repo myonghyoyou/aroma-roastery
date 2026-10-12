@@ -39,7 +39,7 @@ type VideoSlot = {
 };
 
 type FieldState = {
-  page: number; floor: number; passage: number; footer: number; past: boolean; zone: number;
+  page: number; floor: number; floorT: number; passage: number; footer: number; past: boolean; zone: number;
   w: Float32Array; wT: Float32Array; dark: number; darkT: number; shade: number; shadeT: number;
   mx: number; my: number; tx: number; ty: number; lens: number; lensTarget: number; lastMove: number;
 };
@@ -306,7 +306,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   /* ---------------- state ---------------- */
   const state: FieldState = {
     // scroll inputs
-    page: 0, floor: 1, passage: 0, footer: 0, past: false, zone: -1,
+    page: 0, floor: 1, floorT: 1, passage: 0, footer: 0, past: false, zone: -1,
     // smoothed outputs and their targets
     w: new Float32Array(N), wT: new Float32Array(N), dark: 0, darkT: 0, shade: 0, shadeT: 0,
     // pointer lens
@@ -323,7 +323,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     state.darkT = 0.62 * smooth01(0, 0.6, state.passage) + 0.18 * state.footer;
     state.shadeT = state.zone >= 0 ? 1 : 0;
     if (reduce) {
-      state.w.set(state.wT); state.dark = state.darkT; state.shade = state.shadeT;
+      state.w.set(state.wT); state.dark = state.darkT; state.shade = state.shadeT; state.floor = state.floorT;
       field?.draw(STILL_TIME, state);
     }
     if (!field && fallback) fallback.style.opacity = String(1 - 0.5 * state.dark);
@@ -358,16 +358,20 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   const ctx = gsap.context(() => {
     // no tweens on these: they only feed the shader, Lenis plus the per-frame easing smooth them
     ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => { state.page = self.progress; computeTargets(); } });
-    ScrollTrigger.create({ trigger: heroEl, start: 'top top', end: 'bottom top', onUpdate: (self) => { state.floor = 1 - self.progress; computeTargets(); } });
+    ScrollTrigger.create({ trigger: heroEl, start: 'top top', end: 'bottom top', onUpdate: (self) => { state.floorT = 1 - self.progress; computeTargets(); } });
     passageST = ScrollTrigger.create({ trigger: passageEl, start: 'top bottom', end: 'bottom bottom', onUpdate: (self) => { state.passage = self.progress; computeTargets(); } });
     // enter/leaveBack instead of isActive: at the very bottom (scroll == end) isActive turns false and the
     // passage photo came back behind the footer
     ScrollTrigger.create({ trigger: storeEl, start: 'top 55%', onEnter: () => { state.past = true; computeTargets(); }, onLeaveBack: () => { state.past = false; computeTargets(); } });
     ScrollTrigger.create({ trigger: footerEl, start: 'top bottom', end: 'bottom bottom', onUpdate: (self) => { state.footer = self.progress; computeTargets(); } });
-    // each zone owns its slot while it crosses the middle band of the screen
-    zones.forEach((z) => {
+    // each zone owns its slot from the moment it crosses the middle band of the screen until the next zone
+    // does. A gap between two zones (the archive heading sits between the store and the first entry)
+    // left no slot shown, and the bright colour field flashed through between the two photos.
+    zones.forEach((z, i) => {
+      const next = zones[i + 1];
       ScrollTrigger.create({
-        trigger: z.el, start: 'top 55%', end: 'bottom 55%',
+        trigger: z.el, start: 'top 55%',
+        ...(next ? { endTrigger: next.el, end: 'top 55%' } : { end: 'bottom 55%' }),
         onToggle: (self) => {
           if (self.isActive) state.zone = z.photo;
           else if (state.zone === z.photo) state.zone = -1;
@@ -452,7 +456,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const later = () => { window.clearTimeout(settleTimer); settleTimer = window.setTimeout(settle, 180); };
     const done = () => { if (!moving) return; moving = false; window.clearTimeout(release); later(); };
-    const glide = (y: number, duration = 1.1) => {
+    const glide = (y: number, duration = 0.75) => {
       moving = true;
       window.clearTimeout(release);
       // the timer is a safety net in case Lenis never reports completion
@@ -596,6 +600,9 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         const k = 1 - Math.pow(1 - 0.06, dt * 60);   // about one second to settle, frame-rate independent
         for (let i = 0; i < N; i++) state.w[i] += (state.wT[i] - state.w[i]) * k;
         state.dark += (state.darkT - state.dark) * k;
+        // the hero floor eases with the photo and the darkening: lifted at once, it let the bright field
+        // flash through for a moment while they were still catching up on a quick panel step
+        state.floor += (state.floorT - state.floor) * k;
         state.shade += (state.shadeT - state.shade) * k;
         if (now - state.lastMove > 2600) state.lensTarget = Math.min(state.lensTarget, 0.35);
         state.mx += (state.tx - state.mx) * 0.08;
