@@ -445,10 +445,9 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         }
       });
 
-      // The footer wordmark closes the page the same way the copy comes in, warm and soft, and rises a
-      // little from below out of a blur. No wipe: a hard-edged reveal sweeping up read as mechanical.
-      // It starts once the page has nearly arrived, so the rise does not mix with the scroll, and its
-      // parts settle at their own pace: the fade first, then the focus, the lift last and longest.
+      // The footer wordmark closes the page the same way the copy comes in: warm and soft, where it
+      // stands, out of a blur. No wipe and no lift: both read as mechanical. It starts once the page has
+      // nearly arrived, so it does not mix with the scroll; the fade comes first, the focus a bit later.
       // A drop shadow would be cut away by the logo's mask, so the warmth is a slightly richer colour.
       const wordmark = root.querySelector<HTMLElement>('.footer-mark');
       if (wordmark) {
@@ -458,15 +457,14 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
           trigger: wordmark, start: 'top 80%',
           onEnter: () => {
             markIn?.kill();
-            gsap.set(wordmark, { autoAlpha: 0, y: 24, filter: 'blur(10px) brightness(1.08) saturate(1.12)' });
-            markIn = gsap.timeline({ delay: 0.25, onComplete: () => { gsap.set(wordmark, { clearProps: 'filter,transform' }); } })
+            gsap.set(wordmark, { autoAlpha: 0, filter: 'blur(10px) brightness(1.08) saturate(1.12)' });
+            markIn = gsap.timeline({ delay: 0.25, onComplete: () => { gsap.set(wordmark, { clearProps: 'filter' }); } })
               .to(wordmark, { autoAlpha: 1, duration: 1.1, ease: 'sine.out' }, 0)
-              .to(wordmark, { filter: 'blur(0px) brightness(1) saturate(1)', duration: 1.5, ease: 'power2.out' }, 0)
-              .to(wordmark, { y: 0, duration: 1.9, ease: 'expo.out' }, 0);
+              .to(wordmark, { filter: 'blur(0px) brightness(1) saturate(1)', duration: 1.5, ease: 'power2.out' }, 0);
           },
           onLeaveBack: () => {
             markIn?.kill(); markIn = null;
-            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter,transform' });
+            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter' });
           },
         });
       }
