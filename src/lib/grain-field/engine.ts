@@ -458,6 +458,9 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     const done = () => { if (!moving) return; moving = false; window.clearTimeout(release); later(); };
     const glide = (y: number, duration = 0.75) => {
       moving = true;
+      // the rail lights the destination at once: lit from the scroll position, it changed halfway and
+      // both marks were half faded for a moment, so none showed white
+      lightNearest(y);
       window.clearTimeout(release);
       // the timer is a safety net in case Lenis never reports completion
       release = window.setTimeout(done, duration * 1000 + 700);
@@ -488,10 +491,52 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       if (next !== undefined) glide(next);
     };
 
+    // A move of two stops or more does not scroll through the panels in between: their copy, photos
+    // and colours would all flash past in under a second, half of them still fading as the next came.
+    // The screen is covered for a moment instead, the page cut to the destination with every fade and
+    // the field settled there, and uncovered.
+    const cover = document.createElement('div');
+    cover.className = 'jump-cover';
+    cover.setAttribute('aria-hidden', 'true');
+    root.appendChild(cover);
+    const COVER_IN = 220, COVER_OUT = 420;
+    const jump = (y: number) => {
+      moving = true;
+      lightNearest(y);
+      window.clearTimeout(release);
+      cover.style.transitionDuration = `${COVER_IN}ms`;
+      cover.classList.add('is-on');
+      release = window.setTimeout(() => {
+        l.scrollTo(y, { immediate: true, force: true });
+        ScrollTrigger.update();
+        // lagging scrubs (the hero sentence, scrub 0.6) jump to where the scroll now is; the others
+        // (scrub: true) already follow the scroll exactly
+        ScrollTrigger.getAll().forEach((st) => { if (typeof st.vars.scrub === 'number') st.animation?.progress(st.progress); });
+        state.w.set(state.wT); state.dark = state.darkT; state.floor = state.floorT; state.shade = state.shadeT;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          cover.style.transitionDuration = `${COVER_OUT}ms`;
+          cover.classList.remove('is-on');
+          moving = false;
+          later();
+        }));
+      }, COVER_IN);
+    };
+    // the number of stops between here and there decides between a glide and a cut
+    const stopIndex = (y: number) => {
+      const list = stops();
+      let best = 0;
+      list.forEach((p, i) => { if (Math.abs(p.y - y) < Math.abs(list[best].y - y)) best = i; });
+      return best;
+    };
+    const moveTo = (y: number) => {
+      if (moving) return;
+      if (Math.abs(stopIndex(y) - stopIndex(l.scroll)) >= 2) jump(y); else glide(y);
+    };
+
     toPanel = (el, instant = false) => {
       const stop = stops().find((p) => p.scope && (p.scope === el || el.contains(p.scope) || p.scope.contains(el)));
       if (!stop) return false;
-      if (instant) l.scrollTo(stop.y, { immediate: true }); else glide(stop.y);
+      if (instant) l.scrollTo(stop.y, { immediate: true }); else moveTo(stop.y);
       return true;
     };
 
@@ -502,23 +547,24 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     root.appendChild(rail);
     let marks: { y: number; el: HTMLButtonElement }[] = [];
     let lit = -1;
-    const markActive = () => {
+    function lightNearest(y: number) {
       if (!marks.length) return;
-      const y = l.scroll;
       let best = 0;
       marks.forEach((m, i) => { if (Math.abs(m.y - y) < Math.abs(marks[best].y - y)) best = i; });
       if (best === lit) return;
       if (lit >= 0 && marks[lit]) marks[lit].el.removeAttribute('aria-current');
       marks[best].el.setAttribute('aria-current', 'true');
       lit = best;
-    };
+    }
+    // during a move the destination stays lit; otherwise (a dragged scrollbar) the nearest stop is
+    const markActive = () => { if (!moving) lightNearest(l.scroll); };
     railRefresh = () => {
       marks = stops().map((p) => {
         const b = document.createElement('button');
         b.type = 'button';
         b.setAttribute('aria-label', p.label);
         b.title = p.label;
-        b.addEventListener('click', () => glide(p.y));
+        b.addEventListener('click', () => moveTo(p.y));
         return { y: p.y, el: b };
       });
       rail.replaceChildren(...marks.map((m) => m.el));
@@ -624,6 +670,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     listen.abort();
     if (railRefresh) ScrollTrigger.removeEventListener('refresh', railRefresh);
     root.querySelector('.rail')?.remove();
+    root.querySelector('.jump-cover')?.remove();
     ctx.revert();
     if (lenis) { gsap.ticker.remove(lenisTick); lenis.destroy(); }
     videos.forEach((v) => { v.el.pause(); v.el.removeAttribute('src'); v.el.load(); });

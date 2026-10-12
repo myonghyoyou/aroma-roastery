@@ -203,11 +203,17 @@ main { text-shadow: var(--halo); }
 .rail button::before {
   content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; border-radius: 1px;
   background: rgba(251, 243, 232, .3); box-shadow: 0 0 6px rgba(26, 17, 13, .35);
-  transition: background-color .3s, width .3s, margin-left .3s;
+  /* the lit mark switches at once: a fading swap left both marks grey for a moment */
+  transition: width .2s, margin-left .2s;
 }
 .rail button:hover::before { background: rgba(251, 243, 232, .6); }
 .rail button[aria-current="true"]::before { width: 3px; margin-left: -1.5px; background: var(--milk); }
 .rail button:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
+/* covers the screen for a moment while a rail jump of two panels or more cuts to its panel;
+   below the rail, so the lit mark stays visible through the cut */
+.jump-cover { position: fixed; inset: 0; z-index: 19; background: var(--char); opacity: 0; pointer-events: none; transition: opacity 220ms ease; }
+.jump-cover.is-on { opacity: 1; }
+
 /* on a phone the rail is about half as tall and finer, and the copy keeps clear of it */
 @media (max-width: 600px) {
   .rail { right: 4px; gap: 4px; }
