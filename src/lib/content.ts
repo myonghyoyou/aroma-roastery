@@ -41,6 +41,9 @@ export type PostType = 'archive' | 'news';
 /** Archive posts are filed under one of these. */
 export type ArchiveCategory = 'roasting' | 'cupping' | 'event' | 'store';
 
+/** News posts are filed under one of these. */
+export type NewsTopic = 'hours' | 'closure' | 'beans' | 'event' | 'notice';
+
 /** A still photo with its pixel size, so layouts can reserve space and keep the ratio. */
 export type Photo = Media & {
   kind: 'image'; w: number; h: number; caption?: string;
@@ -63,6 +66,12 @@ export type Post = {
   type: PostType;
   /** archive posts only */
   category?: ArchiveCategory;
+  /** news posts only */
+  topic?: NewsTopic;
+  /** news only: kept at the top of the list while it matters */
+  pinned?: boolean;
+  /** news only: the day (or days) the notice is about, e.g. a closure or an event; yyyy-mm-dd */
+  period?: { start: string; end?: string };
   title: string;
   /** ISO date, yyyy-mm-dd */
   date: string;
@@ -116,7 +125,97 @@ const HOME_CLIPS: Record<string, Media> = {
 // placeholder notices: neutral copy only, every one is shown with a "예시" tag until real posts exist
 const SAMPLE_NEWS: Post[] = [
   {
-    slug: 'october-store-hours', type: 'news', title: '10월 매장 운영 안내', date: '2026-09-30',
+    slug: 'closure-roaster-maintenance', type: 'news', topic: 'closure', title: '로스터 점검 휴무 안내', date: '2026-10-08', period: { start: '2026-10-21' },
+    summary: '로스터 정기 점검으로 10월 21일 하루 쉬어 갑니다.', sample: true,
+    body: [
+      { type: 'paragraph', text: '10월 21일(수)은 로스터 정기 점검으로 매장을 하루 쉽니다.' },
+      { type: 'list', items: ['휴무일 2026년 10월 21일(수)', '다음 날부터 평소 영업시간으로 운영합니다'] },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'hand-drip-class-october', type: 'news', topic: 'event', title: '10월 핸드드립 클래스', date: '2026-10-05', period: { start: '2026-10-18' },
+    summary: '집에서 내리는 핸드드립을 바리스타와 함께 연습하는 소규모 클래스입니다.', sample: true,
+    cover: { src: '/assets/mock/drip-full.jpg', kind: 'image', alt: '스케일 위 드리퍼에 물을 붓는 모습' },
+    body: [
+      { type: 'paragraph', text: '바리스타와 함께 핸드드립의 분쇄도, 물 온도, 붓는 속도를 차례로 연습합니다.' },
+      { type: 'list', items: ['일시 2026년 10월 18일(일) 14:00', '장소 아로마로스터리 매장', '인원 6명'] },
+      { type: 'paragraph', text: '참여 신청은 매장에서 받습니다.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'cupping-open-session', type: 'news', topic: 'event', title: '오픈 커핑 세션', date: '2026-09-22', period: { start: '2026-09-27' },
+    summary: '입고된 원두를 나란히 맛보는 커핑에 함께하실 분을 모십니다.', sample: true,
+    cover: { src: '/assets/mock/steam-full.jpg', kind: 'image', alt: '김이 오르는 서버와 원두 카드' },
+    body: [
+      { type: 'paragraph', text: '최근 입고된 원두를 같은 조건으로 내려 나란히 맛봅니다.' },
+      { type: 'list', items: ['일시 2026년 9월 27일(일) 11:00', '장소 아로마로스터리 매장'] },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'closure-september', type: 'news', topic: 'closure', title: '9월 임시 휴무 안내', date: '2026-09-04', period: { start: '2026-09-09' },
+    summary: '매장 사정으로 9월 9일 하루 임시 휴무합니다.', sample: true,
+    body: [
+      { type: 'paragraph', text: '9월 9일(수)은 매장 사정으로 하루 쉽니다. 이용에 참고 부탁드립니다.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'new-beans-ethiopia', type: 'news', topic: 'beans', title: '원두 입고 안내: 에티오피아', date: '2026-08-28',
+    summary: '에티오피아 원두가 매장에 들어왔습니다.', sample: true,
+    cover: { src: '/assets/mock/cup-card.jpg', kind: 'image', alt: '트레이 위 원두 카드' },
+    body: [
+      { type: 'paragraph', text: '에티오피아 원두가 입고되었습니다. 매장 브루 바에서 맛보실 수 있습니다.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'parking-notice', type: 'news', topic: 'notice', title: '주차 안내', date: '2026-08-03',
+    summary: '매장 방문 시 주차 이용 방법을 안내합니다.', sample: true,
+    body: [
+      { type: 'paragraph', text: '매장이 있는 건물의 주차 이용 방법은 매장에 문의해 주세요.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'new-beans-colombia', type: 'news', topic: 'beans', title: '원두 입고 안내: 콜롬비아', date: '2026-07-30',
+    summary: '콜롬비아 원두가 매장에 들어왔습니다.', sample: true,
+    cover: { src: '/assets/mock/bar-cards.jpg', kind: 'image', alt: '진열대에 꽂힌 원두 카드' },
+    body: [
+      { type: 'paragraph', text: '콜롬비아 원두가 입고되었습니다. 매장 브루 바에서 맛보실 수 있습니다.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'summer-hours', type: 'news', topic: 'hours', title: '여름 영업시간 안내', date: '2026-07-01',
+    summary: '7월과 8월 영업시간을 안내합니다.', sample: true,
+    body: [
+      { type: 'paragraph', text: '7월과 8월에는 아래 시간으로 운영합니다.' },
+      { type: 'list', items: ['평일 08:00-18:00', '주말·공휴일 12:00-18:00'] },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'payment-notice', type: 'news', topic: 'notice', title: '결제 수단 안내', date: '2026-06-20',
+    summary: '매장에서 사용할 수 있는 결제 수단을 안내합니다.', sample: true,
+    body: [
+      { type: 'paragraph', text: '매장에서 사용할 수 있는 결제 수단은 매장에서 확인해 주세요.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'personal-cup-notice', type: 'news', topic: 'notice', title: '개인 컵 사용 안내', date: '2026-06-10',
+    summary: '음료를 개인 컵에 담아 드립니다.', sample: true,
+    cover: { src: '/assets/mock/cup-close.jpg', kind: 'image', alt: '하얀 잔과 받침' },
+    body: [
+      { type: 'paragraph', text: '가져오신 개인 컵에 음료를 담아 드립니다. 주문하실 때 말씀해 주세요.' },
+      { type: 'paragraph', text: '이 글은 소식 페이지 구성을 보여주기 위한 예시입니다.' },
+    ],
+  },
+  {
+    slug: 'october-store-hours', type: 'news', topic: 'hours', pinned: true, title: '10월 매장 운영 안내', date: '2026-09-30',
     summary: '10월 영업시간과 휴무일을 안내합니다.', sample: true,
     cover: { src: '/assets/img/photo-server-barista-bokeh.jpg', kind: 'image', alt: '유리 서버 너머의 바리스타' },
     body: [
@@ -126,7 +225,7 @@ const SAMPLE_NEWS: Post[] = [
     ],
   },
   {
-    slug: 'new-beans-kenya-kainamui', type: 'news', title: '원두 입고 안내: 케냐 카이나무이', date: '2026-09-08',
+    slug: 'new-beans-kenya-kainamui', type: 'news', topic: 'beans', title: '원두 입고 안내: 케냐 카이나무이', date: '2026-09-08',
     summary: '케냐 카이나무이 원두가 매장에 들어왔습니다.', sample: true,
     cover: { src: '/assets/img/photo-kainamui-card-steam.jpg', kind: 'image', alt: '김이 오르는 서버와 카이나무이 원두 카드' },
     body: [
@@ -135,7 +234,7 @@ const SAMPLE_NEWS: Post[] = [
     ],
   },
   {
-    slug: 'chuseok-holiday-hours', type: 'news', title: '추석 연휴 영업 안내', date: '2026-09-18',
+    slug: 'chuseok-holiday-hours', type: 'news', topic: 'hours', title: '추석 연휴 영업 안내', date: '2026-09-18', period: { start: '2026-09-24', end: '2026-09-27' },
     summary: '추석 연휴 기간의 영업시간을 안내합니다.', sample: true,
     body: [
       { type: 'paragraph', text: '추석 연휴 기간에는 공휴일 영업시간으로 운영합니다.' },
@@ -144,7 +243,7 @@ const SAMPLE_NEWS: Post[] = [
     ],
   },
   {
-    slug: 'temporary-closure-august', type: 'news', title: '임시 휴무 안내', date: '2026-08-12',
+    slug: 'temporary-closure-august', type: 'news', topic: 'closure', title: '임시 휴무 안내', date: '2026-08-12', period: { start: '2026-08-19' },
     summary: '매장 정비로 하루 쉬어 갑니다.', sample: true,
     body: [
       { type: 'paragraph', text: '매장 정비를 위해 하루 임시 휴무합니다. 이용에 참고 부탁드립니다.' },
