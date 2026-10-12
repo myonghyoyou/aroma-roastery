@@ -1,5 +1,5 @@
-import { cacheLife } from 'next/cache';
-import { getInstagramArchive } from '@/lib/instagram';
+import { cacheLife, cacheTag } from 'next/cache';
+import { getInstagramArchive, INSTAGRAM_TAG } from '@/lib/instagram';
 
 /*
  * Content layer. Every page reads store info and posts through these functions only.
@@ -160,6 +160,7 @@ const SAMPLE_NEWS: Post[] = [
 async function allPosts(): Promise<Post[]> {
   'use cache';
   cacheLife('hours');
+  cacheTag(INSTAGRAM_TAG);
   const posts = [...SAMPLE_NEWS, ...(await getInstagramArchive())].sort((a, b) => b.date.localeCompare(a.date));
   if (posts.some((p) => HOME_CLIPS[p.slug])) {
     return posts.map((p) => (HOME_CLIPS[p.slug] ? { ...p, homeClip: HOME_CLIPS[p.slug] } : p));
@@ -178,6 +179,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 export async function getPosts(type?: PostType): Promise<Post[]> {
   'use cache';
   cacheLife('hours');
+  cacheTag(INSTAGRAM_TAG);
   const posts = await allPosts();
   return type ? posts.filter((p) => p.type === type) : posts;
 }
@@ -185,6 +187,7 @@ export async function getPosts(type?: PostType): Promise<Post[]> {
 export async function getPost(type: PostType, slug: string): Promise<Post | null> {
   'use cache';
   cacheLife('hours');
+  cacheTag(INSTAGRAM_TAG);
   return (await allPosts()).find((p) => p.type === type && p.slug === slug) ?? null;
 }
 

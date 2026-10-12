@@ -1,6 +1,7 @@
-import { cacheLife } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import type { ArchiveCategory, Block, Photo, Post } from '@/lib/content';
 import { MOCK_INSTAGRAM } from '@/lib/mock-instagram';
+import { readToken } from '@/lib/instagram-token';
 
 /*
  * The archive is the store's Instagram feed. Each Instagram post becomes one archive post:
@@ -8,8 +9,9 @@ import { MOCK_INSTAGRAM } from '@/lib/mock-instagram';
  *   - body: the remaining caption, paragraph by paragraph
  *   - category: a hashtag, see CATEGORY_TAGS; #아카이브제외 keeps a post off the site
  *   - photos: every image of the post (a carousel's children); a video shows its cover image
- * With INSTAGRAM_TOKEN set (Instagram API with Instagram Login, a business or creator account),
- * the feed is read from Instagram; without it the sample feed below stands in, tagged "예시".
+ * Once the store account is connected (/api/instagram/connect saves its token, see instagram-auth.ts)
+ * the feed is read from Instagram; until then the sample feed stands in, tagged "예시".
+ * INSTAGRAM_TOKEN can supply a token by hand instead.
  */
 
 /** A post as the Instagram API returns it (the fields this site asks for). */
@@ -44,6 +46,8 @@ export const CATEGORY_TAGS: Record<string, ArchiveCategory> = {
   매장: 'store',
 };
 export const EXCLUDE_TAG = '아카이브제외';
+/** cache tag of everything read from Instagram: connecting the account expires it */
+export const INSTAGRAM_TAG = 'instagram';
 
 const TITLE_MAX = 40;
 const SUMMARY_MAX = 80;
@@ -198,7 +202,8 @@ export async function getInstagramArchive(): Promise<Post[]> {
   'use cache';
   // media links from Instagram expire after a while, so the feed is read again every hour
   cacheLife('hours');
-  const token = process.env.INSTAGRAM_TOKEN;
+  cacheTag(INSTAGRAM_TAG);
+  const token = (await readToken())?.token ?? process.env.INSTAGRAM_TOKEN;
   // a failed read throws on purpose: the site keeps serving the last good copy instead of samples
   if (token) return livePosts(token);
   return MOCK_INSTAGRAM.flatMap((m) => igToPost(m, (c) => ({ w: c.width ?? FALLBACK.w, h: c.height ?? FALLBACK.h }), true) ?? []);
