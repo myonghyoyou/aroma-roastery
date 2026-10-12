@@ -388,28 +388,58 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     }
     if (!reduce) {
       // every other panel's copy is a sticky layer: it holds still for as long as its section scrolls
-      // past, fades in once it has reached its sticky place and out before it is released, so no copy
-      // is ever seen moving. The positions come from each layer's own sticky offset and height, so the
-      // full-screen store layer, the archive heading and the centred entries share one rule.
-      // Fades run over a fixed 12% (in) and 15% (out) of the screen height, and the fade out ends 3%
-      // before the layer is released, so it is fully gone before it would start to scroll.
+      // past, comes in once it has reached its sticky place and fades out before it is released, so no
+      // copy is ever seen moving. The positions come from each layer's own sticky offset and height, so
+      // the full-screen store layer, the archive heading and the centred entries share one rule.
+      //
+      // Coming in is timed, not scrubbed: tied to the scroll it was over in a fifth of a second during
+      // a panel step. Line by line (80ms apart), each eases in over 1.1s from a soft blur and a warm
+      // amber glow, which settles into the usual dark halo. Nothing moves. Going out stays scrubbed and
+      // plain, over 15% of the screen height, ending 3% before the layer is released.
       const screenH = () => parseFloat(docEl.style.getPropertyValue('--vh')) * 100 || window.innerHeight;
       const stickAt = (el: HTMLElement) => parseFloat(getComputedStyle(el).top) || 0;
+      const halo = getComputedStyle(docEl).getPropertyValue('--halo').trim()
+        || '0 1px 2px rgba(26, 17, 13, .35), 0 2px 26px rgba(26, 17, 13, .45)';
+      // same two shadows as the halo, so the glow can blend into it
+      const glow = '0 0 3px rgba(239, 140, 40, .5), 0 0 30px rgba(239, 112, 0, .55)';
       root.querySelectorAll<HTMLElement>('[data-panel]').forEach((el) => {
         const scope = el.parentElement;
         if (!scope) return;
         const releaseAt = (k: number) => () => `bottom ${stickAt(el) + el.offsetHeight + k * screenH()}px`;
-        const fadeIn = gsap.fromTo(el, { autoAlpha: 0 }, {
-          autoAlpha: 1, ease: 'none',
-          scrollTrigger: { trigger: scope, start: () => `top ${stickAt(el)}px`, end: () => `top ${stickAt(el) - 0.12 * screenH()}px`, scrub: true },
+        // the lines: each child, the store's opening hours row by row, never the hidden fallback photo
+        const lines = Array.from(el.children)
+          .flatMap((c) => (c.tagName === 'DL' ? Array.from(c.children) : [c]))
+          .filter((c) => !c.classList.contains('ph-fallback'));
+        gsap.set(lines, { autoAlpha: 0 });
+        let shownIn = false;
+        let warmIn: gsap.core.Tween | null = null;
+        const comeIn = () => {
+          if (shownIn) return;
+          shownIn = true;
+          warmIn = gsap.fromTo(lines,
+            { autoAlpha: 0, filter: 'blur(6px) sepia(0.45)', textShadow: glow },
+            { autoAlpha: 1, filter: 'blur(0px) sepia(0)', textShadow: halo, duration: 1.1, ease: 'power2.out', stagger: 0.08, delay: 0.1, clearProps: 'filter,textShadow' });
+        };
+        // above its place again: hidden, so it comes in anew next time
+        const reset = () => {
+          shownIn = false;
+          warmIn?.kill(); warmIn = null;
+          gsap.set(lines, { autoAlpha: 0, clearProps: 'filter,textShadow' });
+        };
+        ScrollTrigger.create({
+          trigger: scope, start: () => `top ${stickAt(el)}px`, end: releaseAt(0.03),
+          onToggle: (self) => { if (self.isActive) comeIn(); },
+          onLeaveBack: reset,
         });
+        // the stretch the old scrubbed fade in covered: the panel stop sits just after it
+        const settledIn = ScrollTrigger.create({ trigger: scope, start: () => `top ${stickAt(el)}px`, end: () => `top ${stickAt(el) - 0.12 * screenH()}px` });
         const fadeOut = gsap.fromTo(el, { autoAlpha: 1 }, {
           autoAlpha: 0, ease: 'none', immediateRender: false,
           scrollTrigger: { trigger: scope, start: releaseAt(0.18), end: releaseAt(0.03), scrub: true },
         });
-        if (el.classList.contains('panel-copy') && fadeIn.scrollTrigger && fadeOut.scrollTrigger) {
+        if (el.classList.contains('panel-copy') && fadeOut.scrollTrigger) {
           const label = el.querySelector('h2, h3')?.textContent?.trim() ?? '';
-          shown.push({ from: fadeIn.scrollTrigger, to: fadeOut.scrollTrigger, scope, label });
+          shown.push({ from: settledIn, to: fadeOut.scrollTrigger, scope, label });
         }
       });
     }
