@@ -442,6 +442,28 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
           shown.push({ from: settledIn, to: fadeOut.scrollTrigger, scope, label });
         }
       });
+
+      // The footer wordmark closes the page the same way the copy comes in, warm and soft, and rises:
+      // it is revealed from its bottom edge up while lifting a little, out of a blur and a warm glow.
+      // A drop shadow would be cut away by the logo's mask, so the warmth is a brighter, richer colour.
+      const wordmark = root.querySelector<HTMLElement>('.footer-mark');
+      if (wordmark) {
+        gsap.set(wordmark, { autoAlpha: 0 });
+        let markIn: gsap.core.Tween | null = null;
+        ScrollTrigger.create({
+          trigger: wordmark, start: 'top 92%',
+          onEnter: () => {
+            markIn?.kill();
+            markIn = gsap.fromTo(wordmark,
+              { autoAlpha: 0, y: 28, clipPath: 'inset(100% 0% 0% 0%)', filter: 'blur(8px) brightness(1.35) saturate(1.25)' },
+              { autoAlpha: 1, y: 0, clipPath: 'inset(0% 0% 0% 0%)', filter: 'blur(0px) brightness(1) saturate(1)', duration: 1.4, ease: 'power3.out', delay: 0.1, clearProps: 'filter,clipPath,transform' });
+          },
+          onLeaveBack: () => {
+            markIn?.kill(); markIn = null;
+            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter,clipPath,transform' });
+          },
+        });
+      }
     }
   }, root);
   computeTargets();
@@ -604,8 +626,29 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     ScrollTrigger.addEventListener('refresh', railRefresh);
     railRefresh();
 
+    // The rail shows while the page moves and for a moment after, then steps back. It also shows on
+    // arrival (so the reader learns it is there), for a mouse near the right edge, and while a mark is
+    // hovered or has keyboard focus. Asleep, it takes no taps.
+    let sleepTimer = 0;
+    let hovering = false;
+    const wake = (ms = 1500) => {
+      rail.classList.add('is-awake');
+      window.clearTimeout(sleepTimer);
+      sleepTimer = window.setTimeout(() => {
+        if (!hovering && !rail.matches(':focus-within')) rail.classList.remove('is-awake');
+      }, ms);
+    };
+    rail.addEventListener('pointerenter', () => { hovering = true; wake(); }, { signal });
+    rail.addEventListener('pointerleave', () => { hovering = false; wake(); }, { signal });
+    rail.addEventListener('focusout', () => wake(), { signal });
+    window.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'mouse' && e.clientX > window.innerWidth - 72) wake();
+    }, { passive: true, signal });
+    wake(2600);
+
     l.on('scroll', () => {
       if (l.direction) dir = l.direction;
+      wake();
       markActive();
       if (!moving) later();
     });
