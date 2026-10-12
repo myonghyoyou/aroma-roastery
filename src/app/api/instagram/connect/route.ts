@@ -16,6 +16,9 @@ export async function GET(request: Request) {
     state,
     // the store account may already be logged in on this browser: always show which account is used
     force_reauth: 'true',
+    // log in with the Instagram account itself: "continue with Facebook" checks the Facebook user's
+    // role on the app instead, which fails with "insufficient developer role" while the app is in testing
+    enable_fb_login: 'false',
   }).toString();
   const res = Response.redirect(url.toString(), 302);
   const headers = new Headers(res.headers);
