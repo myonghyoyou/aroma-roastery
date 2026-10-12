@@ -347,11 +347,13 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   const sentence = root.querySelector('.hero-sentence');
   const zones = Array.from(root.querySelectorAll<HTMLElement>('[data-photo]')).map((el) => ({ el, photo: Number(el.dataset.photo) }));
 
+  let passageST: ScrollTrigger | null = null;
+  const shown: { from: ScrollTrigger; to: ScrollTrigger }[] = [];
   const ctx = gsap.context(() => {
     // no tweens on these: they only feed the shader, Lenis plus the per-frame easing smooth them
     ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => { state.page = self.progress; computeTargets(); } });
     ScrollTrigger.create({ trigger: heroEl, start: 'top top', end: 'bottom top', onUpdate: (self) => { state.floor = 1 - self.progress; computeTargets(); } });
-    ScrollTrigger.create({ trigger: passageEl, start: 'top bottom', end: 'bottom bottom', onUpdate: (self) => { state.passage = self.progress; computeTargets(); } });
+    passageST = ScrollTrigger.create({ trigger: passageEl, start: 'top bottom', end: 'bottom bottom', onUpdate: (self) => { state.passage = self.progress; computeTargets(); } });
     // enter/leaveBack instead of isActive: at the very bottom (scroll == end) isActive turns false and the
     // passage photo came back behind the footer
     ScrollTrigger.create({ trigger: storeEl, start: 'top 55%', onEnter: () => { state.past = true; computeTargets(); }, onLeaveBack: () => { state.past = false; computeTargets(); } });
@@ -377,19 +379,23 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     if (!reduce) {
       // every other panel's copy is a sticky layer: it holds still for as long as its section scrolls
       // past and fades in at the start and out before the end, so no copy is ever seen moving
-      // Fades run over a fixed 20% of the screen height, whatever the section length, and the fade out
-      // ends 5% before the layer is released, so it is fully gone before it would start to scroll.
+      // Fades run over a fixed 12-15% of the screen height, whatever the section length, and the fade
+      // out ends 3% before the layer is released, so it is fully gone before it would start to scroll.
+      // Short fades leave a long stretch where the copy is fully shown, also on tall phones.
       root.querySelectorAll<HTMLElement>('[data-panel]').forEach((el) => {
         const scope = el.parentElement;
         if (!scope) return;
-        gsap.fromTo(el, { autoAlpha: 0 }, {
+        const fadeIn = gsap.fromTo(el, { autoAlpha: 0 }, {
           autoAlpha: 1, ease: 'none',
-          scrollTrigger: { trigger: scope, start: 'top top', end: 'top -20%', scrub: true },
+          scrollTrigger: { trigger: scope, start: 'top top', end: 'top -12%', scrub: true },
         });
-        gsap.fromTo(el, { autoAlpha: 1 }, {
+        const fadeOut = gsap.fromTo(el, { autoAlpha: 1 }, {
           autoAlpha: 0, ease: 'none', immediateRender: false,
-          scrollTrigger: { trigger: scope, start: 'bottom 125%', end: 'bottom 105%', scrub: true },
+          scrollTrigger: { trigger: scope, start: 'bottom 118%', end: 'bottom 103%', scrub: true },
         });
+        if (el.classList.contains('panel-copy') && fadeIn.scrollTrigger && fadeOut.scrollTrigger) {
+          shown.push({ from: fadeIn.scrollTrigger, to: fadeOut.scrollTrigger });
+        }
       });
     }
   }, root);
@@ -401,18 +407,15 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   // stop, so every scrubbed fade above still plays on the way. Reduced motion keeps native scrolling.
   if (lenis) {
     const l = lenis;
-    const top = (el: Element) => el.getBoundingClientRect().top + window.scrollY;
+    // Stops are read from the scroll triggers themselves, not recomputed from the window height: on a
+    // phone the height changes as the address bar slides away, while the triggers keep the positions
+    // they were measured with, so a recomputed stop could land inside a fade.
     const stops = () => {
-      const H = window.innerHeight;
       const s = [0];
       // the passage ends with its video fully surfaced
-      if (passageEl instanceof HTMLElement) s.push(top(passageEl) + passageEl.offsetHeight - H);
-      // each sticky copy layer: the middle of the stretch where it is fully shown (after its fade in at
-      // 20% of a screen, before its fade out 125% of a screen from the end)
-      root.querySelectorAll<HTMLElement>('.panel-copy[data-panel]').forEach((el) => {
-        const scope = el.parentElement;
-        if (scope) s.push(top(scope) + (0.2 * H + scope.offsetHeight - 1.25 * H) / 2);
-      });
+      if (passageST) s.push(passageST.end);
+      // each sticky copy layer: the middle of the stretch where it is fully shown
+      shown.forEach(({ from, to }) => s.push((from.end + to.start) / 2));
       s.push(l.limit);
       return s.map(Math.round).sort((a, b) => a - b);
     };

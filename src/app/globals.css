@@ -146,7 +146,7 @@ main { text-shadow: var(--halo); }
 @media (max-width: 900px) {
   .store-facts { grid-template-columns: 1fr 1fr; row-gap: 28px; }
   .entries li:nth-child(even) .entry-copy { margin-left: 0; }
-  .entries li { height: 165vh; height: 165svh; }
+  .entries li { height: 180vh; height: 180svh; }
   .footer-grid { grid-template-columns: 1fr; }
   .footer-grid ul { justify-self: start; text-align: left; display: flex; gap: 20px; }
 }
