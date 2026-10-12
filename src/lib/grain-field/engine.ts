@@ -420,7 +420,8 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
             { autoAlpha: 0, filter: 'blur(6px) sepia(0.45)', textShadow: glow },
             { autoAlpha: 1, filter: 'blur(0px) sepia(0)', textShadow: halo, duration: 1.1, ease: 'power2.out', stagger: 0.08, delay: 0.1, clearProps: 'filter,textShadow' });
         };
-        // above its place again: hidden, so it comes in anew next time
+        // once its panel is left, above or below, the copy is hidden, so it comes in anew from either
+        // direction (by then the layer is faded out or not yet reached, so the reset is never seen)
         const reset = () => {
           shownIn = false;
           warmIn?.kill(); warmIn = null;
@@ -429,6 +430,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         ScrollTrigger.create({
           trigger: scope, start: () => `top ${stickAt(el)}px`, end: releaseAt(0.03),
           onToggle: (self) => { if (self.isActive) comeIn(); },
+          onLeave: reset,
           onLeaveBack: reset,
         });
         // the stretch the old scrubbed fade in covered: the panel stop sits just after it
