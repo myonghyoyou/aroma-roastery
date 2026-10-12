@@ -6,7 +6,8 @@ export async function GET() {
   await connection(); // run on every call, never prerendered
   if (!tokenStoreReady()) return Response.json({ store: false, connected: false });
   const saved = await readToken();
-  if (!saved) return Response.json({ store: true, connected: false });
+  // a hand-set token is used for the archive right away and moved into the store by the next cron run
+  if (!saved) return Response.json({ store: true, connected: false, manualToken: Boolean(process.env.INSTAGRAM_TOKEN) });
   return Response.json({
     store: true,
     connected: true,

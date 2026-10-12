@@ -61,6 +61,21 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   let resizeTimer = 0;
   let disposed = false;
 
+  /* ---------------- screen height unit ---------------- */
+  // The layout's --vh is pinned to the height at load and only moves when the width changes. On a phone
+  // the toolbars slide away while scrolling; in browsers where that also resizes the viewport units, the
+  // page grew under ScrollTrigger, which ignores height-only resizes on touch devices, so every stop and
+  // fade landed above its panel. A desktop window still follows every resize.
+  const docEl = document.documentElement;
+  let pinnedWidth = window.innerWidth;
+  docEl.style.setProperty('--vh', `${window.innerHeight / 100}px`);
+  window.addEventListener('resize', () => {
+    if (ScrollTrigger.isTouch === 1 && window.innerWidth === pinnedWidth) return;
+    pinnedWidth = window.innerWidth;
+    docEl.style.setProperty('--vh', `${window.innerHeight / 100}px`);
+    ScrollTrigger.refresh();
+  }, { signal });
+
   // muted + playsinline so phones allow it to play inline without a tap
   const videos: VideoSlot[] = slots.flatMap((m, slot) => {
     if (m.kind !== 'video') return [];
@@ -93,15 +108,6 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     gsap.ticker.add(lenisTick);
     gsap.ticker.lagSmoothing(0);
   }
-  root.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
-    a.addEventListener('click', (e) => {
-      const id = a.getAttribute('href') ?? '';
-      const el = id.length > 1 ? document.querySelector<HTMLElement>(id) : null;
-      if (!el) return;
-      e.preventDefault();
-      if (lenis) lenis.scrollTo(el); else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
-    }, { signal });
-  });
 
   /* ---------------- shader ---------------- */
   let field: Field | null = null;
@@ -348,7 +354,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   const zones = Array.from(root.querySelectorAll<HTMLElement>('[data-photo]')).map((el) => ({ el, photo: Number(el.dataset.photo) }));
 
   let passageST: ScrollTrigger | null = null;
-  const shown: { from: ScrollTrigger; to: ScrollTrigger }[] = [];
+  const shown: { from: ScrollTrigger; to: ScrollTrigger; scope: HTMLElement; label: string }[] = [];
   const ctx = gsap.context(() => {
     // no tweens on these: they only feed the shader, Lenis plus the per-frame easing smooth them
     ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => { state.page = self.progress; computeTargets(); } });
@@ -378,83 +384,153 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     }
     if (!reduce) {
       // every other panel's copy is a sticky layer: it holds still for as long as its section scrolls
-      // past and fades in at the start and out before the end, so no copy is ever seen moving
-      // Fades run over a fixed 12-15% of the screen height, whatever the section length, and the fade
-      // out ends 3% before the layer is released, so it is fully gone before it would start to scroll.
-      // Short fades leave a long stretch where the copy is fully shown, also on tall phones.
+      // past, fades in once it has reached its sticky place and out before it is released, so no copy
+      // is ever seen moving. The positions come from each layer's own sticky offset and height, so the
+      // full-screen store layer, the archive heading and the centred entries share one rule.
+      // Fades run over a fixed 12% (in) and 15% (out) of the screen height, and the fade out ends 3%
+      // before the layer is released, so it is fully gone before it would start to scroll.
+      const screenH = () => parseFloat(docEl.style.getPropertyValue('--vh')) * 100 || window.innerHeight;
+      const stickAt = (el: HTMLElement) => parseFloat(getComputedStyle(el).top) || 0;
       root.querySelectorAll<HTMLElement>('[data-panel]').forEach((el) => {
         const scope = el.parentElement;
         if (!scope) return;
+        const releaseAt = (k: number) => () => `bottom ${stickAt(el) + el.offsetHeight + k * screenH()}px`;
         const fadeIn = gsap.fromTo(el, { autoAlpha: 0 }, {
           autoAlpha: 1, ease: 'none',
-          scrollTrigger: { trigger: scope, start: 'top top', end: 'top -12%', scrub: true },
+          scrollTrigger: { trigger: scope, start: () => `top ${stickAt(el)}px`, end: () => `top ${stickAt(el) - 0.12 * screenH()}px`, scrub: true },
         });
         const fadeOut = gsap.fromTo(el, { autoAlpha: 1 }, {
           autoAlpha: 0, ease: 'none', immediateRender: false,
-          scrollTrigger: { trigger: scope, start: 'bottom 118%', end: 'bottom 103%', scrub: true },
+          scrollTrigger: { trigger: scope, start: releaseAt(0.18), end: releaseAt(0.03), scrub: true },
         });
         if (el.classList.contains('panel-copy') && fadeIn.scrollTrigger && fadeOut.scrollTrigger) {
-          shown.push({ from: fadeIn.scrollTrigger, to: fadeOut.scrollTrigger });
+          const label = el.querySelector('h2, h3')?.textContent?.trim() ?? '';
+          shown.push({ from: fadeIn.scrollTrigger, to: fadeOut.scrollTrigger, scope, label });
         }
       });
     }
   }, root);
   computeTargets();
-  document.fonts?.ready.then(() => { if (!disposed) ScrollTrigger.refresh(); });
+  document.fonts?.ready.then(() => {
+    if (disposed) return;
+    ScrollTrigger.refresh();
+    // arriving from another page with a hash (/#store): start on that panel's stop, not its top edge
+    const target = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    if (target) toPanel?.(target, true);
+  });
 
-  /* ---------------- panel steps ---------------- */
-  // A wheel notch, a swipe or a key press moves exactly one panel. Lenis carries the scroll from stop to
-  // stop, so every scrubbed fade above still plays on the way. Reduced motion keeps native scrolling.
+  /* ---------------- panel stops ---------------- */
+  // Scrolling is free, so a flick can cross several panels at once. Once the page comes to rest it
+  // glides to a stop, the middle of a panel's fully shown stretch, so it never rests inside a fade or
+  // on the empty stretch between two panels. The rail on the right marks every stop and the one the
+  // reader is at. Reduced motion keeps plain native scrolling, without stops or rail.
+  let toPanel: ((el: Element, instant?: boolean) => boolean) | null = null;
+  let railRefresh: (() => void) | null = null;
   if (lenis) {
     const l = lenis;
-    // Stops are read from the scroll triggers themselves, not recomputed from the window height: on a
-    // phone the height changes as the address bar slides away, while the triggers keep the positions
-    // they were measured with, so a recomputed stop could land inside a fade.
-    const stops = () => {
-      const s = [0];
+    // Stops are read from the scroll triggers themselves, not recomputed from the window height, so a
+    // stop always sits where the triggers place the fades.
+    type Stop = { y: number; label: string; scope: Element | null };
+    const stops = (): Stop[] => {
+      const s: Stop[] = [{ y: 0, label: '처음', scope: heroEl }];
       // the passage ends with its video fully surfaced
-      if (passageST) s.push(passageST.end);
-      // each sticky copy layer: the middle of the stretch where it is fully shown
-      shown.forEach(({ from, to }) => s.push((from.end + to.start) / 2));
-      s.push(l.limit);
-      return s.map(Math.round).sort((a, b) => a - b);
-    };
-    let moving = false;
-    let release = 0;
-    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    const go = (dir: 1 | -1) => {
-      if (moving) return;
-      const y = l.targetScroll;
-      const list = stops();
-      const next = dir > 0 ? list.find((s) => s > y + 4) : list.reverse().find((s) => s < y - 4);
-      if (next === undefined) return;
-      moving = true;
-      const done = () => { moving = false; window.clearTimeout(release); };
-      // the timer is a safety net in case Lenis never reports completion
-      release = window.setTimeout(done, 1800);
-      l.scrollTo(next, { duration: 1.1, easing: easeInOut, lock: true, onComplete: done });
+      if (passageST) s.push({ y: passageST.end, label: '영상', scope: passageEl });
+      shown.forEach(({ from, to, scope, label }) => s.push({ y: (from.end + to.start) / 2, label, scope }));
+      s.push({ y: l.limit, label: '맨 아래', scope: footerEl });
+      return s.map((p) => ({ ...p, y: Math.round(p.y) })).sort((a, b) => a.y - b.y);
     };
 
-    let lastWheel = 0, lastAbs = 0, touchSum = 0, touchFired = false;
-    l.options.virtualScroll = ({ deltaY, event }) => {
-      if (event.ctrlKey) return true; // pinch zoom
-      if (event.type === 'wheel') {
-        event.preventDefault();
-        // a trackpad keeps sending shrinking deltas after the fingers lift: that tail is not a new step
-        const now = performance.now(), a = Math.abs(deltaY);
-        const tail = now - lastWheel < 200 && a <= lastAbs * 1.2;
-        lastWheel = now; lastAbs = a;
-        if (!tail && a > 2) go(deltaY > 0 ? 1 : -1);
-      } else if (event.type === 'touchstart') {
-        touchSum = 0; touchFired = false;
-      } else if (event.type === 'touchmove') {
-        if (event.cancelable) event.preventDefault();
-        touchSum += deltaY;
-        if (!touchFired && Math.abs(touchSum) > 36) { touchFired = true; go(touchSum > 0 ? 1 : -1); }
-      }
-      // touchend is left alone so a tap still clicks
-      return false;
+    let moving = false;
+    let release = 0;
+    let settleTimer = 0;
+    let touching = false;
+    let dir = 1;
+    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const later = () => { window.clearTimeout(settleTimer); settleTimer = window.setTimeout(settle, 180); };
+    const done = () => { if (!moving) return; moving = false; window.clearTimeout(release); later(); };
+    // no lock: a touch or a wheel during the glide takes over at once
+    const glide = (y: number, duration = 0.7) => {
+      moving = true;
+      window.clearTimeout(release);
+      // the timer is a safety net in case Lenis never reports completion
+      release = window.setTimeout(done, duration * 1000 + 600);
+      l.scrollTo(y, { duration, easing: easeInOut, onComplete: done });
     };
+    function settle() {
+      if (touching || moving) return;
+      const y = l.scroll;
+      const list = stops().map((p) => p.y);
+      if (list.some((s) => Math.abs(s - y) < 3)) return;
+      const next = list.find((s) => s > y);
+      const prev = [...list].reverse().find((s) => s < y);
+      let target = next ?? prev;
+      if (next !== undefined && prev !== undefined) {
+        // a fifth of the way towards the next stop is enough to count as heading there
+        const f = (y - prev) / (next - prev);
+        target = (dir > 0 ? f > 0.2 : f > 0.8) ? next : prev;
+      }
+      if (target !== undefined) glide(target);
+    }
+
+    // keys step one panel; a second press during the glide goes on to the panel after
+    const go = (step: 1 | -1) => {
+      const y = l.targetScroll;
+      const list = stops().map((p) => p.y);
+      const next = step > 0 ? list.find((s) => s > y + 4) : list.reverse().find((s) => s < y - 4);
+      if (next !== undefined) glide(next, 0.8);
+    };
+
+    toPanel = (el, instant = false) => {
+      const stop = stops().find((p) => p.scope && (p.scope === el || el.contains(p.scope) || p.scope.contains(el)));
+      if (!stop) return false;
+      if (instant) l.scrollTo(stop.y, { immediate: true }); else glide(stop.y, 1);
+      return true;
+    };
+
+    /* rail: one thin mark per stop, the current one lit; a mark is also a jump to its panel */
+    const rail = document.createElement('nav');
+    rail.className = 'rail';
+    rail.setAttribute('aria-label', '페이지 위치');
+    root.appendChild(rail);
+    let marks: { y: number; el: HTMLButtonElement }[] = [];
+    let lit = -1;
+    const markActive = () => {
+      if (!marks.length) return;
+      const y = l.scroll;
+      let best = 0;
+      marks.forEach((m, i) => { if (Math.abs(m.y - y) < Math.abs(marks[best].y - y)) best = i; });
+      if (best === lit) return;
+      if (lit >= 0 && marks[lit]) marks[lit].el.removeAttribute('aria-current');
+      marks[best].el.setAttribute('aria-current', 'true');
+      lit = best;
+    };
+    railRefresh = () => {
+      marks = stops().map((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', p.label);
+        b.title = p.label;
+        b.addEventListener('click', () => glide(p.y, 1));
+        return { y: p.y, el: b };
+      });
+      rail.replaceChildren(...marks.map((m) => m.el));
+      lit = -1;
+      markActive();
+    };
+    ScrollTrigger.addEventListener('refresh', railRefresh);
+    railRefresh();
+
+    l.on('scroll', () => {
+      if (l.direction) dir = l.direction;
+      markActive();
+      if (!moving) later();
+    });
+    // a wheel or a touch is the reader taking over: drop the glide and settle again once at rest
+    l.on('virtual-scroll', () => { if (moving) { moving = false; window.clearTimeout(release); } later(); });
+    window.addEventListener('touchstart', () => { touching = true; window.clearTimeout(settleTimer); }, { passive: true, signal });
+    const lift = () => { touching = false; later(); };
+    window.addEventListener('touchend', lift, { passive: true, signal });
+    window.addEventListener('touchcancel', lift, { passive: true, signal });
 
     window.addEventListener('keydown', (e) => {
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -467,6 +543,17 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       go(down ? 1 : -1);
     }, { signal });
   }
+
+  // in-page links (the symbol, 매장 정보) land on their panel's stop, where its copy is fully shown
+  root.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href') ?? '';
+      const el = id.length > 1 ? document.querySelector<HTMLElement>(id) : null;
+      if (!el) return;
+      e.preventDefault();
+      if (!toPanel?.(el)) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    }, { signal });
+  });
 
   /* ---------------- render loop ---------------- */
   if (field) {
@@ -509,10 +596,13 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     cancelAnimationFrame(rafId);
     window.clearTimeout(resizeTimer);
     listen.abort();
+    if (railRefresh) ScrollTrigger.removeEventListener('refresh', railRefresh);
+    root.querySelector('.rail')?.remove();
     ctx.revert();
     if (lenis) { gsap.ticker.remove(lenisTick); lenis.destroy(); }
     videos.forEach((v) => { v.el.pause(); v.el.removeAttribute('src'); v.el.load(); });
     field?.dispose();
-    document.documentElement.classList.remove('no-gl');
+    docEl.classList.remove('no-gl');
+    docEl.style.removeProperty('--vh');
   };
 }

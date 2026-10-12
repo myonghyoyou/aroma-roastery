@@ -31,10 +31,11 @@ export default async function Home() {
 
       <main>
         <section className="hero" id="top">
-          <h1 className="hero-sentence" lang="en">
-            <span className="l">Aroma Roastery roasts</span>
-            <span className="l">specialty coffee</span>
-            <span className="l">that persuades.</span>
+          <h1 className="hero-sentence">
+            <span className="l">아로마 로스터리는</span>
+            <span className="l">설득력 있는 스페셜티 커피를</span>
+            <span className="l">로스팅 합니다.</span>
+            <span className="en" lang="en">Aroma Roastery roasts specialty coffee that persuades.</span>
           </h1>
         </section>
 

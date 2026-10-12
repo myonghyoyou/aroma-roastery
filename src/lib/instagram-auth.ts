@@ -46,6 +46,15 @@ export async function exchangeCode(code: string, redirect: string) {
   return { token: long.access_token, expiresIn: long.expires_in, userId: String(me.user_id), username: me.username };
 }
 
+/** The account a token belongs to; also proves the token works. */
+export async function tokenAccount(token: string) {
+  const me = await json<{ user_id: string; username: string }>(
+    await fetch(`https://graph.instagram.com/me?fields=user_id,username&access_token=${token}`),
+    'Account lookup',
+  );
+  return { userId: String(me.user_id), username: me.username };
+}
+
 /** A 60-day token renewed for another 60 days (Instagram allows it once the token is a day old). */
 export async function renewToken(token: string) {
   return json<{ access_token: string; expires_in: number }>(
