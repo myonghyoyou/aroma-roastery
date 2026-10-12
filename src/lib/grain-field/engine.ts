@@ -424,10 +424,11 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
   window.addEventListener('hashchange', () => toHash(false), { signal });
 
   /* ---------------- panel stops ---------------- */
-  // Scrolling is free, so a flick can cross several panels at once. Once the page comes to rest it
-  // glides to a stop, the middle of a panel's fully shown stretch, so it never rests inside a fade or
-  // on the empty stretch between two panels. The rail on the right marks every stop and the one the
-  // reader is at. Reduced motion keeps plain native scrolling, without stops or rail.
+  // A wheel notch, a swipe or a key press moves exactly one panel, to its stop: the middle of the
+  // stretch where its copy is fully shown. Lenis carries the scroll from stop to stop, so every scrubbed
+  // fade still plays on the way. Anything that leaves the page between stops anyway (a dragged
+  // scrollbar) glides to the nearest stop once at rest. The rail on the right marks every stop and the
+  // one the reader is at. Reduced motion keeps plain native scrolling, without stops or rail.
   let toPanel: ((el: Element, instant?: boolean) => boolean) | null = null;
   let railRefresh: (() => void) | null = null;
   if (lenis) {
@@ -447,21 +448,19 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     let moving = false;
     let release = 0;
     let settleTimer = 0;
-    let touching = false;
     let dir = 1;
     const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const later = () => { window.clearTimeout(settleTimer); settleTimer = window.setTimeout(settle, 180); };
     const done = () => { if (!moving) return; moving = false; window.clearTimeout(release); later(); };
-    // no lock: a touch or a wheel during the glide takes over at once
-    const glide = (y: number, duration = 0.7) => {
+    const glide = (y: number, duration = 1.1) => {
       moving = true;
       window.clearTimeout(release);
       // the timer is a safety net in case Lenis never reports completion
-      release = window.setTimeout(done, duration * 1000 + 600);
-      l.scrollTo(y, { duration, easing: easeInOut, onComplete: done });
+      release = window.setTimeout(done, duration * 1000 + 700);
+      l.scrollTo(y, { duration, easing: easeInOut, lock: true, onComplete: done });
     };
     function settle() {
-      if (touching || moving) return;
+      if (moving) return;
       const y = l.scroll;
       const list = stops().map((p) => p.y);
       if (list.some((s) => Math.abs(s - y) < 3)) return;
@@ -476,18 +475,19 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       if (target !== undefined) glide(target);
     }
 
-    // keys step one panel; a second press during the glide goes on to the panel after
+    // one step: the next stop in that direction; input during a step is ignored
     const go = (step: 1 | -1) => {
+      if (moving) return;
       const y = l.targetScroll;
       const list = stops().map((p) => p.y);
       const next = step > 0 ? list.find((s) => s > y + 4) : list.reverse().find((s) => s < y - 4);
-      if (next !== undefined) glide(next, 0.8);
+      if (next !== undefined) glide(next);
     };
 
     toPanel = (el, instant = false) => {
       const stop = stops().find((p) => p.scope && (p.scope === el || el.contains(p.scope) || p.scope.contains(el)));
       if (!stop) return false;
-      if (instant) l.scrollTo(stop.y, { immediate: true }); else glide(stop.y, 1);
+      if (instant) l.scrollTo(stop.y, { immediate: true }); else glide(stop.y);
       return true;
     };
 
@@ -514,7 +514,7 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         b.type = 'button';
         b.setAttribute('aria-label', p.label);
         b.title = p.label;
-        b.addEventListener('click', () => glide(p.y, 1));
+        b.addEventListener('click', () => glide(p.y));
         return { y: p.y, el: b };
       });
       rail.replaceChildren(...marks.map((m) => m.el));
@@ -529,12 +529,27 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       markActive();
       if (!moving) later();
     });
-    // a wheel or a touch is the reader taking over: drop the glide and settle again once at rest
-    l.on('virtual-scroll', () => { if (moving) { moving = false; window.clearTimeout(release); } later(); });
-    window.addEventListener('touchstart', () => { touching = true; window.clearTimeout(settleTimer); }, { passive: true, signal });
-    const lift = () => { touching = false; later(); };
-    window.addEventListener('touchend', lift, { passive: true, signal });
-    window.addEventListener('touchcancel', lift, { passive: true, signal });
+
+    let lastWheel = 0, lastAbs = 0, touchSum = 0, touchFired = false;
+    l.options.virtualScroll = ({ deltaY, event }) => {
+      if (event.ctrlKey) return true; // pinch zoom
+      if (event.type === 'wheel') {
+        event.preventDefault();
+        // a trackpad keeps sending shrinking deltas after the fingers lift: that tail is not a new step
+        const now = performance.now(), a = Math.abs(deltaY);
+        const tail = now - lastWheel < 200 && a <= lastAbs * 1.2;
+        lastWheel = now; lastAbs = a;
+        if (!tail && a > 2) go(deltaY > 0 ? 1 : -1);
+      } else if (event.type === 'touchstart') {
+        touchSum = 0; touchFired = false;
+      } else if (event.type === 'touchmove') {
+        if (event.cancelable) event.preventDefault();
+        touchSum += deltaY;
+        if (!touchFired && Math.abs(touchSum) > 36) { touchFired = true; go(touchSum > 0 ? 1 : -1); }
+      }
+      // touchend is left alone so a tap still clicks
+      return false;
+    };
 
     window.addEventListener('keydown', (e) => {
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
