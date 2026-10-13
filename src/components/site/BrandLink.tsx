@@ -1,32 +1,26 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 /*
- * An outside link marked with the service's own icon, the way those services show themselves: the
- * Naver Map and Kakao Map app icons, and the Naver Plus Store "N+" mark in white on a dark tile.
- * The icons are the services' official ones (public/assets/brand), unaltered except for the N+ mark
- * reduced to its white glyphs.
+ * An outside link marked with the service's own symbol, in one colour: the Naver Map pin, the Kakao
+ * Map pin and the Naver Plus Store "N+", each traced from the service's official icon into a white
+ * shape (public/assets/brand). The shape is used as a mask, so it takes the link's own text colour.
  */
 const ICON = {
-  'naver-map': { src: '/assets/brand/naver-map.png', tile: false },
-  'kakao-map': { src: '/assets/brand/kakao-map.png', tile: false },
-  store: { src: '/assets/brand/nplus-mono.png', tile: true },
+  'naver-map': '/assets/brand/naver-map-white.png',
+  'kakao-map': '/assets/brand/kakao-map-white.png',
+  store: '/assets/brand/nplus-mono.png',
 } as const;
 
-export function BrandLink({ href, brand, label, children, className }: {
+export function BrandLink({ href, brand, label, children }: {
   href: string;
   brand: keyof typeof ICON;
   /** the full name for screen readers when the visible text is short */
   label?: string;
   children: ReactNode;
-  className?: string;
 }) {
-  const icon = ICON[brand];
   return (
-    <a href={href} target="_blank" rel="noopener" aria-label={label} className={`brand-link${className ? ` ${className}` : ''}`}>
-      <span className={`brand-icon${icon.tile ? ' is-tile' : ''}`} aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element -- tiny fixed icon */}
-        <img src={icon.src} alt="" />
-      </span>
+    <a href={href} target="_blank" rel="noopener" aria-label={label} className="brand-link">
+      <span className={`brand-icon is-${brand}`} style={{ '--icon': `url(${ICON[brand]})` } as CSSProperties} aria-hidden="true" />
       <span className="brand-text">{children}</span>
     </a>
   );

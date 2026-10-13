@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { BrandLink } from './BrandLink';
 
 type Section = 'archive' | 'news';
 
@@ -30,7 +29,7 @@ export function SiteHeader({ current, instagramUrl, storeUrl, home = false }: { 
               <Link href={n.href} aria-current={current === n.section ? 'page' : undefined}>{n.label}</Link>
             </li>
           ))}
-          <li><BrandLink href={storeUrl} brand="store" label="네이버 스토어" className="is-nav">스토어</BrandLink></li>
+          <li><a href={storeUrl} target="_blank" rel="noopener">스토어</a></li>
           <li><a href={instagramUrl} target="_blank" rel="noopener">Instagram</a></li>
         </ul>
       </nav>
