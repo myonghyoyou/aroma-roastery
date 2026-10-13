@@ -163,7 +163,14 @@ main { text-shadow: var(--halo); }
 .entries h3 { margin: 8px 0 0; font-size: clamp(30px, 4.4vw, 68px); font-weight: 700; line-height: 1.15; letter-spacing: -0.035em; }
 
 /* ---------- footer: back on the field, now deep roast ---------- */
-.site-footer { padding: clamp(64px, calc(var(--vh) * 14), 160px) var(--gutter) 32px; overflow: hidden; }
+.site-footer { padding: clamp(64px, calc(var(--vh) * 14), 160px) var(--gutter) 32px; overflow: hidden; position: relative; }
+/* a soft amber light behind the home wordmark as it comes in (the engine drives --mark-glow, 0 elsewhere) */
+.site-footer::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 75%; z-index: 0; pointer-events: none;
+  background: radial-gradient(55% 55% at 50% 60%, rgba(239, 112, 0, .26), rgba(237, 190, 0, .08) 45%, transparent 75%);
+  opacity: var(--mark-glow, 0);
+}
+.site-footer > * { position: relative; z-index: 1; }
 /* the wordmark keeps the four leaf colours: it is the one place the logo gradient is shown as type */
 .footer-mark {
   width: 100%; aspect-ratio: 505 / 110;

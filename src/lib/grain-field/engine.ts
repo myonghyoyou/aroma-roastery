@@ -464,22 +464,30 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
       // stands, out of a blur. No wipe and no lift: both read as mechanical. It starts once the page has
       // nearly arrived, so it does not mix with the scroll; the fade comes first, the focus a bit later.
       // A drop shadow would be cut away by the logo's mask, so the warmth is a slightly richer colour.
+      // The warmth: the wordmark starts in an amber cast (sepia, a little brighter and richer) and a
+      // soft amber light (--mark-glow on the footer, see .site-footer::before) swells behind it, then
+      // settles to a faint glow while the logo cools to its own colours. All of it slow and eased.
       const wordmark = root.querySelector<HTMLElement>('.footer-mark');
-      if (wordmark) {
+      if (wordmark && footerEl instanceof HTMLElement) {
+        const foot = footerEl;
         gsap.set(wordmark, { autoAlpha: 0 });
         let markIn: gsap.core.Timeline | null = null;
         ScrollTrigger.create({
           trigger: wordmark, start: 'top 80%',
           onEnter: () => {
             markIn?.kill();
-            gsap.set(wordmark, { autoAlpha: 0, filter: 'blur(10px) brightness(1.08) saturate(1.12)' });
-            markIn = gsap.timeline({ delay: 0.25, onComplete: () => { gsap.set(wordmark, { clearProps: 'filter' }); } })
-              .to(wordmark, { autoAlpha: 1, duration: 1.1, ease: 'sine.out' }, 0)
-              .to(wordmark, { filter: 'blur(0px) brightness(1) saturate(1)', duration: 1.5, ease: 'power2.out' }, 0);
+            gsap.set(wordmark, { autoAlpha: 0, filter: 'blur(14px) sepia(0.4) brightness(1.18) saturate(1.3)' });
+            gsap.set(foot, { '--mark-glow': 0 });
+            markIn = gsap.timeline({ delay: 0.3, onComplete: () => { gsap.set(wordmark, { clearProps: 'filter' }); } })
+              .to(foot, { '--mark-glow': 1, duration: 1.4, ease: 'sine.inOut' }, 0)
+              .to(wordmark, { autoAlpha: 1, duration: 1.8, ease: 'sine.out' }, 0.15)
+              .to(wordmark, { filter: 'blur(0px) sepia(0) brightness(1) saturate(1)', duration: 2.4, ease: 'power2.out' }, 0.15)
+              .to(foot, { '--mark-glow': 0.3, duration: 2.2, ease: 'sine.inOut' }, 1.5);
           },
           onLeaveBack: () => {
             markIn?.kill(); markIn = null;
             gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter' });
+            gsap.set(foot, { '--mark-glow': 0 });
           },
         });
       }
