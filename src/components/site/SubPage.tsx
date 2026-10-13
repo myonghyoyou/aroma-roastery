@@ -15,7 +15,7 @@ export async function SubPage({ current, children }: { current?: 'archive' | 'ne
     <div className="sub">
       <SmoothScroll />
       <div className="sub-field" aria-hidden="true" />
-      <SiteHeader current={current} instagramUrl={settings.instagram.url} />
+      <SiteHeader current={current} instagramUrl={settings.instagram.url} storeUrl={settings.storeUrl} />
       <main className="sub-main">{children}</main>
       <SiteFooter settings={settings} mark={false} />
     </div>

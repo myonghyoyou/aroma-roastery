@@ -139,6 +139,8 @@ main { text-shadow: var(--halo); }
 .store-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: clamp(40px, calc(var(--vh) * 7), 80px) 0 0; padding-top: 18px; border-top: 1px solid rgba(251, 243, 232, .5); max-width: 1100px; }
 .store-facts dt { font-size: 14px; font-weight: 600; color: var(--milk-2); margin-bottom: 6px; }
 .store-facts dd { margin: 0; font-size: clamp(20px, 1.9vw, 28px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; font-variant-numeric: tabular-nums; }
+/* two maps side by side in one fact */
+.store-facts dd.store-links { display: flex; flex-wrap: wrap; column-gap: 1em; }
 /* explicit underline: Tailwind's preflight resets links to no decoration */
 .store-facts dd a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
 
@@ -191,6 +193,11 @@ main { text-shadow: var(--halo); }
   .topbar nav { grid-column: 2; }
   .topbar ul { gap: 14px; }
   .store-facts { grid-template-columns: 1fr; row-gap: 20px; }
+}
+/* five menu items (with 스토어) still fit beside the symbol on the narrowest phones */
+@media (max-width: 380px) {
+  .topbar ul { gap: 10px; }
+  .topbar ul a { font-size: 13px; }
 }
 
 /* ---------- rail: one thin mark per panel stop on the home page, the current one lit ---------- */

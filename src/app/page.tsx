@@ -27,7 +27,7 @@ export default async function Home() {
 
   return (
     <GrainStage slots={slots}>
-      <SiteHeader home instagramUrl={settings.instagram.url} />
+      <SiteHeader home instagramUrl={settings.instagram.url} storeUrl={settings.storeUrl} />
 
       <main>
         <section className="hero" id="top">
@@ -64,7 +64,14 @@ export default async function Home() {
             ))}
             <div>
               <dt>지도</dt>
-              <dd><a href={settings.mapUrl} target="_blank" rel="noopener">네이버 지도에서 보기</a></dd>
+              <dd className="store-links">
+                <a href={settings.mapUrl} target="_blank" rel="noopener">네이버 지도</a>
+                <a href={settings.kakaoMapUrl} target="_blank" rel="noopener">카카오맵</a>
+              </dd>
+            </div>
+            <div>
+              <dt>온라인 스토어</dt>
+              <dd><a href={settings.storeUrl} target="_blank" rel="noopener">스마트스토어</a></dd>
             </div>
           </dl>
           <FallbackImage media={settings.storeMedia} />

@@ -30,7 +30,11 @@ export type Media = {
 export type SiteSettings = {
   address: { line1: string; line2: string; building: string; storeName: string };
   hours: { label: string; value: string }[];
+  /** Naver Map */
   mapUrl: string;
+  kakaoMapUrl: string;
+  /** the online shop (Naver Smart Store) */
+  storeUrl: string;
   instagram: { handle: string; url: string };
   /** media surfaced behind the hero passage and the store section */
   passageMedia: Media;
@@ -103,6 +107,8 @@ const SAMPLE_SETTINGS: SiteSettings = {
     { label: '주말·공휴일', value: '12:00-18:00' },
   ],
   mapUrl: 'https://naver.me/GoDXYZG3',
+  kakaoMapUrl: 'https://place.map.kakao.com/927360490',
+  storeUrl: 'https://smartstore.naver.com/aroma_roastery',
   instagram: { handle: '@aroma_roastery', url: 'https://instagram.com/aroma_roastery' },
   // both clips carry a generator mark in the lower right corner: trimmed off, never shown
   passageMedia: { src: '/assets/video/barista-pouring.mp4', kind: 'video', alt: '바리스타가 드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-barista-pourover-bar.jpg', trimRight: 0.05, trimBottom: 0.06 },

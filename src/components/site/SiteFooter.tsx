@@ -6,7 +6,7 @@ import type { SiteSettings } from '@/lib/content';
  * page only; subpages (archive, news) leave it out.
  */
 export function SiteFooter({ settings, mark = true }: { settings: SiteSettings; mark?: boolean }) {
-  const { address, hours, instagram } = settings;
+  const { address, hours, instagram, storeUrl } = settings;
   return (
     <footer className="site-footer">
       {mark && <div className="footer-mark" role="img" aria-label="aroma" />}
@@ -27,6 +27,7 @@ export function SiteFooter({ settings, mark = true }: { settings: SiteSettings; 
         <ul>
           <li><Link href="/archive">아카이브</Link></li>
           <li><Link href="/news">소식</Link></li>
+          <li><a href={storeUrl} target="_blank" rel="noopener">스토어</a></li>
           <li><a href={instagram.url} target="_blank" rel="noopener">Instagram</a></li>
         </ul>
       </div>
