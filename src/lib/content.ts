@@ -1,10 +1,11 @@
 import { cacheLife, cacheTag } from 'next/cache';
-import { getInstagramArchive, INSTAGRAM_TAG } from '@/lib/instagram';
+import { getInstagramPosts, INSTAGRAM_TAG } from '@/lib/instagram';
 
 /*
  * Content layer. Every page reads store info and posts through these functions only.
- * Archive posts come from the store's Instagram (see instagram.ts); store info and news are
- * still the sample content from the approved draft until their source is connected.
+ * Archive and news posts both come from the store's Instagram (see instagram.ts: #소식 makes a post
+ * news). Until the account is connected the sample feed and the sample notices below stand in, and
+ * store info stays the sample content from the approved draft.
  */
 
 export type Media = {
@@ -260,7 +261,9 @@ async function allPosts(): Promise<Post[]> {
   'use cache';
   cacheLife('hours');
   cacheTag(INSTAGRAM_TAG);
-  const posts = [...SAMPLE_NEWS, ...(await getInstagramArchive())].sort((a, b) => b.date.localeCompare(a.date));
+  // connected, news and archive both come from Instagram; until then the sample notices stand in
+  const ig = await getInstagramPosts();
+  const posts = (ig.live ? ig.posts : [...SAMPLE_NEWS, ...ig.posts]).sort((a, b) => b.date.localeCompare(a.date));
   if (posts.some((p) => HOME_CLIPS[p.slug])) {
     return posts.map((p) => (HOME_CLIPS[p.slug] ? { ...p, homeClip: HOME_CLIPS[p.slug] } : p));
   }

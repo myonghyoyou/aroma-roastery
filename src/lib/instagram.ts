@@ -1,13 +1,16 @@
 import { cacheLife, cacheTag } from 'next/cache';
-import type { ArchiveCategory, Block, Photo, Post } from '@/lib/content';
+import type { ArchiveCategory, Block, NewsTopic, Photo, Post } from '@/lib/content';
 import { MOCK_INSTAGRAM } from '@/lib/mock-instagram';
 import { readToken } from '@/lib/instagram-token';
 
 /*
- * The archive is the store's Instagram feed. Each Instagram post becomes one archive post:
+ * The archive and the news are the store's Instagram feed. Each Instagram post becomes one post:
+ *   - #소식 makes it a news post, filed by #영업시간 #휴무 #원두 #행사 #공지 (공지 when none) and
+ *     kept first while it carries #고정; every other post goes to the archive, filed by
+ *     #로스팅 #커핑 #행사 #협업 #매장 (see CATEGORY_TAGS)
  *   - title: the caption's first line (hashtags removed)
  *   - body: the remaining caption, paragraph by paragraph
- *   - category: a hashtag, see CATEGORY_TAGS; #아카이브제외 keeps a post off the site
+ *   - #아카이브제외 keeps a post off the site
  *   - photos: every image of the post (a carousel's children); a video shows its cover image
  * Once the store account is connected (/api/instagram/connect saves its token, see instagram-auth.ts)
  * the feed is read from Instagram; until then the sample feed stands in, tagged "예시".
@@ -46,6 +49,17 @@ export const CATEGORY_TAGS: Record<string, ArchiveCategory> = {
   매장: 'store',
 };
 export const EXCLUDE_TAG = '아카이브제외';
+/** a post with this tag is news, not archive */
+export const NEWS_TAG = '소식';
+export const TOPIC_TAGS: Record<string, NewsTopic> = {
+  영업시간: 'hours',
+  휴무: 'closure',
+  원두: 'beans',
+  행사: 'event',
+  공지: 'notice',
+};
+/** keeps a news post first in the list */
+export const PIN_TAG = '고정';
 /** cache tag of everything read from Instagram: connecting the account expires it */
 export const INSTAGRAM_TAG = 'instagram';
 
@@ -104,15 +118,18 @@ function toPhotos(m: IgMedia, size: (c: IgChild) => { w: number; h: number }): P
   });
 }
 
-/** One Instagram post as an archive post, or null when it is kept off the site. */
+/** One Instagram post as a news or archive post, or null when it is kept off the site. */
 export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: number }, sample: boolean): Post | null {
   const { title, paragraphs, tags } = parseCaption(m.caption);
   if (tags.includes(EXCLUDE_TAG)) return null;
   const photos = toPhotos(m, size);
   if (!photos.length) return null;
   const date = kstDate(m.timestamp);
-  const category = tags.map((t) => CATEGORY_TAGS[t]).find(Boolean);
-  const name = title ? titleOf(title) : `${date.replaceAll('-', '.')} 기록`;
+  const isNews = tags.includes(NEWS_TAG);
+  const filing = isNews
+    ? { type: 'news' as const, topic: tags.map((t) => TOPIC_TAGS[t]).find(Boolean) ?? 'notice', pinned: tags.includes(PIN_TAG) || undefined }
+    : { type: 'archive' as const, category: tags.map((t) => CATEGORY_TAGS[t]).find(Boolean) };
+  const name = title ? titleOf(title) : `${date.replaceAll('-', '.')} ${isNews ? '소식' : '기록'}`;
   const alt = (p: Photo, i: number) => p.alt || `${name} 사진 ${i + 1}`;
   const body: Block[] = [
     // a first line that did not fit the title is kept whole as the opening paragraph
@@ -121,8 +138,7 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
   ];
   return {
     slug: slugOf(m),
-    type: 'archive',
-    category,
+    ...filing,
     title: name,
     date,
     summary: clip(oneLine(paragraphs[0] ?? title), SUMMARY_MAX),
@@ -197,14 +213,20 @@ async function livePosts(token: string): Promise<Post[]> {
   return feed.flatMap((m) => igToPost(m, (c) => sizes.get(c.id) ?? FALLBACK, false) ?? []);
 }
 
-/** Archive posts from Instagram (or the sample feed), newest first. */
-export async function getInstagramArchive(): Promise<Post[]> {
+/**
+ * Posts from Instagram, news and archive mixed, with `live` false while the sample feed stands in
+ * (the account is not connected yet).
+ */
+export async function getInstagramPosts(): Promise<{ live: boolean; posts: Post[] }> {
   'use cache';
   // media links from Instagram expire after a while, so the feed is read again every hour
   cacheLife('hours');
   cacheTag(INSTAGRAM_TAG);
   const token = (await readToken())?.token ?? process.env.INSTAGRAM_TOKEN;
   // a failed read throws on purpose: the site keeps serving the last good copy instead of samples
-  if (token) return livePosts(token);
-  return MOCK_INSTAGRAM.flatMap((m) => igToPost(m, (c) => ({ w: c.width ?? FALLBACK.w, h: c.height ?? FALLBACK.h }), true) ?? []);
+  if (token) return { live: true, posts: await livePosts(token) };
+  return {
+    live: false,
+    posts: MOCK_INSTAGRAM.flatMap((m) => igToPost(m, (c) => ({ w: c.width ?? FALLBACK.w, h: c.height ?? FALLBACK.h }), true) ?? []),
+  };
 }
