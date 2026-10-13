@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { GrainStage } from '@/components/home/GrainStage';
 import { SiteFooter } from '@/components/site/SiteFooter';
+import { BrandLink } from '@/components/site/BrandLink';
 import { SiteHeader } from '@/components/site/SiteHeader';
 import { formatDate, getPosts, getSiteSettings, postHref, TYPE_LABEL, type Media, type Post } from '@/lib/content';
 import { SLOT_COUNT } from '@/lib/grain-field/engine';
@@ -65,13 +66,13 @@ export default async function Home() {
             <div>
               <dt>지도</dt>
               <dd className="store-links">
-                <a href={settings.mapUrl} target="_blank" rel="noopener" aria-label="네이버 지도">네이버</a>
-                <a href={settings.kakaoMapUrl} target="_blank" rel="noopener" aria-label="카카오맵">카카오</a>
+                <BrandLink href={settings.mapUrl} brand="naver-map" label="네이버 지도">네이버</BrandLink>
+                <BrandLink href={settings.kakaoMapUrl} brand="kakao-map" label="카카오맵">카카오</BrandLink>
               </dd>
             </div>
             <div>
               <dt>온라인 스토어</dt>
-              <dd><a href={settings.storeUrl} target="_blank" rel="noopener">스마트스토어</a></dd>
+              <dd><BrandLink href={settings.storeUrl} brand="store" label="네이버 스토어">스토어</BrandLink></dd>
             </div>
           </dl>
           <FallbackImage media={settings.storeMedia} />
