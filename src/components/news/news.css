@@ -174,7 +174,14 @@
 
 /* ---------- a post: one reading column in the middle of the screen ----------
    The list keeps the left edge every list on the site starts from (easy to scan); a post is read,
-   not scanned, so its title, meta, body and links share one centred column, and the cover photo and
-   the related cards sit centred around it. */
-.nws-post { margin-inline: auto; }
-.nws-post .nws-crumb, .nws-post-head, .nws-body, .nws-back { max-width: 720px; margin-inline: auto; }
+   not scanned, so the cover photo, title, meta, body and links share one centred column of one width
+   (a wider photo over a narrower text read as misaligned); the related cards sit centred below. */
+.nws-post { --nws-col: 800px; margin-inline: auto; }
+.nws-post .nws-crumb, .nws-post .nws-hero, .nws-post-head, .nws-body, .nws-back { max-width: var(--nws-col); margin-inline: auto; }
+.nws-post .nws-body { max-width: var(--nws-col); }
+/* the end of the reading: a quiet row under a hairline, the list on the left, Instagram on the right */
+.nws-post .nws-back {
+  justify-content: space-between; align-items: center;
+  margin-top: clamp(40px, 6vh, 64px); padding-top: 20px; border-top: 1px solid var(--nws-line);
+}
+.nws-post .nws-back a { display: inline-flex; align-items: center; min-height: 44px; }

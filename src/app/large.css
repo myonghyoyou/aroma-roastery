@@ -71,7 +71,7 @@
   html .nws { max-width: calc(1240 * var(--u)); }
   html .nws:not(.nws-post) { max-width: none; }
   html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  html .nws-post .nws-crumb, html .nws-post-head, html .nws-body, html .nws-back { max-width: calc(720 * var(--u)); }
+  html .nws-post { --nws-col: calc(800 * var(--u)); }
   html .arc-post-head { font-size: calc(18 * var(--u)); }
   html .nws-head h1, html .nws-hero-title { font-size: calc(58 * var(--u)); }
   html .nws-lead { font-size: calc(16 * var(--u)); }
