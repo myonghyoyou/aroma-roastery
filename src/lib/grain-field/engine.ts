@@ -259,8 +259,14 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     api.uploadVideos = (w) => { videos.forEach((v) => { if (v.ready && w[v.slot] > 0.002 && v.el.readyState >= 2) upload(v); }); };
 
     api.resize = () => {
-      // grain reads best near native pixels; cap at 2 and trim a little for fill-rate
-      const dpr = Math.min(window.devicePixelRatio || 1, 2) * 0.8;
+      // grain reads best near native pixels; cap at 2 and trim a little for fill-rate. The field is
+      // redrawn whole every frame, so its cost grows with the pixel count: past about 1.2M pixels
+      // (a QHD screen asked for 2048x1152 and fell to ~33fps on panel steps) it is drawn smaller and
+      // stretched, which the grain hides.
+      const MAX_PX = 1_200_000;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2) * 0.8;
+      const px = window.innerWidth * window.innerHeight * dpr * dpr;
+      if (px > MAX_PX) dpr *= Math.sqrt(MAX_PX / px);
       const w = Math.max(1, Math.round(window.innerWidth * dpr));
       const h = Math.max(1, Math.round(window.innerHeight * dpr));
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
@@ -435,9 +441,18 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         });
         // the stretch the old scrubbed fade in covered: the panel stop sits just after it
         const settledIn = ScrollTrigger.create({ trigger: scope, start: () => `top ${stickAt(el)}px`, end: () => `top ${stickAt(el) - 0.12 * screenH()}px` });
+        // The archive heading leaves with the last entry: its own section ends below the footer's top,
+        // a point the page can never scroll to on a screen taller than the footer, so the heading
+        // stayed over the footer at the last stop.
+        const lastCopy = el.classList.contains('archive-head')
+          ? root.querySelector<HTMLElement>('.entries li:last-child [data-panel]')
+          : null;
+        const outEl = lastCopy ?? el;
+        const outScope = lastCopy?.parentElement ?? scope;
+        const outAt = (k: number) => () => `bottom ${stickAt(outEl) + outEl.offsetHeight + k * screenH()}px`;
         const fadeOut = gsap.fromTo(el, { autoAlpha: 1 }, {
           autoAlpha: 0, ease: 'none', immediateRender: false,
-          scrollTrigger: { trigger: scope, start: releaseAt(0.18), end: releaseAt(0.03), scrub: true },
+          scrollTrigger: { trigger: outScope, start: outAt(0.18), end: outAt(0.03), scrub: true },
         });
         if (el.classList.contains('panel-copy') && fadeOut.scrollTrigger) {
           const label = el.querySelector('h2, h3')?.textContent?.trim() ?? '';
