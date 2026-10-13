@@ -65,8 +65,8 @@ export default async function Home() {
             <div>
               <dt>지도</dt>
               <dd className="store-links">
-                <a href={settings.mapUrl} target="_blank" rel="noopener">네이버 지도</a>
-                <a href={settings.kakaoMapUrl} target="_blank" rel="noopener">카카오맵</a>
+                <a href={settings.mapUrl} target="_blank" rel="noopener" aria-label="네이버 지도">네이버</a>
+                <a href={settings.kakaoMapUrl} target="_blank" rel="noopener" aria-label="카카오맵">카카오</a>
               </dd>
             </div>
             <div>
