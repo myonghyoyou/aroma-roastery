@@ -1,0 +1,88 @@
+/* =====================================================================
+   Large screens (wider than 1920px, e.g. QHD 2560x1440).
+   Sizes were capped for 1920x1080, so on bigger screens the type and the content widths looked small
+   and pushed to one side. Past 1920px everything below grows by one factor, --u (1px at 1920x1080),
+   taken from the smaller of the width and height ratios so tall content never outgrows a short screen,
+   and capped at 1.4. Page zoom (CSS zoom) was tried and rejected: it also enlarged the screen-height
+   panels, which then ran off the bottom of the screen.
+   Selectors start with `html` so they win over the page stylesheets, which load after this one.
+   ===================================================================== */
+:root { --u: 1px; }
+@media (min-width: 1921px) {
+  :root { --u: max(1px, min(calc(100vw / 1920), calc(100vh / 1080), 1.4px)); --gutter: calc(56 * var(--u)); }
+
+  html body { font-size: calc(17 * var(--u)); }
+
+  /* top bar */
+  html .topbar { padding: calc(12 * var(--u)) var(--gutter); }
+  html .topbar .brand .symbol { width: calc(48 * var(--u)); }
+  html .topbar ul { gap: calc(30 * var(--u)); }
+  html .topbar ul a { font-size: calc(14 * var(--u)); min-height: calc(44 * var(--u)); }
+
+  /* home: hero, store, archive entries */
+  html .hero-sentence { font-size: calc(50 * var(--u)); }
+  html .hero-sentence .en { font-size: calc(17 * var(--u)); margin-top: calc(14 * var(--u)); }
+  html .scroll-cue { font-size: calc(13 * var(--u)); }
+  html .store h2, html .archive h2 { font-size: calc(17 * var(--u)); }
+  html .store-address { font-size: calc(108 * var(--u)); }
+  html .store-facts { max-width: calc(1100 * var(--u)); gap: calc(24 * var(--u)); margin-top: calc(72 * var(--u)); padding-top: calc(18 * var(--u)); }
+  html .store-facts dt { font-size: calc(14 * var(--u)); }
+  html .store-facts dd { font-size: calc(28 * var(--u)); }
+  html .archive h2 { font-size: calc(40 * var(--u)); }
+  html .tag-sample { font-size: calc(12 * var(--u)); padding: calc(5 * var(--u)) calc(8 * var(--u)); }
+  html .entry-copy { max-width: min(92vw, calc(1040 * var(--u))); }
+  html .entries .meta { font-size: calc(14 * var(--u)); }
+  html .entries h3 { font-size: calc(68 * var(--u)); }
+
+  /* rail */
+  html .rail { gap: calc(6 * var(--u)); }
+  html .rail button { width: calc(24 * var(--u)); height: calc(40 * var(--u)); }
+
+  /* footer */
+  html .footer-grid { font-size: calc(15 * var(--u)); gap: calc(24 * var(--u)); }
+  html .footer-grid a { min-height: calc(44 * var(--u)); }
+  html .copyright { font-size: calc(13 * var(--u)); margin-top: calc(48 * var(--u)); }
+
+  /* subpage heading, concept back button */
+  html .page-head h1 { font-size: calc(58 * var(--u)); }
+  html .page-head p { font-size: calc(16 * var(--u)); }
+  html .lab-back { font-size: calc(14 * var(--u)); }
+
+  /* archive */
+  html .arc-head h1 { font-size: calc(56 * var(--u)); }
+  html .arc-lead { font-size: calc(16 * var(--u)); }
+  html .arc-insta, html .arc-status, html .arc-chip, html .arc-back { font-size: calc(14 * var(--u)); }
+  html .arc-chip-n, html .arc-more-n, html .arc-shot-info time, html .arc-video, html .arc-post-frame { font-size: calc(12 * var(--u)); }
+  html .arc-shot-title, html .arc-adj-label, html .arc-adj-date { font-size: calc(13 * var(--u)); }
+  html .arc-more { font-size: calc(15 * var(--u)); }
+  html .arc-post-meta { font-size: calc(14 * var(--u)); }
+  html .arc-post-title { font-size: calc(46 * var(--u)); }
+  html .arc-post-summary { font-size: calc(17 * var(--u)); }
+  html .arc-body { font-size: calc(18 * var(--u)); }
+  html .arc-body h2 { font-size: calc(22 * var(--u)); }
+  html .arc-quote p { font-size: calc(20 * var(--u)); }
+  html .arc-adj-title { font-size: calc(17 * var(--u)); }
+  html .arc-lb-count, html .arc-lb-close, html .arc-lb-caption, html .arc-lb-link { font-size: calc(14 * var(--u)); }
+  html .arc-lb-meta { font-size: calc(13 * var(--u)); }
+  html .arc-lb-title { font-size: calc(20 * var(--u)); }
+
+  /* news */
+  /* the list uses the whole width, four cards a row, like the archive sheet; a post keeps its reading width */
+  html .nws { max-width: calc(1240 * var(--u)); }
+  html .nws:not(.nws-post) { max-width: none; }
+  html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html .nws-head h1, html .nws-hero-title { font-size: calc(58 * var(--u)); }
+  html .nws-lead { font-size: calc(16 * var(--u)); }
+  html .nws-insta, html .nws-chip, html .nws-post-meta, html .nws-more { font-size: calc(14 * var(--u)); }
+  html .nws-crumb, html .nws-count, html .nws-meta { font-size: calc(13 * var(--u)); }
+  html .nws-pin { font-size: calc(12 * var(--u)); }
+  html .nws-field-title { font-size: calc(28 * var(--u)); }
+  html .nws-title, html .nws-card--wide .nws-title { font-size: calc(22 * var(--u)); }
+  html .nws-summary { font-size: calc(15 * var(--u)); }
+  html .nws-card--wide .nws-summary { font-size: calc(16 * var(--u)); }
+  html .nws-post-title { font-size: calc(46 * var(--u)); }
+  html .nws-post-summary, html .nws-body { font-size: calc(18 * var(--u)); }
+  html .nws-body h2, html .nws-body blockquote, html .nws-grid--related .nws-field-title { font-size: calc(24 * var(--u)); }
+  html .nws-related-head h2 { font-size: calc(26 * var(--u)); }
+  html .nws-empty p { font-size: calc(17 * var(--u)); }
+}
