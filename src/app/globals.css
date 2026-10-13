@@ -136,7 +136,9 @@ main { text-shadow: var(--halo); }
 .store h2 { margin-bottom: 20px; }
 .store-address { margin: 0; font-style: normal; font-weight: 700; font-size: clamp(36px, 6.4vw, 108px); line-height: 1.15; letter-spacing: -0.035em; max-width: 16ch; }
 .store-address small { display: block; margin-top: .4em; font-size: .36em; font-weight: 600; letter-spacing: -0.02em; color: var(--milk-2); }
-.store-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: clamp(40px, calc(var(--vh) * 7), 80px) 0 0; padding-top: 18px; border-top: 1px solid rgba(251, 243, 232, .5); max-width: 1100px; }
+/* the facts sit at their own widths with one equal gap between them: equal columns left a wide gap
+   after the short times and a narrow one after the two map links */
+.store-facts { display: flex; flex-wrap: wrap; column-gap: clamp(36px, 5.5vw, 88px); row-gap: 24px; margin: clamp(40px, calc(var(--vh) * 7), 80px) 0 0; padding-top: 18px; border-top: 1px solid rgba(251, 243, 232, .5); max-width: 1100px; }
 .store-facts dt { font-size: 14px; font-weight: 600; color: var(--milk-2); margin-bottom: 6px; }
 /* every value sits in the same 44px row, centred: the links need that height to be easy to tap, and
    the plain times took less, so their text sat 5px higher than the links' */
@@ -200,7 +202,7 @@ main { text-shadow: var(--halo); }
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
-  .store-facts { grid-template-columns: 1fr 1fr; row-gap: 28px; }
+  .store-facts { row-gap: 28px; }
   .entries li:nth-child(even) .entry-copy { margin-left: 0; }
   .footer-grid { grid-template-columns: 1fr; }
   .footer-grid ul { justify-self: start; text-align: left; display: flex; gap: 20px; }
@@ -211,7 +213,7 @@ main { text-shadow: var(--halo); }
   .topbar .brand .symbol { width: 42px; }
   .topbar nav { grid-column: 2; }
   .topbar ul { gap: 14px; }
-  .store-facts { grid-template-columns: 1fr; row-gap: 20px; }
+  .store-facts { flex-direction: column; row-gap: 20px; }
 }
 /* five menu items (with 스토어) still fit beside the symbol on the narrowest phones */
 @media (max-width: 380px) {
