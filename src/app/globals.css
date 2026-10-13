@@ -138,7 +138,9 @@ main { text-shadow: var(--halo); }
 .store-address small { display: block; margin-top: .4em; font-size: .36em; font-weight: 600; letter-spacing: -0.02em; color: var(--milk-2); }
 .store-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: clamp(40px, calc(var(--vh) * 7), 80px) 0 0; padding-top: 18px; border-top: 1px solid rgba(251, 243, 232, .5); max-width: 1100px; }
 .store-facts dt { font-size: 14px; font-weight: 600; color: var(--milk-2); margin-bottom: 6px; }
-.store-facts dd { margin: 0; font-size: clamp(20px, 1.9vw, 28px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; font-variant-numeric: tabular-nums; }
+/* every value sits in the same 44px row, centred: the links need that height to be easy to tap, and
+   the plain times took less, so their text sat 5px higher than the links' */
+.store-facts dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; min-height: 44px; font-size: clamp(20px, 1.9vw, 28px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; font-variant-numeric: tabular-nums; }
 /* outside links with the service's symbol (BrandLink): a one-colour shape in the text's own colour,
    a little under the cap height; the underline on the text only */
 .store-facts dd a.brand-link { display: inline-flex; align-items: center; gap: .38em; text-decoration: none; }
