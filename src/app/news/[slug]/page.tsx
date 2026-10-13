@@ -100,7 +100,7 @@ export default async function NewsPost({ params }: Params) {
 
         {/* where the reading ends: back to the list, or on to the post on Instagram */}
         <p className="nws-back">
-          <Link href={LIST_HREF}>소식 목록으로</Link>
+          <Link href={LIST_HREF}>목록으로</Link>
           {post.permalink && (
             <a href={post.permalink} target="_blank" rel="noopener">인스타그램에서 보기</a>
           )}
