@@ -28,7 +28,7 @@ export default async function Home() {
 
   return (
     <GrainStage slots={slots}>
-      <SiteHeader home instagramUrl={settings.instagram.url} storeUrl={settings.storeUrl} />
+      <SiteHeader home />
 
       <main>
         <section className="hero" id="top">

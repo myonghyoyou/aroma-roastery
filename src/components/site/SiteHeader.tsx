@@ -8,7 +8,7 @@ const NAV: { href: string; label: string; section: Section }[] = [
 ];
 
 /** Top bar shared by every page. On the home page the symbol scrolls back to the top instead of navigating. */
-export function SiteHeader({ current, instagramUrl, storeUrl, home = false }: { current?: Section; instagramUrl: string; storeUrl: string; home?: boolean }) {
+export function SiteHeader({ current, home = false }: { current?: Section; home?: boolean }) {
   const symbol = (
     // eslint-disable-next-line @next/next/no-img-element -- small inline SVG logo
     <img className="symbol" src="/assets/logo/aroma-symbol.svg" alt="" />
@@ -29,8 +29,6 @@ export function SiteHeader({ current, instagramUrl, storeUrl, home = false }: { 
               <Link href={n.href} aria-current={current === n.section ? 'page' : undefined}>{n.label}</Link>
             </li>
           ))}
-          <li><a href={storeUrl} target="_blank" rel="noopener">스토어</a></li>
-          <li><a href={instagramUrl} target="_blank" rel="noopener">Instagram</a></li>
         </ul>
       </nav>
     </header>

@@ -215,11 +215,6 @@ main { text-shadow: var(--halo); }
   .topbar ul { gap: 14px; }
   .store-facts { flex-direction: column; row-gap: 20px; }
 }
-/* five menu items (with 스토어) still fit beside the symbol on the narrowest phones */
-@media (max-width: 380px) {
-  .topbar ul { gap: 10px; }
-  .topbar ul a { font-size: 13px; }
-}
 
 /* ---------- rail: one thin mark per panel stop on the home page, the current one lit ---------- */
 .rail {
