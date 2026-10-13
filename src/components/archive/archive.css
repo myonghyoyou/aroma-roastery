@@ -183,3 +183,7 @@ a.arc-adj:hover .arc-adj-title { text-decoration: underline; text-underline-offs
 .arc-post-shot { position: relative; }
 .arc-insta { margin: 10px 0 0; font-size: 14px; font-weight: 600; }
 .arc-insta a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
+
+/* a post: the heading joins the body's centred reading column (36em at the body's 18px), so the page
+   reads down one axis; the photo sheet keeps the full width */
+.arc-post-head { font-size: 18px; max-width: 36em; margin-inline: auto; }

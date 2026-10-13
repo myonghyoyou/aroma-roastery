@@ -171,3 +171,10 @@
 
 .nws-insta { margin: 10px 0 0; font-size: 14px; font-weight: 600; }
 .nws-insta a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- a post: one reading column in the middle of the screen ----------
+   The list keeps the left edge every list on the site starts from (easy to scan); a post is read,
+   not scanned, so its title, meta, body and links share one centred column, and the cover photo and
+   the related cards sit centred around it. */
+.nws-post { margin-inline: auto; }
+.nws-post .nws-crumb, .nws-post-head, .nws-body, .nws-back { max-width: 720px; margin-inline: auto; }
