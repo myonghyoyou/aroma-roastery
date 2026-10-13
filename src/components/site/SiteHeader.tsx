@@ -4,7 +4,7 @@ type Section = 'archive' | 'news';
 
 const NAV: { href: string; label: string; section: Section }[] = [
   { href: '/archive', label: '아카이브', section: 'archive' },
-  { href: '/news', label: '소식', section: 'news' },
+  { href: '/news-lab', label: '소식', section: 'news' },
 ];
 
 /** Top bar shared by every page. On the home page the symbol scrolls back to the top instead of navigating. */
