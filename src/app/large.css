@@ -100,3 +100,11 @@
   html .nws:not(.nws-post) { max-width: none; }
   html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* portrait monitors: columns were set by width alone, so a 1440x2420 screen showed the laptop layout
+   with 2.7 times the height (48 archive photos at once, each 11% of the screen tall). Fewer columns
+   bring it back to about what a landscape screen shows: the archive in 3, the news in 2 */
+@media (orientation: portrait) and (min-width: 1000px) and (min-height: 1500px) {
+  html .arc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
