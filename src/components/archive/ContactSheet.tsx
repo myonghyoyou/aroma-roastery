@@ -48,6 +48,8 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
   }, [items]);
 
   const years = useMemo(() => [...new Set(items.map(yearOf))].sort((a, b) => b.localeCompare(a)), [items]);
+  // categories come from hashtags; the store's feed has none, and a row of empty chips says nothing
+  const hasCategories = useMemo(() => items.some((i) => i.category), [items]);
 
   const filtered = useMemo(
     () => order.filter((item) => inCat(item, cat) && inYear(item, year)),
@@ -96,7 +98,7 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
   return (
     <>
       <div className="arc-filters">
-        <div className="arc-chips" role="group" aria-label="분류">
+        {hasCategories && <div className="arc-chips" role="group" aria-label="분류">
           <button type="button" className="arc-chip" aria-pressed={cat === 'all'} onClick={() => pickCat('all')}>
             전체 <span className="arc-chip-n">{catCount('all')}</span>
           </button>
@@ -116,7 +118,7 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
               </button>
             );
           })}
-        </div>
+        </div>}
         <div className="arc-chips" role="group" aria-label="연도">
           <button type="button" className="arc-chip" aria-pressed={year === 'all'} onClick={() => pickYear('all')}>
             모든 연도 <span className="arc-chip-n">{yearCount('all')}</span>
@@ -160,7 +162,7 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
                 />
                 {item.photo.fromVideo && <span className="arc-video">영상</span>}
                 <span className="arc-shot-info">
-                  <span className="arc-shot-title">{item.title}</span>
+                  {!item.untitled && <span className="arc-shot-title">{item.title}</span>}
                   <time dateTime={item.date}>{formatDate(item.date)}</time>
                 </span>
               </a>

@@ -6,6 +6,8 @@ export type SheetItem = {
   photo: Photo;
   slug: string;
   title: string;
+  /** the post had no caption words: its title is only its date, so the sheet shows the date alone */
+  untitled: boolean;
   category: ArchiveCategory | null;
   date: string;
   /** 1-based position of the photo inside its post */
@@ -22,6 +24,7 @@ export function toSheetItems(posts: Post[]): SheetItem[] {
       photo,
       slug: post.slug,
       title: post.title,
+      untitled: !!post.untitled,
       category: post.category ?? null,
       date: post.date,
       frame: i + 1,

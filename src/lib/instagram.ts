@@ -1,16 +1,22 @@
 import { cacheLife, cacheTag } from 'next/cache';
-import type { ArchiveCategory, Block, NewsTopic, Photo, Post } from '@/lib/content';
+import type { ArchiveCategory, NewsTopic, Photo, Post } from '@/lib/content';
 import { MOCK_INSTAGRAM } from '@/lib/mock-instagram';
 import { readToken } from '@/lib/instagram-token';
 
 /*
- * The archive and the news are the store's Instagram feed. Each Instagram post becomes one post:
- *   - #소식 makes it a news post, filed by #영업시간 #휴무 #원두 #행사 #공지 (공지 when none) and
- *     kept first while it carries #고정; every other post goes to the archive, filed by
- *     #로스팅 #커핑 #행사 #협업 #매장 (see CATEGORY_TAGS)
- *   - title: the caption's first line (hashtags removed)
- *   - body: the remaining caption, paragraph by paragraph
+ * The archive and the news are the store's Instagram feed. Each Instagram post becomes one post.
+ * The store does not tag its posts, so the caption itself decides (see fileByText):
+ *   - written text (bean arrivals, notices, closures) makes a news post, filed by its words:
+ *     휴무 → closure, 운영시간 → hours, 입고 or a bean introduction → beans, 클래스/커핑/행사 → event,
+ *     anything else → notice
+ *   - a photo with no text, or only an emoji or a mention, goes to the archive
+ * Hashtags still win when a post has them, to correct a post the caption rule files wrongly:
+ *   - #소식 makes it news (#영업시간 #휴무 #원두 #행사 #공지 pick the topic, #고정 keeps it first)
+ *   - #아카이브, or an archive tag (#로스팅 #커핑 #행사 #협업 #매장, see CATEGORY_TAGS), makes it archive
  *   - #아카이브제외 keeps a post off the site
+ *   - title: the caption's first line with words (hashtags removed); a bean arrival is titled by the
+ *     bean ("과테말라 엘 소코로 게이샤 워시드 입고"); a post without words by its date
+ *   - body: the remaining caption, paragraph by paragraph
  *   - photos: every image of the post (a carousel's children); a video shows its cover image
  * Once the store account is connected (/api/instagram/connect saves its token, see instagram-auth.ts)
  * the feed is read from Instagram; until then the sample feed stands in, tagged "예시".
@@ -51,6 +57,8 @@ export const CATEGORY_TAGS: Record<string, ArchiveCategory> = {
 export const EXCLUDE_TAG = '아카이브제외';
 /** a post with this tag is news, not archive */
 export const NEWS_TAG = '소식';
+/** a post with this tag is archive, whatever its caption says */
+export const ARCHIVE_TAG = '아카이브';
 export const TOPIC_TAGS: Record<string, NewsTopic> = {
   영업시간: 'hours',
   휴무: 'closure',
@@ -70,9 +78,49 @@ const HASHTAG = /#[^\s#]+/g;
 const clip = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1).trimEnd()}…` : s);
 const oneLine = (s: string) => s.replace(/\s+/g, ' ').trim();
 
-/** A line without its trailing run of hashtags; a hashtag inside a sentence keeps its word. */
-const cleanLine = (line: string) =>
-  line.replace(/(?:\s*#[^\s#]+)+\s*$/, '').replace(/#([^\s#]+)/g, '$1').replace(/[ \t]{2,}/g, ' ').trim();
+/**
+ * A line without its trailing run of hashtags; a hashtag inside a sentence keeps its word. A line with
+ * no letter or digit (an emoji, a lone dot, which the store often puts first) is dropped.
+ */
+const cleanLine = (line: string) => {
+  const out = line.replace(/(?:\s*#[^\s#]+)+\s*$/, '').replace(/#([^\s#]+)/g, '$1').replace(/[ \t]{2,}/g, ' ').trim();
+  return /[\p{L}\p{N}]/u.test(out) ? out : '';
+};
+
+/* ---------------- filing by the caption ---------------- */
+
+/** Below this many letters and digits (mentions and emoji left out) a caption is not written text. */
+const NEWS_MIN_CHARS = 20;
+/** words that make even a short caption news */
+const NOTICE_WORDS = /휴무|쉽니다|쉬어\s?갑니다|영업|운영\s?시간|공지|안내|입고/;
+/** news topic by the caption's words, first match wins (a closure notice often names an event too) */
+const TOPIC_WORDS: [RegExp, NewsTopic][] = [
+  [/휴무|쉽니다|쉬어\s?갑니다/, 'closure'],
+  [/(?:운영|영업)\s?시간|오픈\s?시간|영업합니다/, 'hours'],
+  [/입고|커피를\s?소개합니다|커피입니다|원두|농장|에티오피아|케냐|르완다|부룬디|콜롬비아|과테말라|코스타리카|파나마|브라질|온두라스|엘살바도르|니카라과|페루|볼리비아|에콰도르|멕시코|인도네시아|예멘/, 'beans'],
+  [/클래스|커핑|행사|이벤트|팝업|할인/, 'event'],
+];
+
+/** News or archive from the caption's words alone, for a post that carries no filing tag. */
+export function fileByText(caption = ''): { type: 'news'; topic: NewsTopic } | { type: 'archive' } {
+  const text = caption.replace(HASHTAG, ' ').replace(/@[\w.]+/g, ' ');
+  const chars = text.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
+  if (chars < NEWS_MIN_CHARS && !NOTICE_WORDS.test(text)) return { type: 'archive' };
+  return { type: 'news', topic: TOPIC_WORDS.find(([re]) => re.test(text))?.[1] ?? 'notice' };
+}
+
+/**
+ * The bean's name from a bean post's first sentence: "과테말라 엘 소코로 게이샤 워시드 커피가
+ * 입고됐습니다." gives "과테말라 엘 소코로 게이샤 워시드 입고", "콜롬비아 포토시 농장의 워시드 가공
+ * 커피를 소개합니다." gives "콜롬비아 포토시 농장의 워시드 가공", "에티오피아 사오나 입니다." gives
+ * "에티오피아 사오나". Null when the sentence has another shape.
+ */
+export function beanTitle(sentence: string): string | null {
+  const arrived = sentence.match(/^(.{2,40}?)\s*(?:커피|원두)?(?:가|이)?\s*입고\s?(?:됐|되었|되어|했)/);
+  if (arrived) return `${arrived[1].replace(/\s*의$/, '').trim()} 입고`;
+  const named = sentence.match(/^(.{2,40}?)\s*(?:커피를\s?소개합니다|커피입니다|입니다)/);
+  return named ? named[1].trim() : null;
+}
 
 /** The title: the first line, or its first sentence when the line is too long to be one. */
 function titleOf(line: string): string {
@@ -125,13 +173,20 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
   const photos = toPhotos(m, size);
   if (!photos.length) return null;
   const date = kstDate(m.timestamp);
-  const isNews = tags.includes(NEWS_TAG);
+  const category = tags.map((t) => CATEGORY_TAGS[t]).find(Boolean);
+  const byText = fileByText(m.caption);
+  // a filing tag wins over the caption; #행사 is both a topic and a category, so #소식 decides
+  const tagged = tags.includes(NEWS_TAG);
+  const isNews = tagged || (!category && !tags.includes(ARCHIVE_TAG) && byText.type === 'news');
+  const topic = (tagged ? tags.map((t) => TOPIC_TAGS[t]).find(Boolean) : undefined)
+    ?? (byText.type === 'news' ? byText.topic : 'notice');
   const filing = isNews
-    ? { type: 'news' as const, topic: tags.map((t) => TOPIC_TAGS[t]).find(Boolean) ?? 'notice', pinned: tags.includes(PIN_TAG) || undefined }
-    : { type: 'archive' as const, category: tags.map((t) => CATEGORY_TAGS[t]).find(Boolean) };
-  const name = title ? titleOf(title) : `${date.replaceAll('-', '.')} ${isNews ? '소식' : '기록'}`;
+    ? { type: 'news' as const, topic, pinned: tags.includes(PIN_TAG) || undefined }
+    : { type: 'archive' as const, category };
+  const bean = isNews && topic === 'beans' ? beanTitle(title.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? title) : null;
+  const name = bean ?? (title ? titleOf(title) : `${date.replaceAll('-', '.')} ${isNews ? '소식' : '기록'}`);
   const alt = (p: Photo, i: number) => p.alt || `${name} 사진 ${i + 1}`;
-  const body: Block[] = [
+  const body: { type: 'paragraph'; text: string }[] = [
     // a first line that did not fit the title is kept whole as the opening paragraph
     ...(name !== title && title ? [{ type: 'paragraph' as const, text: title }] : []),
     ...paragraphs.map((text) => ({ type: 'paragraph' as const, text })),
@@ -141,7 +196,8 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
     ...filing,
     title: name,
     date,
-    summary: clip(oneLine(paragraphs[0] ?? title), SUMMARY_MAX),
+    summary: clip(oneLine(body[0]?.text ?? title), SUMMARY_MAX),
+    untitled: !title || undefined,
     cover: { ...photos[0], alt: alt(photos[0], 0) },
     photos: photos.map((p, i) => ({ ...p, alt: alt(p, i) })),
     body,

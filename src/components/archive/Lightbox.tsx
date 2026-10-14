@@ -148,7 +148,7 @@ export function Lightbox({ items, index, onIndexChange, onClose, showPostLink, l
             <time dateTime={item.date}>{formatDate(item.date)}</time>
             <span>사진 {item.frame}</span>
           </p>
-          <p className="arc-lb-title">{item.title}</p>
+          {!item.untitled && <p className="arc-lb-title">{item.title}</p>}
           {photo.caption && <p className="arc-lb-caption">{photo.caption}</p>}
           {showPostLink && (
             <Link href={sheetHref(item.slug)} className="arc-lb-link">

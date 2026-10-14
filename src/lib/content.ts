@@ -3,8 +3,8 @@ import { getInstagramPosts, INSTAGRAM_TAG } from '@/lib/instagram';
 
 /*
  * Content layer. Every page reads store info and posts through these functions only.
- * Archive and news posts both come from the store's Instagram (see instagram.ts: #소식 makes a post
- * news). Until the account is connected the sample feed and the sample notices below stand in, and
+ * Archive and news posts both come from the store's Instagram (see instagram.ts: a written caption
+ * makes a post news, a photo with only an emoji goes to the archive). Until the account is connected the sample feed and the sample notices below stand in, and
  * store info stays the sample content from the approved draft.
  */
 
@@ -91,6 +91,8 @@ export type Post = {
   homeClip?: Media;
   /** the post on Instagram, for archive posts read from the live feed */
   permalink?: string;
+  /** the caption had no words (only an emoji or nothing), so the title is made from the date */
+  untitled?: boolean;
   /** true while the post is placeholder content, shown with a "예시" tag */
   sample: boolean;
 };

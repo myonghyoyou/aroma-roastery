@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: '영업시간, 휴무, 원두 입고, 행사 소식을 카드 한 장씩 모았습니다.',
 };
 
-/* News: concept C (card feed), chosen in review. Posts come from Instagram (#소식), see instagram.ts. */
+/* News: concept C (card feed), chosen in review. Posts come from Instagram (posts with written captions), see instagram.ts. */
 export default async function NewsPage() {
   const [posts, settings] = await Promise.all([getPosts('news'), getSiteSettings()]);
   const cards = toFeed(posts);
