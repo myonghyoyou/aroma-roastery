@@ -9,7 +9,7 @@ export function SiteFooter({ settings, mark = true }: { settings: SiteSettings; 
   const { address, hours, instagram, storeUrl } = settings;
   return (
     <footer className="site-footer">
-      {mark && <div className="footer-mark" role="img" aria-label="aroma" />}
+      {mark && <div className="footer-mark-wrap"><div className="footer-mark" role="img" aria-label="aroma" /></div>}
       <div className="footer-grid">
         <p>
           aroma coffee roastery &amp; showroom
