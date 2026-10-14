@@ -6,7 +6,7 @@ import type { IgMedia } from '@/lib/instagram';
 export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?: string })[] = [
   {
     "id": "autumn-cupping-session",
-    "caption": "가을 커핑 세션 기록\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#커핑 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "가을 커핑 세션 기록\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/autumn-cupping-session/",
     "timestamp": "2026-09-27T01:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -98,7 +98,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "roasting-profile-kenya",
-    "caption": "로스팅 프로파일 노트: 케냐\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#로스팅 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "로스팅 프로파일 노트: 케냐\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/roasting-profile-kenya/",
     "timestamp": "2026-09-12T04:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -174,7 +174,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "brew-bar-september",
-    "caption": "브루 바 9월 기록\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#매장 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "브루 바 9월 기록\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/brew-bar-september/",
     "timestamp": "2026-09-05T07:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -282,7 +282,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "colombia-potosi-cupping",
-    "caption": "콜롬비아 포토시 커핑 노트\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#커핑 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "콜롬비아 포토시 커핑 노트\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/colombia-potosi-cupping/",
     "timestamp": "2026-08-21T01:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -350,7 +350,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "tap-lineup-summer",
-    "caption": "커피 탭 라인업 기록\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#매장 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "커피 탭 라인업 기록\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/tap-lineup-summer/",
     "timestamp": "2026-08-02T04:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -410,7 +410,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "batch-brew-notes",
-    "caption": "배치 브루 레시피 정리\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#로스팅 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "배치 브루 레시피 정리\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/batch-brew-notes/",
     "timestamp": "2026-07-24T07:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -470,7 +470,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "summer-first-roast",
-    "caption": "여름 시즌 원두 첫 로스팅\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#로스팅 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "여름 시즌 원두 첫 로스팅\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/summer-first-roast/",
     "timestamp": "2026-07-10T01:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -554,7 +554,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "bar-reset-day",
-    "caption": "매장 바 정리의 날\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#매장 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "매장 바 정리의 날\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/bar-reset-day/",
     "timestamp": "2026-06-28T04:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -630,7 +630,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "hand-drip-class",
-    "caption": "핸드드립 클래스 기록\n\n매장에서 진행한 자리를 사진으로 남겼습니다.\n\n준비한 도구와 원두, 진행 순서를 함께 정리했습니다.\n\n함께 내리고 함께 맛봅니다.\n\n다음 자리를 준비할 때 참고할 내용을 적어 두었습니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#행사 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "핸드드립 클래스 기록\n\n매장에서 진행한 자리를 사진으로 남겼습니다.\n\n준비한 도구와 원두, 진행 순서를 함께 정리했습니다.\n\n함께 내리고 함께 맛봅니다.\n\n다음 자리를 준비할 때 참고할 내용을 적어 두었습니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/hand-drip-class/",
     "timestamp": "2026-06-14T07:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -730,7 +730,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "ethiopia-buncho-cupping",
-    "caption": "에티오피아 분초 커핑\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#커핑 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "에티오피아 분초 커핑\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/ethiopia-buncho-cupping/",
     "timestamp": "2026-05-30T01:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -798,7 +798,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "bean-card-artwork",
-    "caption": "원두 카드 그림 작업\n\n매장에서 진행한 자리를 사진으로 남겼습니다.\n\n준비한 도구와 원두, 진행 순서를 함께 정리했습니다.\n\n함께 내리고 함께 맛봅니다.\n\n다음 자리를 준비할 때 참고할 내용을 적어 두었습니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#행사 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "원두 카드 그림 작업\n\n매장에서 진행한 자리를 사진으로 남겼습니다.\n\n준비한 도구와 원두, 진행 순서를 함께 정리했습니다.\n\n함께 내리고 함께 맛봅니다.\n\n다음 자리를 준비할 때 참고할 내용을 적어 두었습니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/bean-card-artwork/",
     "timestamp": "2026-05-16T04:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -882,7 +882,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "spring-menu-tasting",
-    "caption": "봄 메뉴 테이스팅\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#커핑 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "봄 메뉴 테이스팅\n\n같은 분쇄도와 물 온도, 같은 시간으로 원두를 우려 나란히 맛보았습니다.\n\n마른 향과 젖은 향, 산미와 단맛, 식으면서 달라지는 맛을 차례로 기록했습니다.\n\n같은 조건에서 맛봐야 차이가 보입니다.\n\n기록한 내용은 메뉴와 추출 레시피를 정할 때 다시 확인합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/spring-menu-tasting/",
     "timestamp": "2026-04-25T07:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -958,7 +958,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "store-space-notes",
-    "caption": "매장 공간 기록\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#매장 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "매장 공간 기록\n\n매장 바와 진열대를 정리한 날의 기록입니다.\n\n원두 카드와 커피 탭, 브루 바의 자리를 다시 맞췄습니다.\n\n자리가 정해져 있으면 손이 빨라집니다.\n\n매일 쓰는 도구는 같은 자리에 두어 손이 먼저 찾도록 합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/store-space-notes/",
     "timestamp": "2026-04-04T01:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",
@@ -1050,7 +1050,7 @@ export const MOCK_INSTAGRAM: (IgMedia & { width?: number; height?: number; alt?:
   },
   {
     "id": "roasting-notes-colombia",
-    "caption": "로스팅 노트: 콜롬비아\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.\n\n#로스팅 #아로마로스터리 #마곡카페 #스페셜티커피",
+    "caption": "로스팅 노트: 콜롬비아\n\n생두의 상태를 확인하고 투입 온도와 배출 시점을 기록했습니다.\n\n같은 원두를 두 가지 프로파일로 볶아 맛의 차이를 비교했습니다.\n\n볶고, 내리고, 맛보고, 다시 볶습니다.\n\n볶은 원두는 하루 이상 쉬게 한 뒤 맛을 보고 다음 로스팅에 반영합니다.\n\n이 글과 사진은 아카이브 화면 구성을 보여주기 위한 예시입니다.",
     "permalink": "https://www.instagram.com/p/roasting-notes-colombia/",
     "timestamp": "2026-03-14T04:20:00+0000",
     "media_type": "CAROUSEL_ALBUM",

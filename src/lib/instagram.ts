@@ -174,7 +174,9 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
   if (!photos.length) return null;
   const date = kstDate(m.timestamp);
   const category = tags.map((t) => CATEGORY_TAGS[t]).find(Boolean);
-  const byText = fileByText(m.caption);
+  // the sample feed stands in for the archive only (SAMPLE_NEWS stands in for the news), so its
+  // written captions do not make it news
+  const byText = sample ? { type: 'archive' as const } : fileByText(m.caption);
   // a filing tag wins over the caption; #행사 is both a topic and a category, so #소식 decides
   const tagged = tags.includes(NEWS_TAG);
   const isNews = tagged || (!category && !tags.includes(ARCHIVE_TAG) && byText.type === 'news');
