@@ -1,15 +1,23 @@
 /* =====================================================================
-   Large screens (wider than 1920px, e.g. QHD 2560x1440).
+   Large screens: wider than 1920px (e.g. QHD 2560x1440), or a tall portrait monitor (e.g. QHD turned
+   on its side, 1440x2560).
    Sizes were capped for 1920x1080, so on bigger screens the type and the content widths looked small
-   and pushed to one side. Past 1920px everything below grows by one factor, --u (1px at 1920x1080),
-   taken from the smaller of the width and height ratios so tall content never outgrows a short screen,
-   and capped at 1.4. Page zoom (CSS zoom) was tried and rejected: it also enlarged the screen-height
-   panels, which then ran off the bottom of the screen.
+   and pushed to one side. On those screens everything below grows by one factor, --u (1px at the
+   reference screen: 1920x1080 landscape, 1080x1920 portrait), taken from the smaller of the width and
+   height ratios so tall content never outgrows a short screen, and capped at 1.4. Phones and tablets
+   never meet the portrait condition (at least 1200px wide and 1800px tall). Page zoom (CSS zoom) was
+   tried and rejected: it also enlarged the screen-height panels, which then ran off the screen.
    Selectors start with `html` so they win over the page stylesheets, which load after this one.
    ===================================================================== */
 :root { --u: 1px; }
 @media (min-width: 1921px) {
-  :root { --u: max(1px, min(calc(100vw / 1920), calc(100vh / 1080), 1.4px)); --gutter: calc(56 * var(--u)); }
+  :root { --u: max(1px, min(calc(100vw / 1920), calc(100vh / 1080), 1.4px)); }
+}
+@media (orientation: portrait) and (min-width: 1200px) and (min-height: 1800px) {
+  :root { --u: max(1px, min(calc(100vw / 1080), calc(100vh / 1920), 1.4px)); }
+}
+@media (min-width: 1921px), (orientation: portrait) and (min-width: 1200px) and (min-height: 1800px) {
+  :root { --gutter: calc(56 * var(--u)); }
 
   html body { font-size: calc(17 * var(--u)); }
 
@@ -67,10 +75,7 @@
   html .arc-lb-title { font-size: calc(20 * var(--u)); }
 
   /* news */
-  /* the list uses the whole width, four cards a row, like the archive sheet; a post keeps its reading width */
   html .nws { max-width: calc(1240 * var(--u)); }
-  html .nws:not(.nws-post) { max-width: none; }
-  html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   html .nws-post { --nws-col: calc(800 * var(--u)); }
   html .arc-post-head { font-size: calc(18 * var(--u)); }
   html .nws-head h1, html .nws-hero-title { font-size: calc(58 * var(--u)); }
@@ -87,4 +92,11 @@
   html .nws-body h2, html .nws-body blockquote, html .nws-grid--related .nws-field-title { font-size: calc(24 * var(--u)); }
   html .nws-related-head h2 { font-size: calc(26 * var(--u)); }
   html .nws-empty p { font-size: calc(17 * var(--u)); }
+}
+
+/* wide screens only: the news list uses the whole width, four cards a row, like the archive sheet
+   (a post keeps its reading width); a portrait screen keeps three */
+@media (min-width: 1921px) {
+  html .nws:not(.nws-post) { max-width: none; }
+  html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

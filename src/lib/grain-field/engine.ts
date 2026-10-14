@@ -535,7 +535,9 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
     const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const later = () => { window.clearTimeout(settleTimer); settleTimer = window.setTimeout(settle, 180); };
     const done = () => { if (!moving) return; moving = false; window.clearTimeout(release); later(); };
-    const glide = (y: number, duration = 0.75) => {
+    // 0.75s for a step on an ordinary screen; a longer way (a tall portrait screen moves 2.5k-4k px a
+    // step) takes up to 1.15s, so it does not rush past
+    const glide = (y: number, duration = Math.min(1.15, Math.max(0.75, 0.75 * Math.sqrt(Math.abs(y - l.scroll) / 1400)))) => {
       moving = true;
       // the rail lights the destination at once: lit from the scroll position, it changed halfway and
       // both marks were half faded for a moment, so none showed white
