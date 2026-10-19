@@ -6,10 +6,9 @@ import { readToken } from '@/lib/instagram-token';
 /*
  * The archive and the news are the store's Instagram feed. Each Instagram post becomes one post.
  * The store does not tag its posts, so the caption itself decides (see fileByText):
- *   - written text (bean arrivals, notices, closures) makes a news post, filed by its words:
- *     휴무 → closure, 운영시간 → hours, 입고 or a bean introduction → beans, 클래스/커핑/행사 → event,
- *     anything else → notice
- *   - a photo with no text, or only an emoji or a mention, goes to the archive
+ *   - a bean arrival (first sentence "... 입고됐습니다") is news about beans; a notice (휴무, 운영시간,
+ *     배송, 할인, 이벤트 ...) is news, filed by its words: closure, hours, event, else notice
+ *   - everything else goes to the archive: bean introductions, the owner's notes, emoji-only photos
  * Hashtags still win when a post has them, to correct a post the caption rule files wrongly:
  *   - #소식 makes it news (#영업시간 #휴무 #원두 #행사 #공지 pick the topic, #고정 keeps it first)
  *   - #아카이브, or an archive tag (#로스팅 #커핑 #행사 #협업 #매장, see CATEGORY_TAGS), makes it archive
@@ -104,38 +103,43 @@ const cleanLine = (line: string) => {
 
 /* ---------------- filing by the caption ---------------- */
 
-/** Below this many letters and digits (mentions and emoji left out) a caption is not written text. */
-const NEWS_MIN_CHARS = 20;
-/** words that make even a short caption news */
-const NOTICE_WORDS = /휴무|쉽니다|쉬어\s?갑니다|영업|운영\s?시간|공지|안내|입고/;
-/** news topic by the caption's words, first match wins (a closure notice often names an event too) */
+/*
+ * Read over the store's whole feed (229 posts, 2024-04 to 2026-10), the captions fall into:
+ *   - bean arrivals, "... 커피가 입고됐습니다." as the first sentence → news
+ *   - notices and events: closures, opening-hour changes, delivery dates, sales, renewals → news
+ *   - bean introductions ("... 입니다." with tasting notes and the owner's thoughts on coffee), the
+ *     2024 bean cards ("[ 🍒 Red Splash ] Colombia ..."), brand notes, emoji-only photos → archive
+ * The client chose this split on 2026-10-19: only an arrival or a notice is news.
+ */
+
+/** the first sentence says a bean has arrived */
+const ARRIVAL = /입고\s?(?:됐|되었|되어|했)/;
+/** words only a notice or an event uses; a bean introduction or an essay does not */
+const NOTICE_WORDS = /휴무|쉽니다|쉬어\s?갑니다|(?:운영|영업)\s?시간|임시|공지|배송|할인|프로모션|이벤트|리뉴얼|매거진|시음회|클래스|팝업/;
+/** news topic of a notice by its words, first match wins (a closure notice often names an event too) */
 const TOPIC_WORDS: [RegExp, NewsTopic][] = [
   [/휴무|쉽니다|쉬어\s?갑니다/, 'closure'],
-  [/(?:운영|영업)\s?시간|오픈\s?시간|영업합니다/, 'hours'],
-  // arrivals, origins (in Korean or English) and tasting words: the store's bean posts use at least one
-  [/입고|커피를\s?소개합니다|커피입니다|커피에요|원두|농장|산미|향미|단맛|에티오피아|케냐|르완|부룬디|콜롬비아|과테말라|코스타리카|파나마|브라질|온두라스|엘살바도르|니카라과|페루|볼리비아|에콰도르|멕시코|인도네시아|예멘|ethiopia|kenya|colombia|guatemala|costa rica|panama|brazil|honduras|peru|natural|washed|ferment/i, 'beans'],
-  [/클래스|커핑|행사|이벤트|팝업|할인/, 'event'],
+  [/(?:운영|영업)\s?시간/, 'hours'],
+  [/할인|프로모션|이벤트|시음회|클래스|팝업/, 'event'],
 ];
+
+const firstSentence = (line: string) => line.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? line;
 
 /** News or archive from the caption's words alone, for a post that carries no filing tag. */
 export function fileByText(caption = ''): { type: 'news'; topic: NewsTopic } | { type: 'archive' } {
   const text = caption.replace(HASHTAG, ' ').replace(/@[\w.]+/g, ' ');
-  const chars = text.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
-  if (chars < NEWS_MIN_CHARS && !NOTICE_WORDS.test(text)) return { type: 'archive' };
+  if (ARRIVAL.test(firstSentence(parseCaption(caption).title))) return { type: 'news', topic: 'beans' };
+  if (!NOTICE_WORDS.test(text)) return { type: 'archive' };
   return { type: 'news', topic: TOPIC_WORDS.find(([re]) => re.test(text))?.[1] ?? 'notice' };
 }
 
 /**
- * The bean's name from a bean post's first sentence: "과테말라 엘 소코로 게이샤 워시드 커피가
- * 입고됐습니다." gives "과테말라 엘 소코로 게이샤 워시드 입고", "콜롬비아 포토시 농장의 워시드 가공
- * 커피를 소개합니다." gives "콜롬비아 포토시 농장의 워시드 가공", "에티오피아 사오나 입니다." gives
- * "에티오피아 사오나". Null when the sentence has another shape.
+ * The bean's name from an arrival's first sentence: "과테말라 엘 소코로 게이샤 워시드 커피가
+ * 입고됐습니다." gives "과테말라 엘 소코로 게이샤 워시드 입고". Null when the sentence has another shape.
  */
 export function beanTitle(sentence: string): string | null {
   const arrived = sentence.match(/^(.{2,40}?)\s*(?:커피|원두)?(?:가|이)?\s*입고\s?(?:됐|되었|되어|했)/);
-  if (arrived) return `${arrived[1].replace(/\s*의$/, '').trim()} 입고`;
-  const named = sentence.match(/^(.{2,40}?)\s*(?:커피를\s?소개합니다|커피입니다|입니다)/);
-  return named ? named[1].replace(/\s*의$/, '').trim() : null;
+  return arrived ? `${arrived[1].replace(/\s*의$/, '').trim()} 입고` : null;
 }
 
 /** The title: the first line, or its first sentence when the line is too long to be one. */
@@ -202,8 +206,14 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
   const filing = isNews
     ? { type: 'news' as const, topic, pinned: tags.includes(PIN_TAG) || undefined }
     : { type: 'archive' as const, category };
-  const bean = isNews && topic === 'beans' ? beanTitle(title.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? title) : null;
-  const heading = bean ?? (title ? titleOf(title) : '');
+  const bean = isNews && topic === 'beans' ? beanTitle(firstSentence(title)) : null;
+  // a notice tucked into a bean introduction ("📌 9/22-9/30 할인 중입니다") is what makes it news,
+  // so that sentence is the title, not the bean
+  const notice = isNews && !bean && !NOTICE_WORDS.test(title)
+    ? paragraphs.flatMap((p) => p.split(/(?<=[.!?])\s+|\n/)).find((s) => NOTICE_WORDS.test(s))
+      ?.replace(/^(?:또한|그리고|그래서|참고로),?\s*/, '')
+    : undefined;
+  const heading = bean ?? (notice ? titleOf(notice) : title ? titleOf(title) : '');
   const name = plainTitle(heading) || `${date.replaceAll('-', '.')} ${isNews ? '소식' : '기록'}`;
   const alt = (p: Photo, i: number) => p.alt || `${name} 사진 ${i + 1}`;
   const body: { type: 'paragraph'; text: string }[] = [
