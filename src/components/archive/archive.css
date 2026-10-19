@@ -144,9 +144,11 @@
 .arc-post-title { margin: 14px 0 0; font-size: clamp(28px, 3.4vw, 46px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; }
 .arc-post-summary { margin: 14px 0 0; font-size: 17px; color: var(--milk-2); max-width: 34em; }
 
-.arc-post-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-@media (min-width: 700px) { .arc-post-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.arc-post-cell { min-width: 0; }
+/* cells keep their column width (half, a third from 700px) but gather in the middle: most posts
+   have one or two photos, which a grid filled from the left pushed to one side under the centred head */
+.arc-post-grid { --cols: 2; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+@media (min-width: 700px) { .arc-post-grid { --cols: 3; } }
+.arc-post-cell { min-width: 0; flex: 0 0 calc((100% - (var(--cols) - 1) * 4px) / var(--cols)); }
 .arc-post-shot { display: block; width: 100%; padding: 0; border: 0; aspect-ratio: 4 / 5; overflow: hidden; background: var(--arc-cell); cursor: zoom-in; }
 .arc-post-shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: opacity .2s ease; }
 .arc-post-shot:hover img { opacity: .86; }
