@@ -75,8 +75,23 @@ const TITLE_MAX = 40;
 const SUMMARY_MAX = 80;
 const HASHTAG = /#[^\s#]+/g;
 
-const clip = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1).trimEnd()}…` : s);
+// counted in characters, not UTF-16 units, so a cut never splits an emoji into a broken glyph
+const clip = (s: string, max: number) => {
+  const chars = Array.from(s);
+  return chars.length > max ? `${chars.slice(0, max - 1).join('').trimEnd()}…` : s;
+};
 const oneLine = (s: string) => s.replace(/\s+/g, ' ').trim();
+
+/** Some captions arrive with replacement characters (U+FFFD) or half an emoji: both show as a broken glyph. */
+const sane = (s: string) =>
+  s.replace(/�|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '');
+
+/** A title without emoji (they stay in the body) and without a "[ ... ]" frame: "[ 🍒 Red Splash ]" → "Red Splash". */
+const plainTitle = (s: string) =>
+  s.replace(/[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}︎️‍﹖]/gu, '')
+    .replace(/^\[\s*(.*?)\s*\]$/, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 
 /**
  * A line without its trailing run of hashtags; a hashtag inside a sentence keeps its word. A line with
@@ -97,7 +112,8 @@ const NOTICE_WORDS = /휴무|쉽니다|쉬어\s?갑니다|영업|운영\s?시간
 const TOPIC_WORDS: [RegExp, NewsTopic][] = [
   [/휴무|쉽니다|쉬어\s?갑니다/, 'closure'],
   [/(?:운영|영업)\s?시간|오픈\s?시간|영업합니다/, 'hours'],
-  [/입고|커피를\s?소개합니다|커피입니다|원두|농장|에티오피아|케냐|르완다|부룬디|콜롬비아|과테말라|코스타리카|파나마|브라질|온두라스|엘살바도르|니카라과|페루|볼리비아|에콰도르|멕시코|인도네시아|예멘/, 'beans'],
+  // arrivals, origins (in Korean or English) and tasting words: the store's bean posts use at least one
+  [/입고|커피를\s?소개합니다|커피입니다|커피에요|원두|농장|산미|향미|단맛|에티오피아|케냐|르완|부룬디|콜롬비아|과테말라|코스타리카|파나마|브라질|온두라스|엘살바도르|니카라과|페루|볼리비아|에콰도르|멕시코|인도네시아|예멘|ethiopia|kenya|colombia|guatemala|costa rica|panama|brazil|honduras|peru|natural|washed|ferment/i, 'beans'],
   [/클래스|커핑|행사|이벤트|팝업|할인/, 'event'],
 ];
 
@@ -119,7 +135,7 @@ export function beanTitle(sentence: string): string | null {
   const arrived = sentence.match(/^(.{2,40}?)\s*(?:커피|원두)?(?:가|이)?\s*입고\s?(?:됐|되었|되어|했)/);
   if (arrived) return `${arrived[1].replace(/\s*의$/, '').trim()} 입고`;
   const named = sentence.match(/^(.{2,40}?)\s*(?:커피를\s?소개합니다|커피입니다|입니다)/);
-  return named ? named[1].trim() : null;
+  return named ? named[1].replace(/\s*의$/, '').trim() : null;
 }
 
 /** The title: the first line, or its first sentence when the line is too long to be one. */
@@ -168,7 +184,8 @@ function toPhotos(m: IgMedia, size: (c: IgChild) => { w: number; h: number }): P
 
 /** One Instagram post as a news or archive post, or null when it is kept off the site. */
 export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: number }, sample: boolean): Post | null {
-  const { title, paragraphs, tags } = parseCaption(m.caption);
+  const caption = sane(m.caption ?? '');
+  const { title, paragraphs, tags } = parseCaption(caption);
   if (tags.includes(EXCLUDE_TAG)) return null;
   const photos = toPhotos(m, size);
   if (!photos.length) return null;
@@ -176,7 +193,7 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
   const category = tags.map((t) => CATEGORY_TAGS[t]).find(Boolean);
   // the sample feed stands in for the archive only (SAMPLE_NEWS stands in for the news), so its
   // written captions do not make it news
-  const byText = sample ? { type: 'archive' as const } : fileByText(m.caption);
+  const byText = sample ? { type: 'archive' as const } : fileByText(caption);
   // a filing tag wins over the caption; #행사 is both a topic and a category, so #소식 decides
   const tagged = tags.includes(NEWS_TAG);
   const isNews = tagged || (!category && !tags.includes(ARCHIVE_TAG) && byText.type === 'news');
@@ -186,11 +203,12 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
     ? { type: 'news' as const, topic, pinned: tags.includes(PIN_TAG) || undefined }
     : { type: 'archive' as const, category };
   const bean = isNews && topic === 'beans' ? beanTitle(title.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? title) : null;
-  const name = bean ?? (title ? titleOf(title) : `${date.replaceAll('-', '.')} ${isNews ? '소식' : '기록'}`);
+  const heading = bean ?? (title ? titleOf(title) : '');
+  const name = plainTitle(heading) || `${date.replaceAll('-', '.')} ${isNews ? '소식' : '기록'}`;
   const alt = (p: Photo, i: number) => p.alt || `${name} 사진 ${i + 1}`;
   const body: { type: 'paragraph'; text: string }[] = [
     // a first line that did not fit the title is kept whole as the opening paragraph
-    ...(name !== title && title ? [{ type: 'paragraph' as const, text: title }] : []),
+    ...(heading !== title && title ? [{ type: 'paragraph' as const, text: title }] : []),
     ...paragraphs.map((text) => ({ type: 'paragraph' as const, text })),
   ];
   return {
@@ -211,7 +229,7 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
 /* ---------------- live feed ---------------- */
 
 const FIELDS = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,children{id,media_type,media_url,thumbnail_url}';
-const MAX_PAGES = 4; // 50 posts a page
+const MAX_PAGES = 6; // 50 posts a page; the store had about 230 posts in October 2026
 
 async function fetchFeed(token: string): Promise<IgMedia[]> {
   const out: IgMedia[] = [];

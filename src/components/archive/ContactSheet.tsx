@@ -104,6 +104,8 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
           </button>
           {CATEGORIES.map((c) => {
             const n = catCount(c);
+            // only the store's own tags show: a category nobody tagged is left out, not shown as 0
+            if (!items.some((i) => i.category === c)) return null;
             return (
               <button
                 key={c}
