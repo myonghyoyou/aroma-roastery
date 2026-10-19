@@ -7,7 +7,7 @@ import '@/components/archive/archive.css';
 
 export const metadata: Metadata = {
   title: '아카이브 | aroma roastery',
-  description: '로스팅, 커핑, 행사, 매장의 기록을 사진 한 장 단위로 모아 봅니다.',
+  description: '아로마 로스터리가 인스타그램에 남긴 원두 카드와 매장의 기록을 모아 봅니다.',
 };
 
 export default async function ArchivePage() {
@@ -22,7 +22,7 @@ export default async function ArchivePage() {
             {posts.some((p) => p.sample) && <span className="tag-sample">예시</span>}
           </div>
           <p className="arc-lead">
-            인스타그램에 올린 기록의 사진을 한 장씩 모았습니다. 사진을 누르면 크게 보고 원래 기록으로 이동할 수 있습니다.
+            인스타그램에 올린 기록을 모았습니다. 원두 카드에 마우스를 올리면 설명이 보이고, 누르면 크게 보고 원래 기록으로 이동할 수 있습니다.
           </p>
           <p className="arc-insta">
             <a href={settings.instagram.url} target="_blank" rel="noopener">인스타그램 {settings.instagram.handle}</a>

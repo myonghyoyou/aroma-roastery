@@ -15,10 +15,14 @@ const yearOf = (item: SheetItem) => item.date.slice(0, 4);
 const inYear = (item: SheetItem, y: YearFilter) => y === 'all' || yearOf(item) === y;
 const inCat = (item: SheetItem, c: CatFilter) => c === 'all' || item.category === c;
 
+/** One cell: a post's first photo, and its second shown over it on hover (a bean card and its note). */
+type Cell = { first: SheetItem; second?: SheetItem; at: number };
+
 /*
- * Every photo of every archive post on one sheet, newest post first and each post's photos in
- * reading order. (A shuffled deal on every visit was tried and dropped: the dates read as random.)
- * After mount the cells are dealt in once, in that order.
+ * Every archive post on one sheet, one cell a post, newest first. The store posts a bean card with a
+ * second picture describing it, so the cell shows the card and turns to the description on hover or
+ * focus. The lightbox still steps through every photo. (A shuffled deal on every visit was tried and
+ * dropped: the dates read as random.) After mount the cells are dealt in once, in that order.
  */
 export function ContactSheet({ items }: { items: SheetItem[] }) {
   const [dealt, setDealt] = useState(false);
@@ -46,7 +50,24 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
   const catCount = (c: CatFilter) => items.filter((i) => inCat(i, c) && inYear(i, year)).length;
   const yearCount = (y: YearFilter) => items.filter((i) => inYear(i, y) && inCat(i, cat)).length;
 
-  const shown = filtered.slice(0, visible);
+  // posts as cells, each remembering where its first photo sits in `filtered` for the lightbox
+  const groups = useMemo(() => {
+    const out: Cell[] = [];
+    const bySlug = new Map<string, Cell>();
+    filtered.forEach((item, at) => {
+      const cell = bySlug.get(item.slug);
+      if (!cell) {
+        const next: Cell = { first: item, at };
+        bySlug.set(item.slug, next);
+        out.push(next);
+      } else if (!cell.second) {
+        cell.second = item;
+      }
+    });
+    return out;
+  }, [filtered]);
+
+  const shown = groups.slice(0, visible);
 
   // return focus to a photo after the lightbox closes or after "더 보기" adds a batch
   useEffect(() => {
@@ -71,14 +92,16 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
     setOpen(i);
   };
 
+  // focus returns to the cell of the post shown last, which may lie beyond the cells shown so far
   const close = (i: number) => {
-    focusKey.current = filtered[i]?.key ?? null;
-    if (i >= visible) setVisible(Math.ceil((i + 1) / PAGE) * PAGE);
+    const g = groups.findIndex((c) => c.first.slug === filtered[i]?.slug);
+    focusKey.current = groups[g]?.first.key ?? null;
+    if (g >= visible) setVisible(Math.ceil((g + 1) / PAGE) * PAGE);
     setOpen(null);
   };
 
   const more = () => {
-    focusKey.current = filtered[visible]?.key ?? null;
+    focusKey.current = groups[visible]?.first.key ?? null;
     setVisible((v) => v + PAGE);
   };
 
@@ -128,7 +151,7 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
         <p className="arc-empty">이 조건에 맞는 사진이 없습니다.</p>
       ) : (
         <ul className="arc-grid" data-dealt={dealt || undefined}>
-          {shown.map((item, i) => (
+          {shown.map(({ first: item, second, at }, i) => (
             <li key={item.key} className="arc-cell" style={{ '--i': i % PAGE } as CSSProperties}>
               <a
                 ref={(el) => {
@@ -136,9 +159,9 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
                   else cells.current.delete(item.key);
                 }}
                 href={sheetHref(item.slug)}
-                className="arc-shot"
+                className={second ? 'arc-shot has-alt' : 'arc-shot'}
                 aria-haspopup="dialog"
-                onClick={(e) => openAt(e, i)}
+                onClick={(e) => openAt(e, at)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -149,23 +172,38 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
                   loading={i < 12 ? 'eager' : 'lazy'}
                   decoding="async"
                 />
+                {second && (
+                  // eslint-disable-next-line @next/next/no-img-element -- the description, shown on hover; the lightbox names it
+                  <img
+                    className="arc-shot-alt"
+                    src={second.photo.src}
+                    width={second.photo.w}
+                    height={second.photo.h}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
                 {item.photo.fromVideo && <span className="arc-video">영상</span>}
-                <span className="arc-shot-info">
-                  {!item.untitled && <span className="arc-shot-title">{item.title}</span>}
-                  <time dateTime={item.date}>{formatDate(item.date)}</time>
-                </span>
+                {/* the description picture carries its own text, so a two-photo cell has no band over it */}
+                {!second && (
+                  <span className="arc-shot-info">
+                    {!item.untitled && <span className="arc-shot-title">{item.title}</span>}
+                    <time dateTime={item.date}>{formatDate(item.date)}</time>
+                  </span>
+                )}
               </a>
             </li>
           ))}
         </ul>
       )}
 
-      {filtered.length > visible && (
+      {groups.length > visible && (
         <div className="arc-more-row">
           <button type="button" className="arc-more" onClick={more}>
             더 보기
             <span className="arc-more-n">
-              {visible} / {filtered.length}
+              {visible} / {groups.length}
             </span>
           </button>
         </div>

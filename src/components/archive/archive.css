@@ -56,8 +56,13 @@
 .arc-shot-info time { font-size: 12px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
 /* touch screens get the same title and date inside the lightbox instead */
 @media (hover: none) { .arc-shot:hover .arc-shot-info { opacity: 0; } }
+/* a post of two: the bean card, and on hover or focus its description fades in over it */
+.arc-shot .arc-shot-alt { position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease; }
+.arc-shot.has-alt:focus-visible .arc-shot-alt { opacity: 1; }
+@media (hover: hover) { .arc-shot.has-alt:hover .arc-shot-alt { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .arc-shot .arc-shot-alt { transition: none; } }
 
-/* the deal: after the client shuffle, cells settle in with a short stagger */
+/* the deal: on first paint, cells settle in with a short stagger */
 @media (prefers-reduced-motion: no-preference) {
   .arc-grid[data-dealt] .arc-cell { animation: arc-deal .5s var(--ease-out) both; animation-delay: calc(min(var(--i, 0), 30) * 14ms); }
 }
