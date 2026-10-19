@@ -10,13 +10,11 @@ import { cardHref, type NewsCardData } from './types';
 export function NewsCard({
   card,
   idPrefix,
-  wide = false,
   eager = false,
   headingLevel = 2,
 }: {
   card: NewsCardData;
   idPrefix: string;
-  wide?: boolean;
   eager?: boolean;
   headingLevel?: 2 | 3;
 }) {
@@ -28,7 +26,7 @@ export function NewsCard({
   return (
     <Link
       href={cardHref(card.slug)}
-      className={`nws-card${wide ? ' nws-card--wide' : ''}${isField ? ' nws-card--field' : ''}`}
+      className={`nws-card${isField ? ' nws-card--field' : ''}`}
       data-topic={card.topic}
       aria-labelledby={`${titleId} ${metaId}`}
     >

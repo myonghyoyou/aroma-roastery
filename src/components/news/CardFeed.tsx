@@ -8,7 +8,7 @@ import { TOPIC_ORDER, type NewsCardData } from './types';
 
 type Filter = 'all' | NewsTopic;
 
-/* Topic chips over the card grid. The first card of whatever is shown spans two columns. */
+/* Topic chips over the card grid; every card has the same shape, photo over text. */
 export function CardFeed({ cards }: { cards: NewsCardData[] }) {
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -50,8 +50,8 @@ export function CardFeed({ cards }: { cards: NewsCardData[] }) {
       {shown.length > 0 ? (
         <ul className="nws-grid">
           {shown.map((card, i) => (
-            <li key={card.slug} className={i === 0 ? 'nws-cell nws-cell--wide' : 'nws-cell'}>
-              <NewsCard card={card} idPrefix="nws-feed" wide={i === 0} eager={i < 3} />
+            <li key={card.slug} className="nws-cell">
+              <NewsCard card={card} idPrefix="nws-feed" eager={i < 3} />
             </li>
           ))}
         </ul>
