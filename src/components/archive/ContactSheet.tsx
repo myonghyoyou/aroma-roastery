@@ -15,21 +15,12 @@ const yearOf = (item: SheetItem) => item.date.slice(0, 4);
 const inYear = (item: SheetItem, y: YearFilter) => y === 'all' || yearOf(item) === y;
 const inCat = (item: SheetItem, c: CatFilter) => c === 'all' || item.category === c;
 
-function shuffled<T>(list: T[]): T[] {
-  const out = [...list];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
-
 /*
- * Every photo of every archive post on one sheet. The server sends a fixed order; after mount the
- * sheet is dealt again in a new order so each visit reads like a fresh contact sheet.
+ * Every photo of every archive post on one sheet, newest post first and each post's photos in
+ * reading order. (A shuffled deal on every visit was tried and dropped: the dates read as random.)
+ * After mount the cells are dealt in once, in that order.
  */
 export function ContactSheet({ items }: { items: SheetItem[] }) {
-  const [order, setOrder] = useState(items);
   const [dealt, setDealt] = useState(false);
   const [cat, setCat] = useState<CatFilter>('all');
   const [year, setYear] = useState<YearFilter>('all');
@@ -38,22 +29,18 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
   const cells = useRef(new Map<string, HTMLAnchorElement>());
   const focusKey = useRef<string | null>(null);
 
-  // the signature: shuffle once on the client, never on the server, so markup stays deterministic
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      setOrder(shuffled(items));
-      setDealt(true);
-    });
+    const raf = requestAnimationFrame(() => setDealt(true));
     return () => cancelAnimationFrame(raf);
-  }, [items]);
+  }, []);
 
   const years = useMemo(() => [...new Set(items.map(yearOf))].sort((a, b) => b.localeCompare(a)), [items]);
   // categories come from hashtags; the store's feed has none, and a row of empty chips says nothing
   const hasCategories = useMemo(() => items.some((i) => i.category), [items]);
 
   const filtered = useMemo(
-    () => order.filter((item) => inCat(item, cat) && inYear(item, year)),
-    [order, cat, year],
+    () => items.filter((item) => inCat(item, cat) && inYear(item, year)),
+    [items, cat, year],
   );
   const postCount = useMemo(() => new Set(filtered.map((i) => i.slug)).size, [filtered]);
   const catCount = (c: CatFilter) => items.filter((i) => inCat(i, c) && inYear(i, year)).length;

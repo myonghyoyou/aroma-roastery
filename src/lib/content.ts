@@ -52,8 +52,10 @@ export type NewsTopic = 'hours' | 'closure' | 'beans' | 'event' | 'notice';
 /** A still photo with its pixel size, so layouts can reserve space and keep the ratio. */
 export type Photo = Media & {
   kind: 'image'; w: number; h: number; caption?: string;
-  /** the cover image of a video post: the site shows stills only, the video plays on Instagram */
+  /** the cover image of a video post: the grid shows this still, the lightbox plays `video` */
   fromVideo?: boolean;
+  /** the video file of a video post (Instagram leaves it out for some clips, e.g. with licensed music) */
+  video?: string;
 };
 
 /** Post body, block by block. The Notion renderer will map Notion blocks onto these. */

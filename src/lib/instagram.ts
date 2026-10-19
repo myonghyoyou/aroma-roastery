@@ -182,7 +182,12 @@ function toPhotos(m: IgMedia, size: (c: IgChild) => { w: number; h: number }): P
   return parts.flatMap((c) => {
     const src = c.media_type === 'VIDEO' ? c.thumbnail_url : c.media_url;
     if (!src) return [];
-    return [{ kind: 'image' as const, src, alt: c.alt ?? '', ...size(c), fromVideo: c.media_type === 'VIDEO' || undefined }];
+    const isVideo = c.media_type === 'VIDEO';
+    return [{
+      kind: 'image' as const, src, alt: c.alt ?? '', ...size(c),
+      fromVideo: isVideo || undefined,
+      video: isVideo ? c.media_url : undefined,
+    }];
   });
 }
 

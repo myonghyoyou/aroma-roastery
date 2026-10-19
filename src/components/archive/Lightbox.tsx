@@ -122,16 +122,35 @@ export function Lightbox({ items, index, onIndexChange, onClose, showPostLink, l
       </div>
 
       <div className="arc-lb-stage" onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          key={item.key}
-          className="arc-lb-img"
-          src={photo.src}
-          width={photo.w}
-          height={photo.h}
-          alt={photo.alt}
-          draggable={false}
-        />
+        {photo.video ? (
+          // a video post plays here, from its cover image, with the sound off until the viewer turns it on
+          <video
+            key={item.key}
+            className="arc-lb-img"
+            src={photo.video}
+            poster={photo.src}
+            width={photo.w}
+            height={photo.h}
+            aria-label={photo.alt}
+            controls
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={item.key}
+            className="arc-lb-img"
+            src={photo.src}
+            width={photo.w}
+            height={photo.h}
+            alt={photo.alt}
+            draggable={false}
+          />
+        )}
       </div>
 
       <div className="arc-lb-foot">
@@ -146,7 +165,7 @@ export function Lightbox({ items, index, onIndexChange, onClose, showPostLink, l
               </span>
             )}
             <time dateTime={item.date}>{formatDate(item.date)}</time>
-            <span>사진 {item.frame}</span>
+            <span>{photo.video ? '영상' : '사진'} {item.frame}</span>
           </p>
           {!item.untitled && <p className="arc-lb-title">{item.title}</p>}
           {photo.caption && <p className="arc-lb-caption">{photo.caption}</p>}
