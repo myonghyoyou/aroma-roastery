@@ -1,8 +1,7 @@
 /* =====================================================================
-   News: concept C ("카드 피드"), chosen in review. Posts come from Instagram (#소식).
-   One card per notice. A still when the notice has one, otherwise a soft field tinted with the
-   topic colour and the title set on it. The first card of the list runs across two columns as a
-   photo half and a text half, so every row keeps the same edges.
+   News: concept C ("카드 피드"), chosen in review. Posts come from Instagram (bean arrivals and
+   notices, see instagram.ts). One card per notice, all the same shape: a still when the notice has
+   one, otherwise a soft field tinted with the topic colour and the title set on it.
    One corner radius everywhere (--nws-r). Every class is prefixed nws-.
    ===================================================================== */
 
