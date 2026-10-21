@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Lightbox } from '@/components/archive/Lightbox';
 import type { SheetItem } from '@/components/archive/types';
-import { MediaView } from './MediaView';
+import { MediaView } from '@/components/archive/MediaView';
 
 /* C's photo block: one large frame, the post's photos as small frames below to switch it. */
 export function Specimen({ items, title }: { items: SheetItem[]; title: string }) {
@@ -18,7 +18,7 @@ export function Specimen({ items, title }: { items: SheetItem[]; title: string }
         {item.photo.video ? (
           <MediaView key={item.key} photo={item.photo} className="apl-c-img" eager />
         ) : (
-          <button type="button" className="apl-zoom" aria-haspopup="dialog" aria-label={`${at + 1}번째 사진 크게 보기`} onClick={() => setOpen(at)}>
+          <button type="button" className="arc-zoom" aria-haspopup="dialog" aria-label={`${at + 1}번째 사진 크게 보기`} onClick={() => setOpen(at)}>
             <MediaView key={item.key} photo={item.photo} className="apl-c-img" eager />
           </button>
         )}

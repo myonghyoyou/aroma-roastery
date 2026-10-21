@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Lightbox } from '@/components/archive/Lightbox';
-import type { SheetItem } from '@/components/archive/types';
+import { Lightbox } from './Lightbox';
+import type { SheetItem } from './types';
 import { MediaView } from './MediaView';
 
 /*
@@ -41,7 +41,7 @@ export function Zoomable({
                   buttons.current[i] = el;
                 }}
                 type="button"
-                className="apl-zoom"
+                className="arc-zoom"
                 aria-haspopup="dialog"
                 aria-label={`${i + 1}번째 사진 크게 보기`}
                 onClick={() => setOpen(i)}
@@ -49,7 +49,7 @@ export function Zoomable({
                 <MediaView photo={item.photo} className={mediaClassName} eager={i < 2} />
               </button>
             )}
-            {numbered && <span className="apl-no">{String(i + 1).padStart(2, '0')}</span>}
+            {numbered && <span className="arc-no">{String(i + 1).padStart(2, '0')}</span>}
           </li>
         ))}
       </ol>

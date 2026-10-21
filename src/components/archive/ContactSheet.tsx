@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
+import Link from 'next/link';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { ArchiveCategory } from '@/lib/content';
 import { CATEGORY_LABEL, formatDate } from '@/lib/post-utils';
-import { Lightbox } from './Lightbox';
 import { sheetHref, type SheetItem } from './types';
 
 const PAGE = 48;
@@ -16,20 +16,20 @@ const inYear = (item: SheetItem, y: YearFilter) => y === 'all' || yearOf(item) =
 const inCat = (item: SheetItem, c: CatFilter) => c === 'all' || item.category === c;
 
 /** One cell: a post's first photo, and its second shown over it on hover (a bean card and its note). */
-type Cell = { first: SheetItem; second?: SheetItem; at: number };
+type Cell = { first: SheetItem; second?: SheetItem };
 
 /*
  * Every archive post on one sheet, one cell a post, newest first. The store posts a bean card with a
  * second picture describing it, so the cell shows the card and turns to the description on hover or
- * focus. The lightbox still steps through every photo. (A shuffled deal on every visit was tried and
- * dropped: the dates read as random.) After mount the cells are dealt in once, in that order.
+ * focus. A click goes straight to the post's page (a lightbox in between was dropped 2026-10-21).
+ * (A shuffled deal on every visit was tried and dropped too: the dates read as random.) After mount
+ * the cells are dealt in once, in that order.
  */
 export function ContactSheet({ items }: { items: SheetItem[] }) {
   const [dealt, setDealt] = useState(false);
   const [cat, setCat] = useState<CatFilter>('all');
   const [year, setYear] = useState<YearFilter>('all');
   const [visible, setVisible] = useState(PAGE);
-  const [open, setOpen] = useState<number | null>(null);
   const cells = useRef(new Map<string, HTMLAnchorElement>());
   const focusKey = useRef<string | null>(null);
 
@@ -50,14 +50,14 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
   const catCount = (c: CatFilter) => items.filter((i) => inCat(i, c) && inYear(i, year)).length;
   const yearCount = (y: YearFilter) => items.filter((i) => inYear(i, y) && inCat(i, cat)).length;
 
-  // posts as cells, each remembering where its first photo sits in `filtered` for the lightbox
+  // posts as cells, in the order of their first photo
   const groups = useMemo(() => {
     const out: Cell[] = [];
     const bySlug = new Map<string, Cell>();
-    filtered.forEach((item, at) => {
+    filtered.forEach((item) => {
       const cell = bySlug.get(item.slug);
       if (!cell) {
-        const next: Cell = { first: item, at };
+        const next: Cell = { first: item };
         bySlug.set(item.slug, next);
         out.push(next);
       } else if (!cell.second) {
@@ -69,12 +69,12 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
 
   const shown = groups.slice(0, visible);
 
-  // return focus to a photo after the lightbox closes or after "더 보기" adds a batch
+  // after "더 보기" adds a batch, focus moves to the first new cell
   useEffect(() => {
-    if (open !== null || !focusKey.current) return;
+    if (!focusKey.current) return;
     cells.current.get(focusKey.current)?.focus();
     focusKey.current = null;
-  }, [open, visible]);
+  }, [visible]);
 
   const pickCat = (c: CatFilter) => {
     setCat(c);
@@ -83,21 +83,6 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
   const pickYear = (y: YearFilter) => {
     setYear(y);
     setVisible(PAGE);
-  };
-
-  const openAt = (e: MouseEvent<HTMLAnchorElement>, i: number) => {
-    // keep new-tab and modifier clicks as plain links to the post
-    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    setOpen(i);
-  };
-
-  // focus returns to the cell of the post shown last, which may lie beyond the cells shown so far
-  const close = (i: number) => {
-    const g = groups.findIndex((c) => c.first.slug === filtered[i]?.slug);
-    focusKey.current = groups[g]?.first.key ?? null;
-    if (g >= visible) setVisible(Math.ceil((g + 1) / PAGE) * PAGE);
-    setOpen(null);
   };
 
   const more = () => {
@@ -151,17 +136,15 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
         <p className="arc-empty">이 조건에 맞는 사진이 없습니다.</p>
       ) : (
         <ul className="arc-grid" data-dealt={dealt || undefined}>
-          {shown.map(({ first: item, second, at }, i) => (
+          {shown.map(({ first: item, second }, i) => (
             <li key={item.key} className="arc-cell" style={{ '--i': i % PAGE } as CSSProperties}>
-              <a
+              <Link
                 ref={(el) => {
                   if (el) cells.current.set(item.key, el);
                   else cells.current.delete(item.key);
                 }}
                 href={sheetHref(item.slug)}
                 className={second ? 'arc-shot has-alt' : 'arc-shot'}
-                aria-haspopup="dialog"
-                onClick={(e) => openAt(e, at)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -173,7 +156,7 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
                   decoding="async"
                 />
                 {second && (
-                  // eslint-disable-next-line @next/next/no-img-element -- the description, shown on hover; the lightbox names it
+                  // eslint-disable-next-line @next/next/no-img-element -- the description, shown on hover; the post page names it
                   <img
                     className="arc-shot-alt"
                     src={second.photo.src}
@@ -192,7 +175,7 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
                     <time dateTime={item.date}>{formatDate(item.date)}</time>
                   </span>
                 )}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -207,17 +190,6 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
             </span>
           </button>
         </div>
-      )}
-
-      {open !== null && (
-        <Lightbox
-          items={filtered}
-          index={open}
-          onIndexChange={setOpen}
-          onClose={close}
-          showPostLink
-          label="사진 크게 보기"
-        />
       )}
     </>
   );

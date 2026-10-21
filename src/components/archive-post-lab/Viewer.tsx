@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Block, Photo } from '@/lib/content';
-import { MediaView } from './MediaView';
+import { MediaView } from '@/components/archive/MediaView';
 
 type Step = { href: string; label: string } | null;
 

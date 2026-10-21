@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { CATEGORY_LABEL, formatDate } from '@/lib/post-utils';
 import { labHref } from './concepts';
 import { TextBlocks, type PostView } from './shared';
-import { Zoomable } from './Zoomable';
+import { Zoomable } from '@/components/archive/Zoomable';
 
 /*
  * A: the post split in two, like a post opened on Instagram's web. Photos large on the left; on the

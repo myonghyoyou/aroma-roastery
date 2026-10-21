@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { formatDate } from '@/lib/post-utils';
 import { labHref } from './concepts';
 import { TextBlocks, type PostView } from './shared';
-import { Zoomable } from './Zoomable';
+import { Zoomable } from '@/components/archive/Zoomable';
 
 /*
  * E: one reading column, top to bottom: the way back and the date, the heading, the photos at the

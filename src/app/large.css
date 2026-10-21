@@ -59,17 +59,15 @@
   /* archive */
   html .arc-head h1 { font-size: calc(56 * var(--u)); }
   html .arc-lead { font-size: calc(16 * var(--u)); }
-  html .arc-insta, html .arc-status, html .arc-chip, html .arc-back { font-size: calc(14 * var(--u)); }
-  html .arc-chip-n, html .arc-more-n, html .arc-shot-info time, html .arc-video, html .arc-post-frame { font-size: calc(12 * var(--u)); }
-  html .arc-shot-title, html .arc-adj-label, html .arc-adj-date { font-size: calc(13 * var(--u)); }
+  html .arc-insta, html .arc-status, html .arc-chip, html .arc-sp-crumb, html .arc-sp-meta, html .arc-sp-list { font-size: calc(14 * var(--u)); }
+  html .arc-chip-n, html .arc-more-n, html .arc-shot-info time, html .arc-video, html .arc-no { font-size: calc(12 * var(--u)); }
+  html .arc-shot-title, html .arc-sp-side-label { font-size: calc(13 * var(--u)); }
+  html .arc-sp-title { font-size: calc(28 * var(--u)); }
+  html .arc-sp-text { font-size: calc(17 * var(--u)); }
+  html .arc-sp-side-title { font-size: calc(16 * var(--u)); }
+  html .arc-sp-img { height: min(70svh, calc(680 * var(--u))); }
+  html .arc-sp-nav { max-width: calc(960 * var(--u)); }
   html .arc-more { font-size: calc(15 * var(--u)); }
-  html .arc-post-meta { font-size: calc(14 * var(--u)); }
-  html .arc-post-title { font-size: calc(46 * var(--u)); }
-  html .arc-post-summary { font-size: calc(17 * var(--u)); }
-  html .arc-body { font-size: calc(18 * var(--u)); }
-  html .arc-body h2 { font-size: calc(22 * var(--u)); }
-  html .arc-quote p { font-size: calc(20 * var(--u)); }
-  html .arc-adj-title { font-size: calc(17 * var(--u)); }
   html .arc-lb-count, html .arc-lb-close, html .arc-lb-caption, html .arc-lb-link { font-size: calc(14 * var(--u)); }
   html .arc-lb-meta { font-size: calc(13 * var(--u)); }
   html .arc-lb-title { font-size: calc(20 * var(--u)); }
@@ -77,7 +75,6 @@
   /* news */
   html .nws { max-width: calc(1240 * var(--u)); }
   html .nws-post { --nws-col: calc(800 * var(--u)); }
-  html .arc-post-head { font-size: calc(18 * var(--u)); }
   html .nws-head h1, html .nws-hero-title { font-size: calc(58 * var(--u)); }
   html .nws-lead { font-size: calc(16 * var(--u)); }
   html .nws-insta, html .nws-chip, html .nws-post-meta, html .nws-more { font-size: calc(14 * var(--u)); }

@@ -1,6 +1,7 @@
 /* =====================================================================
-   Archive: a contact sheet of the store's Instagram photos (concept D, chosen in review).
-   The photo, not the post, is the unit. Regular 4:5 cells (Instagram's portrait frame), 4px gaps.
+   Archive: a contact sheet of the store's Instagram posts (concept D, chosen in review), one cell a
+   post (its second photo on hover). Regular 4:5 cells (Instagram's portrait frame), 4px gaps.
+   Each cell links to the post's page (the spread, concept B of the post study).
    ===================================================================== */
 .arc { --arc-rule: rgba(251, 243, 232, .22); --arc-cell: rgba(251, 243, 232, .06); padding-bottom: clamp(72px, 12vh, 140px); }
 .arc [data-cat="roasting"] { --arc-leaf: #EF7000; }
@@ -138,59 +139,62 @@
   .arc-lb-arrow { width: 100%; }
 }
 
-/* ---------- detail ---------- */
-.arc-post-head { padding: clamp(120px, 20vh, 200px) 0 clamp(32px, 5vh, 56px); max-width: 46rem; }
-.arc-post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-.arc-post-title { margin: 14px 0 0; font-size: clamp(28px, 3.4vw, 46px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; }
-.arc-post-summary { margin: 14px 0 0; font-size: 17px; color: var(--milk-2); max-width: 34em; }
+/* ---------- detail: the spread (concept B, chosen 2026-10-21) ----------
+   The bean card and its description open side by side at one height, a short caption under them,
+   the caption text in a reading column, and every way out on one row at the foot. */
+.arc-post { padding-top: clamp(92px, 13vh, 136px); }
+.arc-sp-crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
+.arc-sp-crumb a { color: var(--milk); text-decoration: underline; text-underline-offset: 4px; }
 
-/* cells keep their column width (half, a third from 700px) but gather in the middle: most posts
-   have one or two photos, which a grid filled from the left pushed to one side under the centred head */
-.arc-post-grid { --cols: 2; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
-@media (min-width: 700px) { .arc-post-grid { --cols: 3; } }
-.arc-post-cell { min-width: 0; flex: 0 0 calc((100% - (var(--cols) - 1) * 4px) / var(--cols)); }
-.arc-post-shot { display: block; width: 100%; padding: 0; border: 0; aspect-ratio: 4 / 5; overflow: hidden; background: var(--arc-cell); cursor: zoom-in; }
-.arc-post-shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: opacity .2s ease; }
-.arc-post-shot:hover img { opacity: .86; }
-.arc .arc-post-shot:focus-visible { outline-offset: -4px; box-shadow: inset 0 0 0 6px var(--char); }
-.arc-post-frame { display: flex; gap: 10px; margin: 6px 0 10px; font-size: 12px; color: var(--milk-2); line-height: 1.4; }
-.arc-post-no { font-family: var(--display); font-variant-numeric: tabular-nums; color: var(--milk); }
+.arc-sp-spread { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.arc-sp-page { min-width: 0; }
+.arc-sp-img { display: block; height: min(70svh, 680px); width: auto; max-width: 100%; object-fit: contain; background: var(--arc-cell); }
+.arc-zoom { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: zoom-in; }
+.arc-zoom:focus-visible { outline: 2px solid var(--milk); outline-offset: 3px; }
+.arc-no { display: block; margin-top: 6px; font-family: var(--display); font-size: 12px; color: var(--milk-2); font-variant-numeric: tabular-nums; }
 
-.arc-body { max-width: 36em; margin: clamp(48px, 8vh, 88px) auto 0; font-size: 18px; line-height: 1.8; }
-.arc-body p { margin: 0 0 1.2em; }
-.arc-body h2 { margin: 2em 0 .6em; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.4; }
-.arc-body ul { margin: 0 0 1.2em; padding-left: 1.2em; }
-.arc-quote { margin: 1.8em 0; padding: 4px 0 4px 20px; border-left: 2px solid #EDBE00; }
-.arc-quote p { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.6; letter-spacing: -0.015em; }
-
-.arc-adjs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; max-width: 36em; margin: clamp(48px, 8vh, 80px) auto 0; border-top: 1px solid var(--arc-rule); }
-.arc-adj { display: flex; flex-direction: column; gap: 4px; padding: 18px 0; text-decoration: none; min-width: 0; }
-.arc-adj--older { text-align: right; align-items: flex-end; }
-.arc-adj-label { font-size: 13px; font-weight: 600; color: var(--milk-2); }
-.arc-adj-title { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.4; }
-.arc-adj-date { font-size: 13px; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-a.arc-adj:hover .arc-adj-title { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
-.arc-adj--none .arc-adj-title { color: var(--milk-2); font-weight: 600; }
-.arc-back { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; max-width: 36em; margin: 12px auto 0; font-size: 14px; font-weight: 600; }
-.arc-back a { text-underline-offset: 5px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .arc-shot-info, .arc-post-shot img { transition: none; }
-}
+.arc-sp-cap { max-width: 40em; margin: 26px auto 0; text-align: center; }
+.arc-sp-title { margin: 0; font-size: clamp(22px, 2vw, 28px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.3; word-break: keep-all; }
+.arc-sp-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px; margin: 8px 0 0; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
+.arc-sp-meta a { color: var(--milk); text-decoration: underline; text-underline-offset: 4px; }
 
 /* captions keep their line breaks, as on Instagram */
-.arc-body p { white-space: pre-line; }
+.arc-sp-text { max-width: 34em; margin: 32px auto 0; font-size: 17px; line-height: 1.8; word-break: keep-all; overflow-wrap: anywhere; }
+.arc-sp-text p { margin: 0 0 1em; white-space: pre-line; }
+.arc-sp-text p:last-child { margin-bottom: 0; }
+.arc-sp-text h2 { margin: 1.6em 0 .5em; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.4; }
+.arc-sp-text ul { margin: 0 0 1em; padding-left: 1.2em; }
+.arc-sp-text blockquote { margin: 1.6em 0; padding: 4px 0 4px 20px; border-left: 2px solid #EDBE00; }
 
-/* a still taken from a video post: the video itself plays on Instagram */
+.arc-sp-nav { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 16px; max-width: 960px; margin: clamp(48px, 7vh, 72px) auto 0; padding-top: 20px; border-top: 1px solid var(--arc-rule); }
+.arc-sp-side { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: inherit; text-decoration: none; }
+.arc-sp-side--older { align-items: flex-end; text-align: right; }
+.arc-sp-side-label { font-size: 13px; font-weight: 600; color: var(--milk-2); }
+.arc-sp-side-title { max-width: 100%; font-size: 16px; font-weight: 700; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+a.arc-sp-side:hover .arc-sp-side-title { text-decoration: underline; text-underline-offset: 5px; }
+.arc-sp-side.is-off { opacity: .4; }
+.arc-sp-list {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px;
+  font-size: 14px; font-weight: 700; color: var(--milk); text-decoration: none;
+  border: 1px solid rgba(251, 243, 232, .4); border-radius: 2px;
+}
+.arc-sp-list:hover { border-color: var(--milk); }
+@media (max-width: 699px) {
+  .arc-sp-page { flex: 1 1 100%; }
+  .arc-sp-img { width: 100%; height: auto; }
+  .arc-sp-nav { grid-template-columns: 1fr 1fr; }
+  .arc-sp-list { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc-shot-info { transition: none; }
+}
+
+/* a still taken from a video post: the video plays on its post page and in the lightbox */
 .arc-video {
   position: absolute; top: 8px; left: 8px; z-index: 1; padding: 2px 7px;
   font-size: 12px; font-weight: 600; line-height: 1.5; color: var(--milk);
   background: rgba(26, 17, 13, .78); border-radius: 999px; pointer-events: none;
 }
-.arc-post-shot { position: relative; }
 .arc-insta { margin: 10px 0 0; font-size: 14px; font-weight: 600; }
 .arc-insta a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
-
-/* a post: the heading joins the body's centred reading column (36em at the body's 18px), so the page
-   reads down one axis; the photo sheet keeps the full width */
-.arc-post-head { font-size: 18px; max-width: 36em; margin-inline: auto; }
