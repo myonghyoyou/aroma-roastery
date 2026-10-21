@@ -2,9 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SubPage } from '@/components/site/SubPage';
 import { ConceptA } from './ConceptA';
-import { ConceptB } from './ConceptB';
-import { ConceptC } from './ConceptC';
-import { ConceptD } from './ConceptD';
 import { ConceptE } from './ConceptE';
 import { NEWS_POST_NAMES, type NewsPostLabKey } from './concepts';
 import { loadNewsView } from './shared';
@@ -13,7 +10,7 @@ import '@/components/archive/archive.css';
 import '@/components/news/news.css';
 import './lab.css';
 
-const CONCEPTS = { a: ConceptA, b: ConceptB, c: ConceptC, d: ConceptD, e: ConceptE };
+const CONCEPTS = { a: ConceptA, e: ConceptE };
 
 /** One news post drawn by one concept of the design study. */
 export async function LabNewsPage({ k, slug }: { k: NewsPostLabKey; slug: string }) {
