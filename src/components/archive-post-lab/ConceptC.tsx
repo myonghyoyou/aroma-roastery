@@ -46,7 +46,7 @@ export function ConceptC({ v }: { v: PostView }) {
                 <Link href={labHref('c', p.slug)} className="apl-c-card">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {cover && <img src={cover.src} alt="" loading="lazy" decoding="async" />}
-                  <span className="apl-c-card-title">{p.untitled ? `${formatDate(p.date)}의 기록` : p.title}</span>
+                  <span className="apl-c-card-title">{p.untitled ? formatDate(p.date) : p.title}</span>
                   <time dateTime={p.date}>{formatDate(p.date)}</time>
                 </Link>
               </li>

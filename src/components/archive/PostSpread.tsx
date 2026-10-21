@@ -5,8 +5,8 @@ import { TextBlocks } from './TextBlocks';
 import { LIST_HREF, type SheetItem } from './types';
 import { Zoomable } from './Zoomable';
 
-/** A post's heading: its title, or the date for a post whose caption had no words. */
-export const postHeading = (post: Post) => (post.untitled ? `${formatDate(post.date)}의 기록` : post.title);
+/** A post's heading: its title, or just the date ("2026.09.15") for a post whose caption had no words. */
+export const postHeading = (post: Post) => (post.untitled ? formatDate(post.date) : post.title);
 
 /*
  * An archive post (concept B "카드 펼침면", chosen 2026-10-21): the bean card and its description

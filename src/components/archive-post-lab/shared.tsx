@@ -26,7 +26,7 @@ export async function loadPostView(slug: string, span = 3): Promise<PostView | n
   return {
     post,
     items: toSheetItems([post]),
-    heading: post.untitled ? `${formatDate(post.date)}의 기록` : post.title,
+    heading: post.untitled ? formatDate(post.date) : post.title,
     newer: list[index - 1] ?? null,
     older: list[index + 1] ?? null,
     index,
