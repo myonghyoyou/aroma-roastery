@@ -54,9 +54,13 @@ export async function pickExamples(): Promise<{ label: string; slug: string }[]>
   });
 }
 
+/*
+ * Only the hub's examples are built ahead; any other post (reached by the arrows) is drawn on its
+ * first visit. Building every post for every concept made about 2,500 pages and broke the build
+ * ("RangeError: Invalid string length" while writing them out).
+ */
 export async function postLabParams() {
-  const posts = await getPosts('archive');
-  return posts.map((p) => ({ slug: p.slug }));
+  return (await pickExamples()).map(({ slug }) => ({ slug }));
 }
 
 /** Caption text, block by block; captions keep their line breaks, as on Instagram. */
