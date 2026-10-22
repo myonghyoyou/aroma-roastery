@@ -13,6 +13,24 @@ const VARIETIES = ['옐로우 카투라', '옐로우 버번', '레드 버번', '
 const NOTES = ['청사과', '사과', '감귤', '한라봉', '오렌지', '자몽', '레몬그라스', '레몬', '라임', '복숭아', '살구', '자두', '건자두', '체리', '딸기', '라즈베리', '블루베리', '블랙베리', '크랜베리', '석류', '포도', '청포도', '건포도', '리치', '망고', '파인애플', '패션프룻', '열대과일', '장미', '재스민', '자스민', '라벤더', '아카시아', '꽃향', '바닐라', '카라멜', '초콜렛', '흑설탕', '꿀', '메이플', '견과', '헤이즐넛', '아몬드', '홍차', '얼그레이', '와인', '허브'];
 // '럼' is left out: it also matches "처럼", which nearly every caption uses
 
+/*
+ * Each cup note belongs to one of four families, and each family wears one of the logo's four leaf
+ * colours in the order of its gradient: floral and herbal green, bright fruit yellow, sweetness
+ * orange, red fruit and wine red. The colours then say something (where in the cup a note sits)
+ * instead of decorating.
+ */
+export type NoteFamily = 'floral' | 'bright' | 'sweet' | 'red';
+const FAMILY: Record<NoteFamily, string[]> = {
+  floral: ['장미', '재스민', '자스민', '라벤더', '아카시아', '꽃향', '허브', '레몬그라스', '홍차', '얼그레이'],
+  bright: ['청사과', '사과', '감귤', '한라봉', '오렌지', '자몽', '레몬', '라임', '복숭아', '살구', '망고', '파인애플', '패션프룻', '열대과일', '리치', '청포도'],
+  sweet: ['바닐라', '카라멜', '초콜렛', '흑설탕', '꿀', '메이플', '견과', '헤이즐넛', '아몬드'],
+  red: ['자두', '건자두', '체리', '딸기', '라즈베리', '블루베리', '블랙베리', '크랜베리', '석류', '포도', '건포도', '와인'],
+};
+export const NOTE_FAMILY_LABEL: Record<NoteFamily, string> = { floral: '꽃과 허브', bright: '밝은 과일', sweet: '단맛', red: '붉은 과일' };
+export function noteFamily(note: string): NoteFamily {
+  return (Object.keys(FAMILY) as NoteFamily[]).find((f) => FAMILY[f].includes(note)) ?? 'sweet';
+}
+
 export type BeanProfile = {
   name: string;
   /** what is left of the name once origin, farm, variety and process are read: the lot's own name */

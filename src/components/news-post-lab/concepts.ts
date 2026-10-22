@@ -1,6 +1,10 @@
-/* The news post concepts: A and E (kept on 2026-10-21; B, C, D dropped) and their developments A2, A3, E2, E3 of the design study: shared by the hub and the "back to the list" button. */
+/* The news post concepts: A and E (kept on 2026-10-21; B, C, D dropped) their developments A2, A3, E2, E3, and F (A3's cup notes on E's photo) of the design study: shared by the hub and the "back to the list" button. */
 
 export const NEWS_POST_CONCEPTS = [
+  {
+    key: 'f', name: 'A3 컵 노트 + E 큰 사진', ref: '바탕: E의 한 장씩 넘기는 큰 사진, A3의 컵 노트와 정보 칸 (Onyx, 테라로사)',
+    desc: '왼쪽에 인스타그램 사진을 크게 한 장씩 넘겨 보고, 오른쪽에 산지와 입고일, 원두 이름, 컵 노트, 정보 칸, 매장의 글, 스토어가 차례로 놓입니다. 컵 노트는 로고의 네 색을 맛 계열에 하나씩 맞췄습니다: 꽃과 허브 초록, 밝은 과일 노랑, 단맛 주황, 붉은 과일 빨강.',
+  },
   {
     key: 'a', name: '원두 프로필', ref: '참고: Kurasu(교토) 저널의 원두 소개 글, Stumptown 뉴스',
     desc: '제목과 한 줄 요약 바로 아래에 정보 상자(분류, 날짜, 해당 기간, 원두 이름, 구입처, 원문)를 둡니다. 그 아래 글과 사진이 이어지고, 이전과 다음 소식은 맨 위 경로 옆에 있습니다.',
