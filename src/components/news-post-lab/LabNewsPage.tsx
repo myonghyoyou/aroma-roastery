@@ -2,15 +2,20 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SubPage } from '@/components/site/SubPage';
 import { ConceptA } from './ConceptA';
+import { ConceptA2 } from './ConceptA2';
+import { ConceptA3 } from './ConceptA3';
 import { ConceptE } from './ConceptE';
+import { ConceptE2 } from './ConceptE2';
+import { ConceptE3 } from './ConceptE3';
 import { NEWS_POST_NAMES, type NewsPostLabKey } from './concepts';
 import { loadNewsView } from './shared';
 // the lightbox comes from the archive, the related cards from the news list
 import '@/components/archive/archive.css';
 import '@/components/news/news.css';
 import './lab.css';
+import './lab-dev.css';
 
-const CONCEPTS = { a: ConceptA, e: ConceptE };
+const CONCEPTS = { a: ConceptA, a2: ConceptA2, a3: ConceptA3, e: ConceptE, e2: ConceptE2, e3: ConceptE3 };
 
 /** One news post drawn by one concept of the design study. */
 export async function LabNewsPage({ k, slug }: { k: NewsPostLabKey; slug: string }) {

@@ -16,13 +16,13 @@ export default async function NewsPostLab() {
         <div className="page-head-row">
           <h1>소식 상세 시안</h1>
         </div>
-        <p>카페 브랜드들의 소식 상세를 참고해 실제 소식으로 만든 화면 시안입니다. 다섯 가지 중 두 가지를 남겼습니다. 시안마다 같은 소식을 열어 비교해 보세요.</p>
+        <p>카페 브랜드들의 소식 상세를 참고해 실제 소식으로 만든 화면 시안입니다. 남긴 두 가지(A, E)와 각각을 다른 로스터리의 상품 페이지와 사진 보기 화면을 참고해 발전시킨 안(A 발전 1, 2와 E 발전 1, 2)입니다. 시안마다 같은 소식을 열어 비교해 보세요.</p>
       </header>
       <ol className="lab-hub">
-        {NEWS_POST_CONCEPTS.map((c, i) => (
+        {NEWS_POST_CONCEPTS.map((c) => (
           <li key={c.key}>
             <div className="lab-hub-row">
-              <span className="lab-hub-no">{String(i + 1).padStart(2, '0')}</span>
+              <span className="lab-hub-no">{c.key.toUpperCase()}</span>
               <span className="lab-hub-text">
                 {examples[0] ? (
                   <Link href={newsLabHref(c.key, examples[0].slug)} className="lab-hub-name npl-hub-name">{c.name}</Link>

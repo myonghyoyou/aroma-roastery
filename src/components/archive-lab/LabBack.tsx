@@ -18,7 +18,7 @@ type Props = {
  */
 export function LabBack({ base, subject, names }: Props) {
   const pathname = usePathname();
-  const key = new RegExp(`^${base}/([a-e])(?:/|$)`).exec(pathname)?.[1];
+  const key = new RegExp(`^${base}/([a-z]\\d?)(?:/|$)`).exec(pathname)?.[1];
   if (!key) return null;
   return (
     <Link href={base} className="lab-back" aria-label={`${subject} 시안 목록으로 돌아가기, 지금 보는 시안: ${key.toUpperCase()} ${names[key]}`}>

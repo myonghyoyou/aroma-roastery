@@ -2,6 +2,7 @@ import { toSheetItems, type SheetItem } from '@/components/archive/types';
 import { formatPeriod, pickRelated, type NewsCardData } from '@/components/news/types';
 import { getPosts, getSiteSettings, type Block, type Photo, type Post, type SiteSettings } from '@/lib/content';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
+import { beanProfile, type BeanProfile } from './bean';
 
 /** Everything a concept page needs about one news post. */
 export type NewsView = {
@@ -13,6 +14,9 @@ export type NewsView = {
   lead: string | null;
   rest: Block[];
   facts: Fact[];
+  /** a bean arrival's profile read from its title and caption, and the facts as quiet rows */
+  bean: BeanProfile | null;
+  rows: Fact[];
   newer: Post | null;
   older: Post | null;
   related: NewsCardData[];
@@ -37,6 +41,33 @@ function factsOf(post: Post, settings: SiteSettings): Fact[] {
   return facts;
 }
 
+/*
+ * Quiet label/value rows, as the roasters' product pages show a coffee (Coffee Collective, Tim
+ * Wendelboe, Kurasu): for a bean the profile, for a notice its date and period.
+ */
+function rowsOf(post: Post, bean: BeanProfile | null, settings: SiteSettings): Fact[] {
+  const rows: Fact[] = [];
+  if (bean) {
+    if (bean.origin) rows.push({ label: '산지', value: bean.origin });
+    if (bean.farm) rows.push({ label: '농장', value: bean.farm });
+    if (bean.lot) rows.push({ label: '이름', value: bean.lot });
+    if (bean.variety) rows.push({ label: '품종', value: bean.variety });
+    if (bean.process) rows.push({ label: '가공', value: bean.process });
+    rows.push({ label: '입고일', value: formatDate(post.date) });
+    rows.push(bean.store === 'store-only'
+      ? { label: '구입', value: '매장에서만 (소량 입고)' }
+      : { label: '구입', value: '매장, 온라인 스토어', href: settings.storeUrl, external: true });
+  } else {
+    rows.push({ label: '분류', value: TOPIC_LABEL[post.topic ?? 'notice'] });
+    rows.push({ label: '올린 날', value: formatDate(post.date) });
+    if (post.period) rows.push({ label: '해당 기간', value: formatPeriod(post.period) });
+  }
+  if (post.permalink) rows.push({ label: '원문', value: '인스타그램에서 보기', href: post.permalink, external: true });
+  return rows;
+}
+
+const captionText = (blocks: Block[]) => blocks.map((b) => ('text' in b ? b.text : 'items' in b ? b.items.join(' ') : '')).join(' ');
+
 export async function loadNewsView(slug: string): Promise<NewsView | null> {
   const [list, settings] = await Promise.all([getPosts('news'), getSiteSettings()]);
   const index = list.findIndex((p) => p.slug === slug);
@@ -48,9 +79,12 @@ export async function loadNewsView(slug: string): Promise<NewsView | null> {
   const photos: Photo[] = post.photos?.length
     ? post.photos
     : post.cover?.kind === 'image' ? [{ ...post.cover, kind: 'image', w: 1080, h: 1350 }] : [];
+  const bean = post.topic === 'beans' ? beanProfile(post.title, captionText(post.body)) : null;
   return {
     post,
     photos,
+    bean,
+    rows: rowsOf(post, bean, settings),
     items: toSheetItems([{ ...post, photos }]),
     lead: lead ?? post.summary ?? null,
     rest: lead ? after : post.body,
