@@ -1,0 +1,50 @@
+/* =====================================================================
+   Cup-note chip study: five forms, each from something real. Colour comes in as --c (the wheel's
+   colour) and --ink (text that reads on it). Square corners throughout, as the site's rule.
+   ===================================================================== */
+
+/* 1. wheel segments: solid blocks, 2px seams like the wheel's white rules */
+.chv-seg { list-style: none; display: flex; flex-wrap: wrap; gap: 2px; margin: 0; padding: 0; }
+.chv-seg li { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-width: 96px; padding: 10px 12px 9px; color: var(--ink); background: var(--c); }
+.chv-seg-word { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.chv-seg-place { font-size: 11px; font-weight: 600; opacity: .72; }
+/* the darkest colours keep a hairline so the block's edge shows on the roast */
+.chv-seg li { box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .14); }
+
+/* 2. a roaster's line: one sentence, each note underlined in its colour */
+.chv-prose { margin: 0; font-size: clamp(22px, 2.2vw, 30px); font-weight: 600; line-height: 1.5; letter-spacing: -0.02em; word-break: keep-all; }
+.chv-prose-word {
+  text-decoration: underline; text-decoration-color: var(--c); text-decoration-thickness: 4px; text-underline-offset: 7px;
+  text-decoration-skip-ink: none;
+}
+
+/* 3. a bag label: small heading, slashes, and one bar of the notes' colours */
+.chv-label { max-width: 26em; padding: 16px 0; border-top: 1px solid rgba(251, 243, 232, .5); border-bottom: 1px solid rgba(251, 243, 232, .5); }
+.chv-label-head { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--milk-2); }
+.chv-label-words { margin: 6px 0 12px; font-size: 19px; font-weight: 700; letter-spacing: -0.01em; word-break: keep-all; }
+.chv-label-bar { display: flex; gap: 2px; height: 8px; margin: 0; }
+.chv-label-bar span { flex: 1; background: var(--c); box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .14); }
+
+/* 4. paint swatch cards */
+.chv-swatch { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 12px; margin: 0; padding: 0; max-width: 640px; }
+.chv-swatch li { display: flex; flex-direction: column; gap: 4px; }
+.chv-swatch-chip { display: block; aspect-ratio: 4 / 3; margin-bottom: 6px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .14); }
+.chv-swatch-word { font-size: 15px; font-weight: 700; }
+.chv-swatch-place { font-size: 12px; font-weight: 600; color: var(--milk-2); }
+
+/* 5. the wheel as a map */
+.chv-map { display: flex; align-items: center; gap: 24px; }
+.chv-map-ring { flex: none; width: 112px; height: 112px; }
+.chv-map-list { list-style: none; display: grid; gap: 8px; margin: 0; padding: 0; }
+.chv-map-list li { display: grid; grid-template-columns: 12px auto 1fr; align-items: baseline; gap: 10px; }
+.chv-map-dot { width: 12px; height: 12px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .2); align-self: center; }
+.chv-map-word { font-size: 16px; font-weight: 700; }
+.chv-map-place { font-size: 12px; font-weight: 600; color: var(--milk-2); }
+@media (max-width: 499px) { .chv-map { flex-direction: column; align-items: flex-start; } }
+
+/* the study page */
+.chv-ref { margin: -8px 0 18px; font-size: 13px; color: var(--milk-2); }
+.chv-no { display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: 4px; font-family: var(--display); font-size: 14px; border: 1px solid rgba(251, 243, 232, .4); }
+.chv-examples { display: grid; gap: 28px; }
+.chv-example { display: grid; gap: 10px; }
+.chv-bean { margin: 0; font-size: 13px; font-weight: 600; color: var(--milk-2); }
