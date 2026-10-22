@@ -1,0 +1,34 @@
+import { revalidateTag } from 'next/cache';
+import { PLACES } from '@/components/news-post-lab/notes';
+import { CUPNOTES_TAG, cupnotesStoreReady, saveOverride, type PlaceKey } from '@/lib/cupnotes-store';
+
+/*
+ * Saves one cup-note placement from /news-post-lab/notes/assign:
+ *   POST { word, place }   place: a wheel place key, "ignore" (not a flavour) or "reset" (back to the table)
+ * Needs the header x-admin-key equal to NOTES_ADMIN_KEY. Every page that shows cup notes reads the
+ * placements through a cache tagged "cupnotes", which this expires.
+ */
+export async function POST(request: Request) {
+  const key = process.env.NOTES_ADMIN_KEY;
+  if (!key) return Response.json({ error: '관리 키가 설정되지 않았습니다 (NOTES_ADMIN_KEY).' }, { status: 503 });
+  if (request.headers.get('x-admin-key') !== key) return Response.json({ error: '관리 키가 맞지 않습니다.' }, { status: 401 });
+  if (!cupnotesStoreReady()) return Response.json({ error: '저장소가 연결되지 않았습니다.' }, { status: 503 });
+
+  let body: { word?: unknown; place?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: '요청 형식이 잘못되었습니다.' }, { status: 400 });
+  }
+  const word = typeof body.word === 'string' ? body.word.trim() : '';
+  const place = typeof body.place === 'string' ? body.place : '';
+  if (!/^[가-힣A-Za-z0-9 ]{1,20}$/.test(word)) return Response.json({ error: '단어가 올바르지 않습니다.' }, { status: 400 });
+
+  if (place === 'reset') await saveOverride(word, null);
+  else if (place === 'ignore') await saveOverride(word, { ignore: true });
+  else if (PLACES.some((p) => p.key === place)) await saveOverride(word, { place: place as PlaceKey });
+  else return Response.json({ error: '분류가 올바르지 않습니다.' }, { status: 400 });
+
+  revalidateTag(CUPNOTES_TAG, { expire: 0 });
+  return Response.json({ ok: true, word, place });
+}

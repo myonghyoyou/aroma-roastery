@@ -22,19 +22,7 @@
 .npl-f-origin { font-weight: 700; color: var(--milk); }
 .npl-f-title { margin: 10px 0 0; font-size: clamp(28px, 2.8vw, 42px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; word-break: keep-all; }
 
-/* the cup notes: each tag a soft wash of its family's leaf colour, with a dot of the full colour */
-.npl-f-cup { margin-top: 22px; }
-.npl-f-cup-h { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: var(--milk-2); }
-.npl-f-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
-.npl-f-tags li {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px 0 12px;
-  font-size: 15px; font-weight: 700; color: var(--milk);
-  background: rgba(var(--leaf), .16); border: 1px solid rgba(var(--leaf), .55); border-radius: 999px;
-}
-.npl-f-tags li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgb(var(--leaf)); }
-.npl-f-key { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 12px; font-weight: 600; color: var(--milk-2); }
-.npl-f-key span { display: inline-flex; align-items: center; gap: 6px; }
-.npl-f-key span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--leaf)); }
+/* the cup notes are CupNoteTag (components/cupnote): the logo's leaves with the note's own lit */
 
 /* the profile: value large, label small, one hairline grid as A3 */
 .npl-f-tiles { --n: 2; list-style: none; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1px; margin: 24px 0 0; padding: 0; background: var(--npl-rule); border: 1px solid var(--npl-rule); }

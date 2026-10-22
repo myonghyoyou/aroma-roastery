@@ -2,6 +2,7 @@ import { toSheetItems, type SheetItem } from '@/components/archive/types';
 import { formatPeriod, pickRelated, type NewsCardData } from '@/components/news/types';
 import { getPosts, getSiteSettings, type Block, type Photo, type Post, type SiteSettings } from '@/lib/content';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
+import { readOverrides } from '@/lib/cupnotes-store';
 import { beanProfile, type BeanProfile } from './bean';
 
 /** Everything a concept page needs about one news post. */
@@ -69,7 +70,7 @@ function rowsOf(post: Post, bean: BeanProfile | null, settings: SiteSettings): F
 const captionText = (blocks: Block[]) => blocks.map((b) => ('text' in b ? b.text : 'items' in b ? b.items.join(' ') : '')).join(' ');
 
 export async function loadNewsView(slug: string): Promise<NewsView | null> {
-  const [list, settings] = await Promise.all([getPosts('news'), getSiteSettings()]);
+  const [list, settings, overrides] = await Promise.all([getPosts('news'), getSiteSettings(), readOverrides()]);
   const index = list.findIndex((p) => p.slug === slug);
   if (index < 0) return null;
   const post = list[index];
@@ -79,7 +80,7 @@ export async function loadNewsView(slug: string): Promise<NewsView | null> {
   const photos: Photo[] = post.photos?.length
     ? post.photos
     : post.cover?.kind === 'image' ? [{ ...post.cover, kind: 'image', w: 1080, h: 1350 }] : [];
-  const bean = post.topic === 'beans' ? beanProfile(post.title, captionText(post.body)) : null;
+  const bean = post.topic === 'beans' ? beanProfile(post.title, captionText(post.body), overrides) : null;
   return {
     post,
     photos,

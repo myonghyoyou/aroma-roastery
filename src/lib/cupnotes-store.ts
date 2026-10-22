@@ -1,0 +1,60 @@
+import { cacheLife, cacheTag } from 'next/cache';
+
+/*
+ * Cup-note placements chosen on /news-post-lab/notes/assign, kept in Upstash Redis next to the
+ * Instagram token: for each word, a place on the SCA flavour wheel (which sets its colour), or
+ * "not a flavour". They extend and correct the built-in table (news-post-lab/notes.ts).
+ * Server only. Writes need NOTES_ADMIN_KEY (see /api/cupnotes).
+ */
+
+export type PlaceKey =
+  | 'floral/flower' | 'floral/tea' | 'green' | 'fruity/berry' | 'fruity/dried' | 'fruity/other' | 'fruity/citrus'
+  | 'sour/alcohol' | 'sour/sour' | 'sweet' | 'sweet/brown-sugar' | 'nutty/nut' | 'nutty/cocoa' | 'spices' | 'roasted';
+
+export type NoteOverride = { place: PlaceKey } | { ignore: true };
+export type NoteOverrides = Record<string, NoteOverride>;
+
+export const CUPNOTES_TAG = 'cupnotes';
+const KEY = 'cupnotes:overrides';
+
+function redis() {
+  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+export const cupnotesStoreReady = () => redis() !== null;
+
+async function command(args: string[]): Promise<unknown> {
+  const r = redis();
+  if (!r) throw new Error('Cup-note store is not connected: add Upstash Redis to the Vercel project.');
+  const res = await fetch(r.url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${r.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error(`Cup-note store ${res.status}`);
+  return ((await res.json()) as { result: unknown }).result;
+}
+
+/** Every saved placement; none while the store is not connected (local development). */
+export async function readOverrides(): Promise<NoteOverrides> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(CUPNOTES_TAG);
+  if (!redis()) return {};
+  const flat = (await command(['HGETALL', KEY])) as string[] | null;
+  const out: NoteOverrides = {};
+  for (let i = 0; flat && i < flat.length; i += 2) {
+    try {
+      out[flat[i]] = JSON.parse(flat[i + 1]) as NoteOverride;
+    } catch {}
+  }
+  return out;
+}
+
+export async function saveOverride(word: string, value: NoteOverride | null): Promise<void> {
+  if (value) await command(['HSET', KEY, word, JSON.stringify(value)]);
+  else await command(['HDEL', KEY, word]);
+}

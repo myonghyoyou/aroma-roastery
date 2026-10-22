@@ -9,8 +9,11 @@
  *   red     fruity > berry, fruity > dried fruit, sour/fermented (베리, 말린 과일, 와인)
  * The wheel files cherry, pomegranate and grape under "other fruit", so they are yellow here too.
  * Words the wheel does not name (리치, 망고, 고구마 ...) go to the nearest place, marked "near".
- * A word the store uses that is not in this table is shown on /news-post-lab/notes, to be added.
+ * A word the store uses that is not in this table is listed on /news-post-lab/notes/assign, where it
+ * can be placed (saved in Redis, applied on top of this table).
  */
+
+import type { NoteOverrides, PlaceKey } from '@/lib/cupnotes-store';
 
 export type Wheel = 'floral' | 'green' | 'fruity' | 'sour' | 'sweet' | 'nutty' | 'spices' | 'roasted';
 export type NoteFamily = 'green' | 'yellow' | 'orange' | 'red';
@@ -148,40 +151,84 @@ function placeOf(e: Entry): string {
   return `${WHEEL_LABEL[e.wheel]}${sub ? ` > ${sub}` : ''}${e.near ? ' (가까운 자리)' : ''}`;
 }
 
-/** The caption's cup notes, in the order it names them, each once, at most six. */
-export function findNotes(caption: string): CupNote[] {
-  const hits: { e: Entry; at: number; len: number }[] = [];
+/*
+ * Placements chosen on the assign page (stored in Redis, see lib/cupnotes-store.ts) on top of the
+ * table: a word moved to another place, a new word placed, or a word marked "not a flavour".
+ */
+const PLACE_ENTRY: Record<PlaceKey, Pick<Entry, 'wheel' | 'sub'>> = {
+  'floral/flower': { wheel: 'floral', sub: 'flower' }, 'floral/tea': { wheel: 'floral', sub: 'tea' }, green: { wheel: 'green' },
+  'fruity/berry': { wheel: 'fruity', sub: 'berry' }, 'fruity/dried': { wheel: 'fruity', sub: 'dried' },
+  'fruity/other': { wheel: 'fruity', sub: 'other' }, 'fruity/citrus': { wheel: 'fruity', sub: 'citrus' },
+  'sour/alcohol': { wheel: 'sour', sub: 'alcohol' }, 'sour/sour': { wheel: 'sour', sub: 'sour' },
+  sweet: { wheel: 'sweet' }, 'sweet/brown-sugar': { wheel: 'sweet', sub: 'brown-sugar' },
+  'nutty/nut': { wheel: 'nutty', sub: 'nut' }, 'nutty/cocoa': { wheel: 'nutty', sub: 'cocoa' },
+  spices: { wheel: 'spices' }, roasted: { wheel: 'roasted' },
+};
+
+/** The places a word can be put, in the order of the colours, for the assign page's choices. */
+export const PLACES: { key: PlaceKey; label: string; family: NoteFamily }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[])
+  .map((key) => {
+    const e = { word: '', ...PLACE_ENTRY[key] } as Entry;
+    return { key, label: placeOf(e), family: WHEEL_FAMILY(e) };
+  })
+  .sort((a, b) => ['green', 'yellow', 'orange', 'red'].indexOf(a.family) - ['green', 'yellow', 'orange', 'red'].indexOf(b.family));
+
+type Placed = Entry & { assigned?: boolean };
+
+function tableWith(o: NoteOverrides = {}): Placed[] {
+  const out: Placed[] = [];
   for (const e of NOTES) {
+    const v = o[e.word];
+    if (v && 'ignore' in v) continue;
+    out.push(v && 'place' in v ? { ...e, ...PLACE_ENTRY[v.place], sub: PLACE_ENTRY[v.place].sub, near: false, assigned: true } : e);
+  }
+  for (const [word, v] of Object.entries(o)) {
+    if ('place' in v && !NOTES.some((e) => e.word === word || e.aka?.includes(word))) out.push({ word, ...PLACE_ENTRY[v.place], assigned: true });
+  }
+  return out;
+}
+
+const placeLabel = (e: Placed) => `${placeOf(e)}${e.assigned ? ' (직접 배치)' : ''}`;
+
+/** The caption's cup notes, in the order it names them, each once, at most six. */
+export function findNotes(caption: string, overrides?: NoteOverrides): CupNote[] {
+  const hits: { e: Placed; at: number; len: number }[] = [];
+  for (const e of tableWith(overrides)) {
     const re = e.re ?? new RegExp([e.word, ...(e.aka ?? [])].sort((a, b) => b.length - a.length).join('|'));
     const m = re.exec(caption);
     if (m) hits.push({ e, at: m.index, len: m[0].length });
   }
   // a longer word wins over one inside it ("레몬그라스" over "레몬", "블랙체리" kept as "체리")
   const kept = hits.filter((h) => !hits.some((o) => o !== h && o.len > h.len && o.at <= h.at && h.at + h.len <= o.at + o.len));
-  return kept.sort((a, b) => a.at - b.at).slice(0, 6).map(({ e }) => ({ word: e.word, family: WHEEL_FAMILY(e), place: placeOf(e) }));
+  return kept.sort((a, b) => a.at - b.at).slice(0, 6).map(({ e }) => ({ word: e.word, family: WHEEL_FAMILY(e), place: placeLabel(e) }));
 }
 
 // words that stand before 향, 같은, 처럼 in a caption but are not flavours
-const NOT_FLAVOUR = new Set(['단', '단맛', '과일', '과일향', '꽃', '과', '느낌', '시럽', '쥬스', '주스', '커피', '것', '맛', '향', '산미', '여운', '질감', '발효', '발효가', '술', '젤리', '칵테일', '캔디', '아이스크림', '알맹이', '과실', '과일류', '베리', '베리류', '감귤류', '견과류', '시트러스', '플로럴', '그리니시', '쿰쿰', '음료', '이름', '커피를', '커피의', '아로마', '양천', '탭머신']);
+const NOT_FLAVOUR = new Set(['단', '단맛', '과일', '과일향', '꽃', '과', '느낌', '시럽', '쥬스', '주스', '커피', '것', '맛', '향', '산미', '여운', '질감', '발효', '발효가', '술', '젤리', '칵테일', '캔디', '아이스크림', '과실', '과일류', '베리', '베리류', '감귤류', '견과류', '시트러스', '플로럴', '그리니시', '쿰쿰', '음료', '이름', '커피를', '커피의', '아로마', '양천', '탭머신']);
 
 /**
- * Words a caption seems to use as flavours ("X 같은", "X 향", "X처럼") that the table does not know:
- * the list to add, shown on the check page.
+ * Words a caption seems to use as flavours ("X 같은", "X 향", "X처럼") that neither the table nor a
+ * saved placement knows: the list to place, on the assign page.
  */
-export function unknownFlavours(caption: string): string[] {
-  const known = (w: string) => NOTES.some((e) => [e.word, ...(e.aka ?? [])].some((k) => w.includes(k) || k.includes(w)));
+export function unknownFlavours(caption: string, overrides: NoteOverrides = {}): string[] {
+  const table = tableWith(overrides);
+  const known = (w: string) => w in overrides || table.some((e) => [e.word, ...(e.aka ?? [])].some((k) => w.includes(k) || k.includes(w)));
   const out = new Set<string>();
   for (const m of caption.matchAll(/([가-힣]{2,7})(?:\s?같은|\s?같이|\s?향(?:미|이|과|을|의)?|처럼)/g)) {
-    const w = m[1].replace(/(?:의|와|과|이|가|한|은|는)$/, '');
+    // a particle is dropped ("포도의" -> "포도"); 이 is kept, it ends nouns like 알맹이, 말랭이
+    const w = m[1].replace(/(?:의|와|과|가|한|은|는)$/, '');
     // a flavour is a noun: words ending like a verb or an adjective ("놀라운", "이런", "나서") are left out
-    if (w.length < 2 || NOT_FLAVOUR.has(w) || /[운인된는런서을를던면고게적지운했]$/.test(w) || /^(?:이런|그런|저런|넘치|또렷|오묘|두고|느꼈|달라|마시)/.test(w)
+    if (w.length < 2 || NOT_FLAVOUR.has(w) || /[운인된는런서을를던면고게적지했]$/.test(w) || /^(?:이런|그런|저런|넘치|또렷|오묘|두고|느꼈|달라|마시)/.test(w)
       || /(?:하|되|있|없|좋|높|낮|짙|옅|강|약|선명|깔끔|부드러|새콤|달콤|쌉싸름|고소|향긋|복합|연상|떠오르|느껴)/.test(w) || known(w)) continue;
     out.add(w);
   }
   return [...out];
 }
 
-/** The whole table, for the check page: every word with its other spellings, colour and place. */
-export function noteTable(): (CupNote & { aka: string[] })[] {
-  return NOTES.map((e) => ({ word: e.word, aka: e.aka ?? [], family: WHEEL_FAMILY(e), place: placeOf(e) }));
+/** The whole table with the saved placements, for the check and assign pages. */
+export function noteTable(overrides?: NoteOverrides): (CupNote & { aka: string[]; assigned: boolean })[] {
+  return tableWith(overrides).map((e) => ({ word: e.word, aka: e.aka ?? [], family: WHEEL_FAMILY(e), place: placeLabel(e), assigned: Boolean(e.assigned) }));
 }
+
+/** Words marked "not a flavour" on the assign page. */
+export const ignoredWords = (o: NoteOverrides = {}) => Object.entries(o).filter(([, v]) => 'ignore' in v).map(([w]) => w);

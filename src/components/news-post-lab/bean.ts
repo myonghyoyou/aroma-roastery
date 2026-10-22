@@ -1,3 +1,4 @@
+import type { NoteOverrides } from '@/lib/cupnotes-store';
 import { findNotes, type CupNote } from './notes';
 
 /*
@@ -25,7 +26,7 @@ export type BeanProfile = {
   store: 'online' | 'store-only' | 'unknown';
 };
 
-export function beanProfile(title: string, caption: string): BeanProfile {
+export function beanProfile(title: string, caption: string, overrides?: NoteOverrides): BeanProfile {
   // "X 입고" from an arrival caption, or a hand-written "원두 입고 안내: X"
   const name = title.replace(/^원두\s*입고\s*(?:안내)?\s*:\s*/, '').replace(/\s*입고$/, '').trim();
   let rest = ` ${name} `;
@@ -42,7 +43,7 @@ export function beanProfile(title: string, caption: string): BeanProfile {
   const variety = take(VARIETIES);
   const lot = rest.replace(/\s+/g, ' ').trim() || undefined;
 
-  const notes = findNotes(caption);
+  const notes = findNotes(caption, overrides);
 
   const store = /스토어\s*판매\s*계획은\s*없|매장에서만/.test(caption) ? 'store-only' : /온라인\s*스토어|스토어에서/.test(caption) ? 'online' : 'unknown';
   return { name, lot, origin, farm, variety, process, notes, store };

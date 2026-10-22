@@ -1,0 +1,46 @@
+/* =====================================================================
+   Cup-note tag (CupNoteTag): the aroma symbol's four leaves with the note's own leaf lit, the word,
+   and its SCA flavour-wheel place on hover or focus. Leaf colours are the logo's.
+   ===================================================================== */
+.cnt-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
+
+.cnt {
+  --leaf: 239, 112, 0;
+  position: relative; display: inline-flex; align-items: center; gap: 9px; min-height: 38px; padding: 0 15px 0 11px;
+  font-size: 15px; font-weight: 700; line-height: 1; color: var(--milk); white-space: nowrap;
+  background: rgba(var(--leaf), .13); border: 1px solid rgba(var(--leaf), .5); border-radius: 999px;
+  cursor: default; outline: none; transition: background .2s ease, border-color .2s ease;
+}
+.cnt[data-family="green"] { --leaf: 7, 145, 59; }
+.cnt[data-family="yellow"] { --leaf: 237, 190, 0; }
+.cnt[data-family="orange"] { --leaf: 239, 112, 0; }
+.cnt[data-family="red"] { --leaf: 193, 1, 16; }
+.cnt:hover, .cnt:focus-visible { background: rgba(var(--leaf), .22); border-color: rgba(var(--leaf), .85); }
+.cnt:focus-visible { box-shadow: 0 0 0 2px var(--char), 0 0 0 4px var(--milk); }
+
+/* the mark: three leaves as quiet outlines, the note's own in full colour */
+.cnt-mark { flex: none; width: 24px; height: 16px; overflow: visible; }
+.cnt-leaf { fill: none; stroke: rgba(251, 243, 232, .38); stroke-width: 7; }
+.cnt-leaf.is-on { stroke: none; }
+.cnt-leaf.is-green { fill: #07913B; }
+.cnt-leaf.is-yellow { fill: #EDBE00; }
+.cnt-leaf.is-orange { fill: #EF7000; }
+.cnt-leaf.is-red { fill: #C10110; }
+
+.cnt-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* the wheel place, above the tag */
+.cnt-tip {
+  position: absolute; left: 50%; bottom: calc(100% + 8px); z-index: 2; transform: translate(-50%, 4px);
+  padding: 7px 10px; font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--char); white-space: nowrap;
+  background: var(--milk); border-radius: 2px; pointer-events: none; opacity: 0; transition: opacity .15s ease, transform .15s ease;
+}
+.cnt-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -5px; border: 5px solid transparent; border-top-color: var(--milk); }
+.cnt:hover .cnt-tip, .cnt:focus-visible .cnt-tip { opacity: 1; transform: translate(-50%, 0); }
+
+/* a key of the four colours: the full mark, each family named beside its leaf */
+.cnt-key { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 10px 0 0; font-size: 12px; font-weight: 600; color: var(--milk-2); }
+.cnt-key-item { display: inline-flex; align-items: center; gap: 6px; }
+.cnt-key-item .cnt-mark { width: 18px; height: 12px; }
+
+@media (prefers-reduced-motion: reduce) { .cnt, .cnt-tip { transition: none; } }

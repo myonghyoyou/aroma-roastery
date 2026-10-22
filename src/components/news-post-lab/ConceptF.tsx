@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { TextBlocks } from '@/components/archive/TextBlocks';
 import { formatPeriod } from '@/components/news/types';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
+import { CupNoteTags, LeafMark } from '@/components/cupnote/CupNoteTag';
 import { FAMILY_LABEL } from './notes';
 import { Flipbook } from './Flipbook';
 import { PostNav } from './PostNav';
@@ -51,11 +52,9 @@ export function ConceptF({ v }: { v: NewsView }) {
           {bean && bean.notes.length > 0 && (
             <div className="npl-f-cup">
               <h2 className="npl-f-cup-h">컵 노트</h2>
-              <ul className="npl-f-tags">
-                {bean.notes.map((n) => <li key={n.word} data-family={n.family} title={`SCA 플레이버 휠: ${n.place}`}>{n.word}</li>)}
-              </ul>
-              <p className="npl-f-key" aria-label="색의 뜻">
-                {families.map((f) => <span key={f} data-family={f}>{FAMILY_LABEL[f]}</span>)}
+              <CupNoteTags notes={bean.notes} />
+              <p className="cnt-key" aria-label="색의 뜻">
+                {families.map((f) => <span key={f} className="cnt-key-item"><LeafMark lit={f} />{FAMILY_LABEL[f]}</span>)}
               </p>
             </div>
           )}
