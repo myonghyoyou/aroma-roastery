@@ -28,7 +28,7 @@ export function ConceptA2({ v }: { v: NewsView }) {
           <p className="npl-a2-over">{bean?.origin ?? TOPIC_LABEL[topic]} <span>· {bean ? '입고' : '소식'} {formatDate(post.date)}</span></p>
           <h1 className="npl-a2-title">{bean ? bean.name : post.title}</h1>
           {bean && bean.notes.length > 0 ? (
-            <p className="npl-a2-notes"><span className="npl-sr">맛 표현: </span>{bean.notes.join(', ')}</p>
+            <p className="npl-a2-notes"><span className="npl-sr">맛 표현: </span>{bean.notes.map((n) => n.word).join(', ')}</p>
           ) : (
             lead && <p className="npl-a2-lead">{lead}</p>
           )}

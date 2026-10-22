@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { TextBlocks } from '@/components/archive/TextBlocks';
 import { formatPeriod } from '@/components/news/types';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
-import { NOTE_FAMILY_LABEL, noteFamily } from './bean';
+import { FAMILY_LABEL } from './notes';
 import { Flipbook } from './Flipbook';
 import { PostNav } from './PostNav';
 import type { NewsView } from './shared';
@@ -10,7 +10,7 @@ import type { NewsView } from './shared';
 /*
  * F, A3's cup notes on E's large photo (chosen direction, 2026-10-22). The posted photos turn one
  * at a time on the left, large; the column beside them reads: origin and date, the bean's name, the
- * cup notes as tags in the logo's leaf colours by family, the profile as value/label tiles, the
+ * cup notes as tags in the logo's leaf colours by their place on the SCA flavour wheel (notes.ts), the profile as value/label tiles, the
  * store's words, the way to buy. A notice keeps the same frame with its date and period as tiles.
  */
 export function ConceptF({ v }: { v: NewsView }) {
@@ -29,7 +29,7 @@ export function ConceptF({ v }: { v: NewsView }) {
         post.period && { value: formatPeriod(post.period), label: '해당 기간' },
       ]
   ).filter(Boolean) as { value: string; label: string }[];
-  const families = bean ? [...new Set(bean.notes.map(noteFamily))] : [];
+  const families = bean ? [...new Set(bean.notes.map((n) => n.family))] : [];
 
   return (
     <article className="npl-f" data-topic={topic}>
@@ -52,10 +52,10 @@ export function ConceptF({ v }: { v: NewsView }) {
             <div className="npl-f-cup">
               <h2 className="npl-f-cup-h">컵 노트</h2>
               <ul className="npl-f-tags">
-                {bean.notes.map((n) => <li key={n} data-family={noteFamily(n)}>{n}</li>)}
+                {bean.notes.map((n) => <li key={n.word} data-family={n.family} title={`SCA 플레이버 휠: ${n.place}`}>{n.word}</li>)}
               </ul>
               <p className="npl-f-key" aria-label="색의 뜻">
-                {families.map((f) => <span key={f} data-family={f}>{NOTE_FAMILY_LABEL[f]}</span>)}
+                {families.map((f) => <span key={f} data-family={f}>{FAMILY_LABEL[f]}</span>)}
               </p>
             </div>
           )}

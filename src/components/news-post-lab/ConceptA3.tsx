@@ -36,7 +36,7 @@ export function ConceptA3({ v }: { v: NewsView }) {
         <h1 className="npl-a3-title">{bean ? bean.name : post.title}</h1>
         {bean && bean.notes.length > 0 && (
           <ul className="npl-a3-tags" aria-label="맛 표현">
-            {bean.notes.map((n) => <li key={n}>{n}</li>)}
+            {bean.notes.map((n) => <li key={n.word}>{n.word}</li>)}
           </ul>
         )}
       </header>

@@ -22,7 +22,7 @@ export function ConceptE3({ v }: { v: NewsView }) {
           <p className="npl-e3-over">{bean?.origin ?? TOPIC_LABEL[topic]}</p>
           <h1 className="npl-e3-title">{post.title}</h1>
           <p className="npl-meta"><time dateTime={post.date}>{formatDate(post.date)}</time></p>
-          {bean && bean.notes.length > 0 && <p className="npl-e3-notes">{bean.notes.join(', ')}</p>}
+          {bean && bean.notes.length > 0 && <p className="npl-e3-notes">{bean.notes.map((n) => n.word).join(', ')}</p>}
 
           <details className="npl-e3-fold" open>
             <summary>{bean ? '원두 이야기' : '소식 내용'}</summary>

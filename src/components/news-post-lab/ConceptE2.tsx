@@ -19,7 +19,7 @@ export function ConceptE2({ v }: { v: NewsView }) {
       <header className="npl-e2-head">
         <p className="npl-crumb"><Link href="/news">소식</Link><span aria-hidden="true">/</span><span>{TOPIC_LABEL[topic]}</span><span aria-hidden="true">/</span><time dateTime={post.date}>{formatDate(post.date)}</time></p>
         <h1 className="npl-e2-title">{post.title}</h1>
-        {bean && bean.notes.length > 0 && <p className="npl-e2-notes">{bean.notes.join(' · ')}</p>}
+        {bean && bean.notes.length > 0 && <p className="npl-e2-notes">{bean.notes.map((n) => n.word).join(' · ')}</p>}
       </header>
 
       {photos.length > 0 ? <PeekTrack photos={photos} /> : <div className="npl-e2-field" aria-hidden="true"><span className="nws-field" /></div>}

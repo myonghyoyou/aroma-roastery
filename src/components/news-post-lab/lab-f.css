@@ -1,17 +1,18 @@
 /* =====================================================================
    F: A3's cup notes on E's large photo (2026-10-22). Uses E's Flipbook (npl-e-*) for the photos.
-   Cup notes wear the logo's four leaf colours by family, in the gradient's order:
-   floral green, bright fruit yellow, sweetness orange, red fruit red.
+   Cup notes wear the logo's four leaf colours by their place on the SCA flavour wheel (notes.ts):
+   floral and green/vegetative green, citrus and other fruit yellow, sweet, nutty, cocoa and spices
+   orange, berry, dried fruit and fermented red.
    ===================================================================== */
 .npl-f {
-  --leaf-floral: 7, 145, 59;    /* #07913B */
-  --leaf-bright: 237, 190, 0;   /* #EDBE00 */
-  --leaf-sweet: 239, 112, 0;    /* #EF7000 */
+  --leaf-green: 7, 145, 59;     /* #07913B */
+  --leaf-yellow: 237, 190, 0;   /* #EDBE00 */
+  --leaf-orange: 239, 112, 0;   /* #EF7000 */
   --leaf-red: 193, 1, 16;       /* #C10110 */
 }
-.npl-f [data-family="floral"] { --leaf: var(--leaf-floral); }
-.npl-f [data-family="bright"] { --leaf: var(--leaf-bright); }
-.npl-f [data-family="sweet"] { --leaf: var(--leaf-sweet); }
+.npl-f [data-family="green"] { --leaf: var(--leaf-green); }
+.npl-f [data-family="yellow"] { --leaf: var(--leaf-yellow); }
+.npl-f [data-family="orange"] { --leaf: var(--leaf-orange); }
 .npl-f [data-family="red"] { --leaf: var(--leaf-red); }
 
 .npl-f-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 72px); align-items: start; margin-top: 22px; }

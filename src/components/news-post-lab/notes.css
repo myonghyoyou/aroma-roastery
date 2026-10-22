@@ -1,0 +1,33 @@
+/* The cup-note check page (/news-post-lab/notes). Tags reuse F's (lab-f.css). */
+.ncheck { max-width: 1100px; }
+.ncheck-head { padding-bottom: 8px; }
+.ncheck-head p { max-width: 44em; }
+.ncheck-sec { margin-top: clamp(36px, 6vh, 56px); padding-top: 22px; border-top: 1px solid var(--npl-rule); }
+.ncheck-sec h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.ncheck-sec h2 span { font-size: 14px; font-weight: 600; color: var(--milk-2); }
+.ncheck-note { margin: 0 0 16px; max-width: 46em; font-size: 15px; line-height: 1.7; color: var(--milk-2); }
+.ncheck-empty, .ncheck-none { font-size: 14px; color: var(--milk-2); }
+
+.ncheck-add { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.ncheck-add li { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; padding: 12px 14px; border: 1px solid var(--npl-line); }
+.ncheck-add b { font-size: 16px; }
+.ncheck-add span { font-size: 13px; color: var(--milk-2); align-self: center; }
+.ncheck-in { grid-column: 1 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ncheck-beans { list-style: none; margin: 0; padding: 0; }
+.ncheck-beans > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--npl-rule); }
+.ncheck-bean { font-size: 16px; font-weight: 700; color: var(--milk); text-decoration: none; }
+.ncheck-bean:hover { text-decoration: underline; text-underline-offset: 4px; }
+.ncheck-beans time { font-size: 13px; color: var(--milk-2); font-variant-numeric: tabular-nums; }
+.ncheck-beans .npl-f-tags, .ncheck-beans .ncheck-none { grid-column: 1 / -1; }
+
+.ncheck-table { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ncheck-family { padding: 14px; border-top: 3px solid rgb(var(--leaf)); background: rgba(var(--leaf), .08); }
+.ncheck-family h3 { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+.ncheck-family ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ncheck-family li { display: flex; flex-direction: column; gap: 1px; }
+.ncheck-family b { font-size: 15px; }
+.ncheck-aka { font-size: 12px; color: var(--milk-2); }
+.ncheck-place { font-size: 12px; color: var(--milk-2); }
+@media (max-width: 899px) { .ncheck-table { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 499px) { .ncheck-table { grid-template-columns: minmax(0, 1fr); } }
