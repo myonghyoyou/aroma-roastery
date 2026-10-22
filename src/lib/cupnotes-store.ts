@@ -8,7 +8,7 @@ import { cacheLife, cacheTag } from 'next/cache';
  */
 
 export type PlaceKey =
-  | 'floral/flower' | 'floral/tea' | 'green' | 'fruity/berry' | 'fruity/dried' | 'fruity/other' | 'fruity/citrus'
+  | 'floral/flower' | 'floral/tea' | 'green' | 'fruity/berry' | 'fruity/dried' | 'fruity/stone' | 'fruity/other' | 'fruity/citrus'
   | 'sour/alcohol' | 'sour/sour' | 'sweet' | 'sweet/brown-sugar' | 'nutty/nut' | 'nutty/cocoa' | 'spices' | 'roasted';
 
 export type NoteOverride = { place: PlaceKey } | { ignore: true };

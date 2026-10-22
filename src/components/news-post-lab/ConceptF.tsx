@@ -11,7 +11,7 @@ import type { NewsView } from './shared';
 /*
  * F, A3's cup notes on E's large photo (chosen direction, 2026-10-22). The posted photos turn one
  * at a time on the left, large; the column beside them reads: origin and date, the bean's name, the
- * cup notes as tags in the logo's leaf colours by their place on the SCA flavour wheel (notes.ts), the profile as value/label tiles, the
+ * cup notes as tags in the SCA flavour wheel's own colours (notes.ts), the profile as value/label tiles, the
  * store's words, the way to buy. A notice keeps the same frame with its date and period as tiles.
  */
 export function ConceptF({ v }: { v: NewsView }) {
@@ -54,7 +54,7 @@ export function ConceptF({ v }: { v: NewsView }) {
               <h2 className="npl-f-cup-h">컵 노트</h2>
               <CupNoteTags notes={bean.notes} />
               <p className="cnt-key" aria-label="색의 뜻">
-                {families.map((f) => <span key={f} className="cnt-key-item"><LeafMark lit={f} />{FAMILY_LABEL[f]}</span>)}
+                {families.map((f) => <span key={f} className="cnt-key-item"><LeafMark family={f} />{FAMILY_LABEL[f]}</span>)}
               </p>
             </div>
           )}

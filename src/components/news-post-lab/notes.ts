@@ -1,13 +1,14 @@
 /*
  * Cup notes, filed by the SCA Coffee Taster's Flavor Wheel (SCA and World Coffee Research, 2016),
  * the coffee trade's common vocabulary. Every word the store uses sits at its place on the wheel
- * (inner ring > middle ring), and the inner ring decides the colour, one of the logo's four leaf
- * colours in the order of its gradient:
- *   green   floral, green/vegetative            (꽃, 차, 허브)
- *   yellow  fruity > citrus, fruity > other fruit (시트러스, 사과, 복숭아, 열대 과일 ...)
- *   orange  sweet, nutty/cocoa, spices, roasted (단맛, 견과, 초콜릿, 향신료)
- *   red     fruity > berry, fruity > dried fruit, sour/fermented (베리, 말린 과일, 와인)
- * The wheel files cherry, pomegranate and grape under "other fruit", so they are yellow here too.
+ * (inner ring > middle ring), and the colour is the wheel's own: its inner ring's colour for every
+ * category, and for fruit, the middle ring's (berry, dried fruit, other fruit, citrus), since fruit
+ * is where the store's notes sit most and those four read very differently in the cup. (The logo's
+ * four leaf colours were tried first and dropped on 2026-10-22: four colours could not hold nine
+ * categories, and grape came out yellow.) The values follow the colours of the published wheel as
+ * its digital reproductions give them; they are close to, not taken from, an official palette.
+ * Fruit's middle ring here is berry, dried fruit, stone fruit (핵과류: 복숭아, 살구, 자두, 체리), other
+ * fruit and citrus; stone fruit was added at the client's word on 2026-10-22.
  * Words the wheel does not name (리치, 망고, 고구마 ...) go to the nearest place, marked "near".
  * A word the store uses that is not in this table is listed on /news-post-lab/notes/assign, where it
  * can be placed (saved in Redis, applied on top of this table).
@@ -16,12 +17,22 @@
 import type { NoteOverrides, PlaceKey } from '@/lib/cupnotes-store';
 
 export type Wheel = 'floral' | 'green' | 'fruity' | 'sour' | 'sweet' | 'nutty' | 'spices' | 'roasted';
-export type NoteFamily = 'green' | 'yellow' | 'orange' | 'red';
+/** the colour group of a note: the wheel's inner category, split into its middle ring for fruit */
+export type NoteFamily = 'floral' | 'berry' | 'dried' | 'stone' | 'other' | 'citrus' | 'sour' | 'green' | 'roasted' | 'spices' | 'nutty' | 'sweet';
+/** in the wheel's own order, clockwise from floral */
+export const FAMILY_ORDER: NoteFamily[] = ['floral', 'berry', 'dried', 'stone', 'other', 'citrus', 'sour', 'green', 'roasted', 'spices', 'nutty', 'sweet'];
 
 export const WHEEL_LABEL: Record<Wheel, string> = {
   floral: '꽃', green: '풋내·식물', fruity: '과일', sour: '시큼·발효', sweet: '단맛', nutty: '견과·코코아', spices: '향신료', roasted: '로스팅',
 };
-export const FAMILY_LABEL: Record<NoteFamily, string> = { green: '꽃과 허브', yellow: '밝은 과일', orange: '단맛과 고소함', red: '베리와 발효' };
+export const FAMILY_LABEL: Record<NoteFamily, string> = {
+  floral: '꽃', berry: '과일 > 베리', dried: '과일 > 말린 과일', stone: '과일 > 핵과류', other: '과일 > 기타 과일', citrus: '과일 > 시트러스',
+  sour: '시큼·발효', green: '풋내·식물', roasted: '로스팅', spices: '향신료', nutty: '견과·코코아', sweet: '단맛',
+};
+export const FAMILY_COLOR: Record<NoteFamily, string> = {
+  floral: '#DA0D68', berry: '#C8314A', dried: '#A33F3A', stone: '#F0855A', other: '#E04E65', citrus: '#F4A223',
+  sour: '#D9B310', green: '#187A2F', roasted: '#C94930', spices: '#AD213E', nutty: '#A87B64', sweet: '#E65832',
+};
 
 type Entry = {
   /** the word as shown */
@@ -30,7 +41,7 @@ type Entry = {
   aka?: string[];
   wheel: Wheel;
   /** the middle ring, where there is one */
-  sub?: 'berry' | 'dried' | 'other' | 'citrus' | 'tea' | 'flower' | 'brown-sugar' | 'nut' | 'cocoa' | 'alcohol' | 'sour';
+  sub?: 'berry' | 'dried' | 'stone' | 'other' | 'citrus' | 'tea' | 'flower' | 'brown-sugar' | 'nut' | 'cocoa' | 'alcohol' | 'sour';
   /** not named on the wheel: filed at the nearest place */
   near?: boolean;
   /** a stricter match, for words that hide inside others ("럼" in "처럼", "꿀" in "꿀꺽") */
@@ -69,19 +80,19 @@ const NOTES: Entry[] = [
   { word: '건포도', wheel: 'fruity', sub: 'dried' },
   { word: '건자두', wheel: 'fruity', sub: 'dried' },
   { word: '무화과', wheel: 'fruity', sub: 'dried', near: true },
-  // fruity > other fruit
-  { word: '체리', aka: ['블랙체리'], wheel: 'fruity', sub: 'other' },
+  // fruity > stone fruit: 체리, 복숭아, 살구, 자두 (below, among the rest of fruit); fruity > other fruit
+  { word: '체리', aka: ['블랙체리'], wheel: 'fruity', sub: 'stone' },
   { word: '석류', wheel: 'fruity', sub: 'other' },
   { word: '포도', wheel: 'fruity', sub: 'other', re: /(?<!건|청)포도/ },
   { word: '청포도', aka: ['머스캣'], wheel: 'fruity', sub: 'other' },
   { word: '청사과', aka: ['그린애플'], wheel: 'fruity', sub: 'other' },
   { word: '사과', aka: ['적사과'], wheel: 'fruity', sub: 'other', re: /(?<!청)사과|적사과/ },
-  { word: '복숭아', aka: ['백도', '황도'], wheel: 'fruity', sub: 'other' },
+  { word: '복숭아', aka: ['백도', '황도'], wheel: 'fruity', sub: 'stone' },
   { word: '배', wheel: 'fruity', sub: 'other', re: /(?<![가-힣])배(?=[,\s와과의])/ },
   { word: '파인애플', wheel: 'fruity', sub: 'other' },
   { word: '코코넛', wheel: 'fruity', sub: 'other' },
-  { word: '살구', wheel: 'fruity', sub: 'other', near: true },
-  { word: '자두', wheel: 'fruity', sub: 'other', near: true, re: /(?<!건)자두/ },
+  { word: '살구', wheel: 'fruity', sub: 'stone' },
+  { word: '자두', wheel: 'fruity', sub: 'stone', re: /(?<!건)자두/ },
   { word: '망고', wheel: 'fruity', sub: 'other', near: true },
   { word: '리치', wheel: 'fruity', sub: 'other', near: true },
   { word: '패션프룻', aka: ['패션 프룻', '패션후르츠'], wheel: 'fruity', sub: 'other', near: true },
@@ -132,17 +143,15 @@ const NOTES: Entry[] = [
 ];
 
 const WHEEL_FAMILY = (e: Entry): NoteFamily => {
-  if (e.wheel === 'floral' || e.wheel === 'green') return 'green';
-  if (e.wheel === 'fruity') return e.sub === 'berry' || e.sub === 'dried' ? 'red' : 'yellow';
-  if (e.wheel === 'sour') return 'red';
-  return 'orange';
+  if (e.wheel === 'fruity') return e.sub === 'berry' || e.sub === 'dried' || e.sub === 'stone' || e.sub === 'citrus' ? e.sub : 'other';
+  return e.wheel;
 };
 
 export type CupNote = { word: string; family: NoteFamily; place: string };
 
 /** Where a note sits: "과일 > 기타 과일", with "(가까운 분류)" for words the wheel does not name. */
 const SUB_LABEL: Record<NonNullable<Entry['sub']>, string> = {
-  berry: '베리', dried: '말린 과일', other: '기타 과일', citrus: '시트러스', tea: '차', flower: '꽃',
+  berry: '베리', dried: '말린 과일', stone: '핵과류', other: '기타 과일', citrus: '시트러스', tea: '차', flower: '꽃',
   'brown-sugar': '갈색 설탕', nut: '견과', cocoa: '코코아', alcohol: '알코올', sour: '신맛',
 };
 
@@ -158,20 +167,20 @@ function placeOf(e: Entry): string {
 const PLACE_ENTRY: Record<PlaceKey, Pick<Entry, 'wheel' | 'sub'>> = {
   'floral/flower': { wheel: 'floral', sub: 'flower' }, 'floral/tea': { wheel: 'floral', sub: 'tea' }, green: { wheel: 'green' },
   'fruity/berry': { wheel: 'fruity', sub: 'berry' }, 'fruity/dried': { wheel: 'fruity', sub: 'dried' },
-  'fruity/other': { wheel: 'fruity', sub: 'other' }, 'fruity/citrus': { wheel: 'fruity', sub: 'citrus' },
+  'fruity/stone': { wheel: 'fruity', sub: 'stone' }, 'fruity/other': { wheel: 'fruity', sub: 'other' }, 'fruity/citrus': { wheel: 'fruity', sub: 'citrus' },
   'sour/alcohol': { wheel: 'sour', sub: 'alcohol' }, 'sour/sour': { wheel: 'sour', sub: 'sour' },
   sweet: { wheel: 'sweet' }, 'sweet/brown-sugar': { wheel: 'sweet', sub: 'brown-sugar' },
   'nutty/nut': { wheel: 'nutty', sub: 'nut' }, 'nutty/cocoa': { wheel: 'nutty', sub: 'cocoa' },
   spices: { wheel: 'spices' }, roasted: { wheel: 'roasted' },
 };
 
-/** The places a word can be put, in the order of the colours, for the assign page's choices. */
+/** The places a word can be put, in the wheel's order, for the assign page's choices. */
 export const PLACES: { key: PlaceKey; label: string; family: NoteFamily }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[])
   .map((key) => {
     const e = { word: '', ...PLACE_ENTRY[key] } as Entry;
     return { key, label: placeOf(e), family: WHEEL_FAMILY(e) };
   })
-  .sort((a, b) => ['green', 'yellow', 'orange', 'red'].indexOf(a.family) - ['green', 'yellow', 'orange', 'red'].indexOf(b.family));
+  .sort((a, b) => FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family));
 
 type Placed = Entry & { assigned?: boolean };
 

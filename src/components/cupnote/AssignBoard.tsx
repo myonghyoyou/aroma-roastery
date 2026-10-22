@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import type { NoteFamily } from '@/components/news-post-lab/notes';
+import { FAMILY_LABEL, FAMILY_ORDER, type NoteFamily } from '@/components/news-post-lab/notes';
 import { CupNoteTag } from './CupNoteTag';
 
 export type AssignRow = {
@@ -23,7 +23,6 @@ const TABS: { key: AssignRow['status']; label: string }[] = [
   { key: 'table', label: '기본 분류표' },
   { key: 'ignored', label: '제외한 단어' },
 ];
-const FAMILY_NAME: Record<NoteFamily, string> = { green: '초록: 꽃과 허브', yellow: '노랑: 밝은 과일', orange: '주황: 단맛과 고소함', red: '빨강: 베리와 발효' };
 const KEY_STORE = 'aroma-notes-admin-key';
 
 /*
@@ -94,7 +93,6 @@ export function AssignBoard({ rows, places, storeReady }: { rows: AssignRow[]; p
 function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Place[]; busy: boolean; said?: string; onSave: (word: string, place: string) => void }) {
   const [choice, setChoice] = useState(row.placeKey ?? '');
   const picked = places.find((p) => p.key === choice);
-  const families: NoteFamily[] = ['green', 'yellow', 'orange', 'red'];
   return (
     <li className="cnab-row">
       <div className="cnab-word">
@@ -115,8 +113,8 @@ function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Plac
         {/* the first option is a placeholder: shown greyed while nothing is chosen, not choosable */}
         <select aria-label={`${row.word} 분류`} value={choice} required onChange={(e) => setChoice(e.target.value)}>
           <option value="" disabled hidden>분류 선택</option>
-          {families.map((f) => (
-            <optgroup key={f} label={FAMILY_NAME[f]}>
+          {FAMILY_ORDER.filter((f) => places.some((p) => p.family === f)).map((f) => (
+            <optgroup key={f} label={FAMILY_LABEL[f]}>
               {places.filter((p) => p.family === f).map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
             </optgroup>
           ))}

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CupNoteTags, LeafMark } from '@/components/cupnote/CupNoteTag';
+import { CupNoteTags, LeafMark, toneStyle } from '@/components/cupnote/CupNoteTag';
 import { newsLabHref } from '@/components/news-post-lab/concepts';
-import { FAMILY_LABEL, findNotes, noteTable, unknownFlavours, type NoteFamily } from '@/components/news-post-lab/notes';
+import { FAMILY_LABEL, FAMILY_ORDER, findNotes, noteTable, unknownFlavours } from '@/components/news-post-lab/notes';
 import { SubPage } from '@/components/site/SubPage';
 import { readOverrides } from '@/lib/cupnotes-store';
 import { getPosts, type Block, type Post } from '@/lib/content';
@@ -19,7 +19,6 @@ import '@/components/news-post-lab/notes.css';
 export const metadata: Metadata = { title: '컵 노트 점검 | aroma roastery' };
 
 const captionOf = (blocks: Block[]) => blocks.map((b) => ('text' in b ? b.text : 'items' in b ? b.items.join(' ') : '')).join(' ');
-const FAMILIES: NoteFamily[] = ['green', 'yellow', 'orange', 'red'];
 
 export default async function NotesCheck() {
   const [news, archive, overrides] = await Promise.all([getPosts('news'), getPosts('archive'), readOverrides()]);
@@ -40,7 +39,7 @@ export default async function NotesCheck() {
           <h1>컵 노트 점검</h1>
           <p>
             매장 글에서 맛 표현으로 쓰였는데 분류표에 없는 단어, 원두 소식마다 뽑힌 컵 노트, 그리고 분류표 전체입니다.
-            분류는 SCA 커피 테이스터 플레이버 휠을 따르고, 색은 그 큰 분류에 맞춘 로고의 네 색입니다.
+            분류와 색은 SCA 커피 테이스터 플레이버 휠을 따릅니다. 색은 휠의 대분류 색이고, 과일만 2차 분류(베리, 말린 과일, 핵과류, 기타 과일, 시트러스)의 색을 씁니다.
           </p>
         </header>
 
@@ -86,9 +85,9 @@ export default async function NotesCheck() {
         <section className="ncheck-sec" aria-labelledby="ncheck-table">
           <h2 id="ncheck-table">분류표 <span>{table.length}단어</span></h2>
           <div className="ncheck-table">
-            {FAMILIES.map((f) => (
-              <div key={f} className="ncheck-family" data-family={f}>
-                <h3><LeafMark lit={f} className="cnt-mark ncheck-mark" />{FAMILY_LABEL[f]}</h3>
+            {FAMILY_ORDER.filter((f) => table.some((t) => t.family === f)).map((f) => (
+              <div key={f} className="ncheck-family" style={toneStyle(f)}>
+                <h3><LeafMark family={f} />{FAMILY_LABEL[f]}</h3>
                 <ul>
                   {table.filter((t) => t.family === f).map((t) => (
                     <li key={t.word}>
