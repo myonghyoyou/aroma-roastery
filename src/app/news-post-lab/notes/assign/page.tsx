@@ -11,7 +11,7 @@ import '@/components/news-post-lab/notes.css';
 
 /*
  * Placing cup notes (2026-10-22): the words the captions use as flavours that the table does not
- * know, each with the sentence it came from, to put at a place on the SCA flavour wheel (which sets
+ * know, each with the sentence it came from, to put at a place on the flavour wheel (Manufact Coffee Ver. 2) (which sets
  * its colour) or mark as not a flavour; and every word already placed, to move. Saved to Redis
  * through /api/cupnotes with the admin key. Reachable by URL only.
  */
@@ -61,7 +61,7 @@ export default async function AssignNotes() {
           <p className="npl-crumb"><Link href="/news-post-lab/notes">컵 노트 점검</Link><span aria-hidden="true">/</span><span>분류 배치</span></p>
           <h1>컵 노트 분류 배치</h1>
           <p>
-            매장 글에서 맛 표현으로 쓰였지만 분류표에 없는 단어를 SCA 플레이버 휠에 배치하거나, 맛이 아니면 제외합니다.
+            매장 글에서 맛 표현으로 쓰였지만 분류표에 없는 단어를 플레이버 휠에 배치하거나, 맛이 아니면 제외합니다.
             이미 있는 단어도 분류를 바꿀 수 있습니다. 저장하면 소식 상세의 컵 노트 색에 바로 반영됩니다.
           </p>
         </header>

@@ -20,7 +20,7 @@ export type BeanProfile = {
   farm?: string;
   variety?: string;
   process?: string;
-  /** cup notes filed by the SCA flavour wheel (notes.ts) */
+  /** cup notes filed by the flavour wheel (notes.ts) */
   notes: CupNote[];
   /** where it can be bought, from the caption's own words */
   store: 'online' | 'store-only' | 'unknown';

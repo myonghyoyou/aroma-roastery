@@ -1,6 +1,6 @@
 /* =====================================================================
    F: A3's cup notes on E's large photo (2026-10-22). Uses E's Flipbook (npl-e-*) for the photos.
-   Cup notes are CupNoteTag (components/cupnote), in the SCA flavour wheel's own colours.
+   Cup notes are CupNoteTag (components/cupnote), in the flavour wheel's own colours.
    ===================================================================== */
 .npl-f-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 72px); align-items: start; margin-top: 22px; }
 .npl-f-info { max-width: 32em; }

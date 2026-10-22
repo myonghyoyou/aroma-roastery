@@ -2,14 +2,16 @@ import { cacheLife, cacheTag } from 'next/cache';
 
 /*
  * Cup-note placements chosen on /news-post-lab/notes/assign, kept in Upstash Redis next to the
- * Instagram token: for each word, a place on the SCA flavour wheel (which sets its colour), or
+ * Instagram token: for each word, a place on the flavour wheel (Manufact Coffee Ver. 2) (which sets its colour), or
  * "not a flavour". They extend and correct the built-in table (news-post-lab/notes.ts).
  * Server only. Writes need NOTES_ADMIN_KEY (see /api/cupnotes).
  */
 
 export type PlaceKey =
-  | 'floral/flower' | 'floral/tea' | 'green' | 'fruity/berry' | 'fruity/dried' | 'fruity/stone' | 'fruity/other' | 'fruity/citrus'
-  | 'sour/alcohol' | 'sour/sour' | 'sweet' | 'sweet/brown-sugar' | 'nutty/nut' | 'nutty/cocoa' | 'spices' | 'roasted';
+  | 'fruit/citrus' | 'fruit/tropical' | 'fruit/berry' | 'fruit/grape' | 'fruit/stone'
+  | 'flowerTea/tea' | 'flowerTea/flower' | 'herbVeg/spice' | 'herbVeg/herb' | 'herbVeg/veg'
+  | 'nutty/grain' | 'nutty/nut' | 'sweet/sugar' | 'sweet/milk' | 'sweet/cacao'
+  | 'fermented/alcohol' | 'other/chemical' | 'other/wood' | 'other/smoky';
 
 export type NoteOverride = { place: PlaceKey } | { ignore: true };
 export type NoteOverrides = Record<string, NoteOverride>;

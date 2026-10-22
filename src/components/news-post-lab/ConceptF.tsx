@@ -11,7 +11,7 @@ import type { NewsView } from './shared';
 /*
  * F, A3's cup notes on E's large photo (chosen direction, 2026-10-22). The posted photos turn one
  * at a time on the left, large; the column beside them reads: origin and date, the bean's name, the
- * cup notes as tags in the SCA flavour wheel's own colours (notes.ts), the profile as value/label tiles, the
+ * cup notes as tags in the flavour wheel's own colours (notes.ts), the profile as value/label tiles, the
  * store's words, the way to buy. A notice keeps the same frame with its date and period as tiles.
  */
 export function ConceptF({ v }: { v: NewsView }) {

@@ -26,7 +26,7 @@ const TABS: { key: AssignRow['status']; label: string }[] = [
 const KEY_STORE = 'aroma-notes-admin-key';
 
 /*
- * The assign page's board: a tab per kind of word, and for each word a choice of place on the SCA
+ * The assign page's board: a tab per kind of word, and for each word a choice of place on the flavour
  * wheel with a live preview of the tag it will become, saved one word at a time with the admin key.
  */
 export function AssignBoard({ rows, places, storeReady }: { rows: AssignRow[]; places: Place[]; storeReady: boolean }) {

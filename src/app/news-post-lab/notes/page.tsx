@@ -14,7 +14,7 @@ import '@/components/news-post-lab/notes.css';
 /*
  * The cup-note check (2026-10-22): which words the store's captions use as flavours that the table
  * does not know yet (to add to notes.ts), what each bean arrival's notes came out as, and the whole
- * table with each word's place on the SCA flavour wheel and its colour. Reachable by URL only.
+ * table with each word's place on the flavour wheel (Manufact Coffee Ver. 2) and its colour. Reachable by URL only.
  */
 export const metadata: Metadata = { title: '컵 노트 점검 | aroma roastery' };
 
@@ -39,7 +39,7 @@ export default async function NotesCheck() {
           <h1>컵 노트 점검</h1>
           <p>
             매장 글에서 맛 표현으로 쓰였는데 분류표에 없는 단어, 원두 소식마다 뽑힌 컵 노트, 그리고 분류표 전체입니다.
-            분류와 색은 SCA 커피 테이스터 플레이버 휠을 따릅니다. 색은 휠의 대분류 색이고, 과일만 2차 분류(베리, 말린 과일, 핵과류, 기타 과일, 시트러스)의 색을 씁니다.
+            분류와 색은 커피 플레이버 휠 Ver.2(Manufact Coffee, 2026.01)를 따릅니다. 색은 휠의 대분류 색이고, 과일만 2차 분류(귤, 열대과일, 베리, 포도, 핵과류)의 색을 씁니다.
           </p>
         </header>
 

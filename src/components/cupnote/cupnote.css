@@ -1,6 +1,6 @@
 /* =====================================================================
-   Cup-note tag (CupNoteTag): the aroma symbol's four leaves in the note's colour from the SCA flavour
-   wheel (set inline as --tone, an "r, g, b" triple), the word, and its wheel place on hover or focus.
+   Cup-note tag (CupNoteTag): the aroma symbol's four leaves in the note's colour from the flavour
+   wheel (Manufact Coffee Ver. 2) (set inline as --tone, an "r, g, b" triple), the word, and its wheel place on hover or focus.
    ===================================================================== */
 .cnt-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
 
@@ -12,6 +12,8 @@
   cursor: default; outline: none; transition: background .2s ease, border-color .2s ease;
 }
 .cnt:hover, .cnt:focus-visible { background: rgba(var(--tone), .24); border-color: rgba(var(--tone), .9); }
+.cnt.is-dark { background: rgba(var(--tone), .6); border-color: rgba(251, 243, 232, .45); }
+.cnt.is-dark:hover, .cnt.is-dark:focus-visible { background: rgba(var(--tone), .85); border-color: rgba(251, 243, 232, .75); }
 .cnt:focus-visible { box-shadow: 0 0 0 2px var(--char), 0 0 0 4px var(--milk); }
 
 /* the mark: the symbol's four leaves in the note's colour, each a step lighter */
