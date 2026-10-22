@@ -140,7 +140,7 @@ const WHEEL_FAMILY = (e: Entry): NoteFamily => {
 
 export type CupNote = { word: string; family: NoteFamily; place: string };
 
-/** Where a note sits: "과일 > 기타 과일", with "(가까운 자리)" for words the wheel does not name. */
+/** Where a note sits: "과일 > 기타 과일", with "(가까운 분류)" for words the wheel does not name. */
 const SUB_LABEL: Record<NonNullable<Entry['sub']>, string> = {
   berry: '베리', dried: '말린 과일', other: '기타 과일', citrus: '시트러스', tea: '차', flower: '꽃',
   'brown-sugar': '갈색 설탕', nut: '견과', cocoa: '코코아', alcohol: '알코올', sour: '신맛',
@@ -148,7 +148,7 @@ const SUB_LABEL: Record<NonNullable<Entry['sub']>, string> = {
 
 function placeOf(e: Entry): string {
   const sub = e.sub && SUB_LABEL[e.sub];
-  return `${WHEEL_LABEL[e.wheel]}${sub ? ` > ${sub}` : ''}${e.near ? ' (가까운 자리)' : ''}`;
+  return `${WHEEL_LABEL[e.wheel]}${sub ? ` > ${sub}` : ''}${e.near ? ' (가까운 분류)' : ''}`;
 }
 
 /*

@@ -108,12 +108,13 @@ function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Plac
         ) : row.family && row.place ? (
           <CupNoteTag word={row.word} family={row.family} place={row.place} />
         ) : (
-          <span className="cnab-none">{row.status === 'ignored' ? '맛 아님' : '아직 자리 없음'}</span>
+          <span className="cnab-none">{row.status === 'ignored' ? '맛 아님' : '미분류'}</span>
         )}
       </div>
       <div className="cnab-act">
-        <select aria-label={`${row.word}의 자리`} value={choice} onChange={(e) => setChoice(e.target.value)}>
-          <option value="">자리 고르기</option>
+        {/* the first option is a placeholder: shown greyed while nothing is chosen, not choosable */}
+        <select aria-label={`${row.word} 분류`} value={choice} required onChange={(e) => setChoice(e.target.value)}>
+          <option value="" disabled hidden>분류 선택</option>
           {families.map((f) => (
             <optgroup key={f} label={FAMILY_NAME[f]}>
               {places.filter((p) => p.family === f).map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}

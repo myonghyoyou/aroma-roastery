@@ -61,8 +61,8 @@ export default async function AssignNotes() {
           <p className="npl-crumb"><Link href="/news-post-lab/notes">컵 노트 점검</Link><span aria-hidden="true">/</span><span>분류 배치</span></p>
           <h1>컵 노트 분류 배치</h1>
           <p>
-            매장 글에서 맛 표현으로 쓰였지만 분류표에 없는 단어를 SCA 플레이버 휠의 자리에 놓거나, 맛이 아니면 제외합니다.
-            이미 있는 단어도 자리를 옮길 수 있습니다. 저장하면 소식 상세의 컵 노트 색에 바로 반영됩니다.
+            매장 글에서 맛 표현으로 쓰였지만 분류표에 없는 단어를 SCA 플레이버 휠에 배치하거나, 맛이 아니면 제외합니다.
+            이미 있는 단어도 분류를 바꿀 수 있습니다. 저장하면 소식 상세의 컵 노트 색에 바로 반영됩니다.
           </p>
         </header>
         <AssignBoard rows={rows} places={PLACES} storeReady={cupnotesStoreReady()} />

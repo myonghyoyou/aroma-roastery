@@ -50,6 +50,8 @@
 .cnab-none { font-size: 13px; color: var(--milk-2); }
 .cnab-act { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .cnab-act select { min-height: 40px; max-width: 240px; padding: 0 10px; font: inherit; font-size: 14px; color: var(--milk); background: var(--char); border: 1px solid var(--npl-line); border-radius: 2px; }
+.cnab-act select:invalid { color: var(--milk-2); }
+.cnab-act select option { color: var(--milk); }
 .cnab-act .npl-btn:disabled { opacity: .4; cursor: default; }
 .cnab-said { grid-column: 1 / -1; margin: 0; font-size: 13px; font-weight: 600; color: var(--milk-2); }
 @media (max-width: 899px) {
