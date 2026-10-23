@@ -3,9 +3,9 @@
  * the client chose on 2026-10-22 (data/images/플레이버 휠 ver.2 가로.jpg). Every word the store uses
  * sits where that wheel puts it (대분류 > 2차 분류), and its colour is the wheel's own, sampled from
  * the image through its embedded CMYK profile: the colour of the word's own segment on the outer
- * ring (딸기 red, 블루베리 navy, 망고 yellow), as the wheel paints it. A word the wheel does not name
- * borrows the colour of the wheel word nearest in taste (한라봉 from 오렌지, 체리 from 자두); failing
- * that, its 2차 분류's colour. (A colour per group, 2026-10-22, put 딸기 in the berry group's purple,
+ * ring (딸기 red, 블루베리 navy, 망고 yellow), as the wheel paints it. A note the outer ring does not
+ * name (a category's own name such as 꽃향 or 견과, or a note the wheel leaves out such as 한라봉)
+ * takes its 2차 분류's colour on the middle ring. (A colour per group, 2026-10-22, put 딸기 in the berry group's purple,
  * which readers found unintuitive; the colour groups below still order and group the lists.)
  * (Before: the SCA wheel, and before that the logo's four leaf colours, which put grape in yellow.)
  * Words the wheel does not name (한라봉, 금귤, 파파야 ...) go to the nearest place, marked "near".
@@ -85,17 +85,15 @@ const WORD_COLOR: Record<string, string> = {
 };
 
 /*
- * The store's word for a wheel word ("감귤" is the wheel's "귤"), or, for a word the wheel does not
- * name, the wheel word nearest in taste whose colour it borrows.
+ * The store's spelling of a word the wheel writes otherwise: the same note, so the same segment.
+ * Only true respellings belong here. A note the outer ring does not name, whether a category's own
+ * name (꽃향, 견과, 열대과일, 허브, 포도) or a note the wheel leaves out (한라봉, 체리, 얼그레이 ...),
+ * takes its 2차 분류's colour, not a look-alike word's: borrowing 재스민 painted 꽃향 white and
+ * 헤이즐넛 painted 견과 pale cream (fixed 2026-10-23).
  */
-const COLOR_FROM: Record<string, string> = {
-  감귤: '귤', 패션프룻: '패션후르츠', 크랜베리: '크렌베리', 포도: '적포도', 꽃향: '재스민',
-  한라봉: '오렌지', 금귤: '귤', 유자: '레몬', 체리: '자두', 파파야: '망고', 구아바: '리치', 블랙커런트: '블랙베리',
-  얼그레이: '홍차', 꽃차: '국화차', 라일락: '라벤더', 정향: '팔각', 유칼립투스: '페퍼민트', 허브: '로즈마리',
-  견과: '헤이즐넛', 열대과일: '파인애플', 연유: '크림', 조청: '메이플시럽', 럼: '위스키', 호박: '고구마',
-};
+const SPELLED_AS: Record<string, string> = { 감귤: '귤', 패션프룻: '패션후르츠', 크랜베리: '크렌베리' };
 
-const colorOf = (e: { word: string; sub: Sub }) => WORD_COLOR[e.word] ?? WORD_COLOR[COLOR_FROM[e.word]] ?? SUB_COLOR[e.sub];
+const colorOf = (e: { word: string; sub: Sub }) => WORD_COLOR[e.word] ?? WORD_COLOR[SPELLED_AS[e.word]] ?? SUB_COLOR[e.sub];
 
 type Entry = {
   /** the word as shown */
@@ -176,7 +174,7 @@ const NOTES: Entry[] = [
   { word: '장미', aka: ['로즈'], wheel: 'flowerTea', sub: 'flower', re: /장미|로즈(?!마리|와인)/ },
   { word: '히비스커스', wheel: 'flowerTea', sub: 'flower' },
   { word: '재스민', aka: ['자스민', '쟈스민'], wheel: 'flowerTea', sub: 'flower' },
-  { word: '꽃향', aka: ['플로럴'], wheel: 'flowerTea', sub: 'flower', near: true },
+  { word: '꽃향', aka: ['플로럴'], wheel: 'flowerTea', sub: 'flower' },
   { word: '라일락', wheel: 'flowerTea', sub: 'flower', near: true },
 
   // 허브와 채소 > 향신료
@@ -198,7 +196,7 @@ const NOTES: Entry[] = [
   { word: '바질', wheel: 'herbVeg', sub: 'herb' },
   { word: '페퍼민트', aka: ['민트', '스피아민트'], wheel: 'herbVeg', sub: 'herb' },
   { word: '애플민트', wheel: 'herbVeg', sub: 'herb' },
-  { word: '허브', wheel: 'herbVeg', sub: 'herb', near: true },
+  { word: '허브', wheel: 'herbVeg', sub: 'herb' },
   { word: '유칼립투스', wheel: 'herbVeg', sub: 'herb', near: true },
   // 허브와 채소 > 채소
   { word: '인삼', wheel: 'herbVeg', sub: 'veg' },
