@@ -64,7 +64,7 @@ export function AssignBoard({ rows, places, storeReady }: { rows: AssignRow[]; p
 
   return (
     <div className="cnab">
-      {!storeReady && <p className="cnab-warn">이 환경에는 저장소가 연결되어 있지 않아 저장할 수 없습니다. 실제 사이트에서 사용해 주세요.</p>}
+      {!storeReady && <p className="cnab-warn">저장소가 연결되지 않아 저장할 수 없습니다.</p>}
 
       <div className="cnab-tabs" role="tablist" aria-label="단어 종류">
         {TABS.map((t) => (

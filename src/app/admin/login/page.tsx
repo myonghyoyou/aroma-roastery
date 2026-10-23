@@ -13,7 +13,6 @@ export default function AdminLogin() {
       <div className="adm adm--narrow">
         <header className="page-head adm-head">
           <h1>관리</h1>
-          <p>관리 키를 넣어 주세요. 한 번 들어오면 이 기기에서는 1년 동안 다시 묻지 않습니다.</p>
         </header>
         <Suspense>
           <SignInForm />

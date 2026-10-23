@@ -22,7 +22,7 @@ export default async function ArchivePage() {
             {posts.some((p) => p.sample) && <span className="tag-sample">예시</span>}
           </div>
           <p className="arc-lead">
-            인스타그램에 올린 기록을 모았습니다. 원두 카드에 마우스를 올리면 설명이 보이고, 누르면 그 기록으로 이동합니다.
+            인스타그램에 올린 기록을 모았습니다.
           </p>
           <p className="arc-insta">
             <a href={settings.instagram.url} target="_blank" rel="noopener">인스타그램 {settings.instagram.handle}</a>

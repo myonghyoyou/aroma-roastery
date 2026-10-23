@@ -33,22 +33,16 @@ export default async function AdminHome() {
             <h1>관리</h1>
             <form action={signOut}><button type="submit" className="adm-btn">나가기</button></form>
           </div>
-          <p>이 주소를 휴대폰 홈 화면에 추가해 두면 다음부터 바로 들어올 수 있습니다. 다른 사람의 기기에서 들어왔다면 나가기를 눌러 주세요.</p>
         </header>
 
         <section className="adm-todo" aria-labelledby="adm-todo">
           <div>
             <h2 id="adm-todo">{waiting.length ? `분류할 새 단어 ${waiting.length}개` : '분류할 새 단어가 없습니다'}</h2>
-            {waiting.length ? (
-              <>
-                <p>매장 글에 맛 표현으로 나왔지만 아직 분류표에 없는 단어입니다.</p>
-                <ul className="adm-todo-words">
-                  {waiting.slice(0, SHOWN_WORDS).map((w) => <li key={w.word}>{w.word}</li>)}
-                  {waiting.length > SHOWN_WORDS && <li>외 {waiting.length - SHOWN_WORDS}개</li>}
-                </ul>
-              </>
-            ) : (
-              <p>새 글에서 모르는 맛 표현이 나오면 여기에 알려 드립니다.</p>
+            {waiting.length > 0 && (
+              <ul className="adm-todo-words">
+                {waiting.slice(0, SHOWN_WORDS).map((w) => <li key={w.word}>{w.word}</li>)}
+                {waiting.length > SHOWN_WORDS && <li>외 {waiting.length - SHOWN_WORDS}개</li>}
+              </ul>
             )}
           </div>
           <Link href="/admin/cupnotes" className={waiting.length ? 'adm-btn adm-btn--solid' : 'adm-btn'}>
@@ -58,7 +52,6 @@ export default async function AdminHome() {
 
         <section className="adm-sec" aria-labelledby="adm-beans">
           <h2 id="adm-beans">최근 원두 소식의 컵 노트</h2>
-          <p>색이 맞지 않으면 컵 노트 분류에서 그 단어의 분류를 바꿀 수 있습니다.</p>
           {beans.length ? (
             <ol className="adm-beans">
               {beans.map((p) => {

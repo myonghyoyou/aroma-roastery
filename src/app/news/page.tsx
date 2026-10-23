@@ -22,7 +22,7 @@ export default async function NewsPage() {
             <h1>소식</h1>
             {posts.some((p) => p.sample) && <span className="tag-sample">예시</span>}
           </div>
-          <p className="nws-lead">영업시간과 휴무, 새로 들어온 원두, 매장 행사를 알려 드립니다.</p>
+          <p className="nws-lead">영업시간, 휴무, 원두 입고, 매장 행사</p>
           <p className="nws-insta">
             <a href={settings.instagram.url} target="_blank" rel="noopener">인스타그램 {settings.instagram.handle}</a>
           </p>

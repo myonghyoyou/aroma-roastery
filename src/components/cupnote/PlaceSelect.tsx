@@ -133,7 +133,7 @@ export function PlaceSelect({ value, options, onChange, label, placeholder = '�
           {hits.length ? (
             <ul ref={list} id={listId} className="psel-list" role="listbox" aria-label={label}>{rows}</ul>
           ) : (
-            <p className="psel-empty" role="status">&lsquo;{query}&rsquo;에 맞는 분류가 없습니다. 다른 이름이나 초성(예: ㄸㄱ)으로 찾아보세요.</p>
+            <p className="psel-empty" role="status">&lsquo;{query}&rsquo;에 맞는 분류가 없습니다.</p>
           )}
         </div>
       )}

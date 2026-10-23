@@ -35,12 +35,10 @@
 /* the hub: what is waiting first, then the latest arrivals' notes to look over */
 .adm-todo { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 24px; align-items: center; padding: 22px 0; border-top: 1px solid var(--adm-rule); border-bottom: 1px solid var(--adm-rule); }
 .adm-todo h2 { margin: 0; font-size: clamp(22px, 2.2vw, 28px); font-weight: 700; letter-spacing: -0.02em; }
-.adm-todo p { margin: 6px 0 0; font-size: 15px; line-height: 1.6; color: var(--milk-2); }
 .adm-todo-words { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
 .adm-todo-words li { padding: 3px 9px; font-size: 13px; font-weight: 600; border: 1px solid var(--adm-line); border-radius: 2px; }
 .adm-sec { margin-top: clamp(36px, 6vh, 56px); }
 .adm-sec h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 4px; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
-.adm-sec > p { margin: 0 0 8px; font-size: 14px; color: var(--milk-2); }
 .adm-beans { list-style: none; margin: 0; padding: 0; }
 .adm-beans > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--adm-rule); }
 .adm-bean { font-size: 16px; font-weight: 700; color: var(--milk); text-decoration: none; }

@@ -42,10 +42,7 @@ export default async function AdminCupNotes() {
         <header className="page-head adm-head">
           <p className="adm-crumb"><Link href="/admin">관리</Link><span aria-hidden="true">/</span><span>컵 노트 분류</span></p>
           <h1>컵 노트 분류</h1>
-          <p>
-            매장 글에서 맛 표현으로 쓰였지만 분류표에 없는 단어를 플레이버 휠에 배치하거나, 맛이 아니면 제외합니다.
-            이미 있는 단어도 분류를 바꿀 수 있습니다. 저장하면 소식 상세의 컵 노트 색에 바로 반영됩니다.
-          </p>
+          <p>분류표에 없는 맛 표현을 플레이버 휠에 배치합니다.</p>
         </header>
         <AssignBoard rows={rows} places={PLACES} storeReady={cupnotesStoreReady()} />
       </div>
