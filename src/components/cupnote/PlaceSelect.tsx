@@ -1,14 +1,17 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import type { NoteFamily } from '@/components/news-post-lab/notes';
+import type { PlaceOption } from '@/components/news-post-lab/notes';
 
-export type PlaceOption = { key: string; label: string; group: string; family: NoteFamily; color: string };
+export type { PlaceOption };
+
+/** what the button shows: the place, and the word whose colour is borrowed */
+const shown = (o: PlaceOption) => (o.word ? `${o.place} > ${o.word} 색` : o.label);
 
 /*
  * The assign page's place picker: a button that opens a list grouped by the wheel's 대분류
- * ("과일", then "과일 > 귤", "과일 > 열대과일" ...), each option led by a square of the colour it
- * gives. A listbox by the ARIA pattern: arrows move, Home/End jump, Enter or Space picks, Esc or a
+ * ("과일", then "과일 > 귤", "과일 > 열대과일" ...); under each 2차 분류 its table words, so a word
+ * can take an existing word's colour. Each option is led by a square of the colour it gives. A listbox by the ARIA pattern: arrows move, Home/End jump, Enter or Space picks, Esc or a
  * click outside closes, and typing a letter jumps to the next option starting with it.
  */
 export function PlaceSelect({ value, options, onChange, label, placeholder = '분류 선택' }: {
@@ -73,7 +76,7 @@ export function PlaceSelect({ value, options, onChange, label, placeholder = '�
     else if (e.key.length === 1) {
       const from = (active + 1) % flat.length;
       const order = [...flat.slice(from), ...flat.slice(0, from)];
-      const hit = order.find((o) => o.label.split(' > ').pop()!.startsWith(e.key));
+      const hit = order.find((o) => (o.word ?? o.label.split(' > ').pop()!).startsWith(e.key));
       if (hit) setActive(flat.indexOf(hit));
     }
   };
@@ -88,12 +91,12 @@ export function PlaceSelect({ value, options, onChange, label, placeholder = '�
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={`${id}-list`}
-        aria-label={`${label}: ${picked ? picked.label : placeholder}`}
+        aria-label={`${label}: ${picked ? shown(picked) : placeholder}`}
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={(e) => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); show(); } }}
       >
         {picked && <span className="psel-swatch" style={{ background: picked.color }} aria-hidden="true" />}
-        <span className="psel-value">{picked ? picked.label : placeholder}</span>
+        <span className="psel-value">{picked ? shown(picked) : placeholder}</span>
         <span className="psel-caret" aria-hidden="true" />
       </button>
       {open && (
@@ -121,7 +124,7 @@ export function PlaceSelect({ value, options, onChange, label, placeholder = '�
                       data-i={n}
                       role="option"
                       aria-selected={o.key === value}
-                      className={n === active ? 'psel-option is-active' : 'psel-option'}
+                      className={`psel-option${o.word ? ' is-word' : ''}${n === active ? ' is-active' : ''}`}
                       onPointerEnter={() => setActive(n)}
                       onClick={() => pick(n)}
                     >

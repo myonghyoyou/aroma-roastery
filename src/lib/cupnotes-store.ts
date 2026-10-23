@@ -13,7 +13,8 @@ export type PlaceKey =
   | 'nutty/grain' | 'nutty/nut' | 'sweet/sugar' | 'sweet/milk' | 'sweet/cacao'
   | 'fermented/alcohol' | 'other/chemical' | 'other/wood' | 'other/smoky';
 
-export type NoteOverride = { place: PlaceKey } | { ignore: true };
+/** a place, and optionally the table word whose colour the placed word takes */
+export type NoteOverride = { place: PlaceKey; like?: string } | { ignore: true };
 export type NoteOverrides = Record<string, NoteOverride>;
 
 export const CUPNOTES_TAG = 'cupnotes';

@@ -79,6 +79,9 @@
 .psel-group { margin: 0; padding: 6px 14px 4px; font-size: 12px; font-weight: 700; color: var(--milk-2); }
 .psel-items { list-style: none; margin: 0; padding: 0; }
 .psel-option { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 14px 0 22px; font-size: 14px; font-weight: 600; cursor: pointer; }
+/* a table word under its place: indented, lighter, its own colour */
+.psel-option.is-word { min-height: 32px; padding-left: 40px; font-weight: 500; color: var(--milk-2); }
+.psel-option.is-word.is-active, .psel-option.is-word[aria-selected="true"] { color: var(--milk); }
 .psel-option.is-active { background: rgba(251, 243, 232, .1); }
 .psel-option[aria-selected="true"] { color: var(--milk); background: rgba(251, 243, 232, .16); }
 .psel-option[aria-selected="true"]::after { content: ""; width: 10px; height: 5px; margin-left: auto; border-left: 2px solid var(--milk); border-bottom: 2px solid var(--milk); transform: rotate(-45deg) translate(1px, -2px); }

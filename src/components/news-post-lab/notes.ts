@@ -295,27 +295,49 @@ const PLACE_ENTRY: Record<PlaceKey, { wheel: Wheel; sub: Sub }> = {
   'other/chemical': { wheel: 'other', sub: 'chemical' }, 'other/wood': { wheel: 'other', sub: 'wood' }, 'other/smoky': { wheel: 'other', sub: 'smoky' },
 };
 
-/** The places a word can be put, in the wheel's order, for the assign page's choices. */
-export const PLACES: { key: PlaceKey; label: string; group: string; family: NoteFamily; color: string }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).map((key) => ({
-  key, label: placeOf(PLACE_ENTRY[key]), group: WHEEL_LABEL[PLACE_ENTRY[key].wheel], family: WHEEL_FAMILY(PLACE_ENTRY[key]), color: SUB_COLOR[PLACE_ENTRY[key].sub],
-}));
+/**
+ * The assign page's choices, in the wheel's order: for each 2차 분류, the place itself (its own
+ * colour), then every word the built-in table has there, so a placed word can take that word's
+ * colour ("그레이프" in 과일 > 포도, coloured as 적포도). A word choice's key is "place|word".
+ */
+export type PlaceOption = { key: string; label: string; group: string; family: NoteFamily; color: string; place: string; word?: string };
+export const PLACES: PlaceOption[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).flatMap((key) => {
+  const at = PLACE_ENTRY[key];
+  const base = { group: WHEEL_LABEL[at.wheel], family: WHEEL_FAMILY(at), place: placeOf(at) };
+  return [
+    { key, label: placeOf(at), color: SUB_COLOR[at.sub], ...base },
+    ...NOTES.filter((e) => e.wheel === at.wheel && e.sub === at.sub).map((e) => ({ key: `${key}|${e.word}`, label: e.word, color: colorOf(e), word: e.word, ...base })),
+  ];
+});
 
-type Placed = Entry & { assigned?: boolean };
+/** a table word's own colour, by its name */
+const colorOfWord = (word: string) => {
+  const e = NOTES.find((n) => n.word === word);
+  return e ? colorOf(e) : undefined;
+};
+
+/** a table word the built-in table has at this place, or nothing: guards a stored "like" */
+export const isWordAt = (place: PlaceKey, word: string) => NOTES.some((e) => e.word === word && e.wheel === PLACE_ENTRY[place]?.wheel && e.sub === PLACE_ENTRY[place]?.sub);
+
+type Placed = Entry & { assigned?: boolean; like?: string };
 
 function tableWith(o: NoteOverrides = {}): Placed[] {
   const out: Placed[] = [];
   for (const e of NOTES) {
     const v = o[e.word];
     if (v && 'ignore' in v) continue;
-    out.push(v && 'place' in v && PLACE_ENTRY[v.place] ? { ...e, ...PLACE_ENTRY[v.place], near: false, assigned: true } : e);
+    out.push(v && 'place' in v && PLACE_ENTRY[v.place] ? { ...e, ...PLACE_ENTRY[v.place], near: false, assigned: true, like: v.like } : e);
   }
   for (const [word, v] of Object.entries(o)) {
-    if ('place' in v && PLACE_ENTRY[v.place] && !NOTES.some((e) => e.word === word || e.aka?.includes(word))) out.push({ word, ...PLACE_ENTRY[v.place], assigned: true });
+    if ('place' in v && PLACE_ENTRY[v.place] && !NOTES.some((e) => e.word === word || e.aka?.includes(word))) out.push({ word, ...PLACE_ENTRY[v.place], assigned: true, like: v.like });
   }
   return out;
 }
 
 const placeLabel = (e: Placed) => `${placeOf(e)}${e.assigned ? ' (직접 배치)' : ''}`;
+
+/* a placed word wears the colour it was given (a table word's, or its place's); the rest their own */
+const colorFor = (e: Placed) => (e.assigned ? (e.like && colorOfWord(e.like)) || SUB_COLOR[e.sub] : colorOf(e));
 
 /** The caption's cup notes, in the order it names them, each once, at most six. */
 export function findNotes(caption: string, overrides?: NoteOverrides): CupNote[] {
@@ -327,7 +349,7 @@ export function findNotes(caption: string, overrides?: NoteOverrides): CupNote[]
   }
   // a longer word wins over one inside it ("레몬그라스" over "레몬", "블랙체리" kept as "체리")
   const kept = hits.filter((h) => !hits.some((o) => o !== h && o.len > h.len && o.at <= h.at && h.at + h.len <= o.at + o.len));
-  return kept.sort((a, b) => a.at - b.at).slice(0, 6).map(({ e }) => ({ word: e.word, family: WHEEL_FAMILY(e), place: placeLabel(e), color: colorOf(e) }));
+  return kept.sort((a, b) => a.at - b.at).slice(0, 6).map(({ e }) => ({ word: e.word, family: WHEEL_FAMILY(e), place: placeLabel(e), color: colorFor(e) }));
 }
 
 // words that stand before 향, 같은, 처럼 in a caption but are not flavours
@@ -354,7 +376,7 @@ export function unknownFlavours(caption: string, overrides: NoteOverrides = {}):
 
 /** The whole table with the saved placements, for the check and assign pages. */
 export function noteTable(overrides?: NoteOverrides): (CupNote & { aka: string[]; assigned: boolean })[] {
-  return tableWith(overrides).map((e) => ({ word: e.word, aka: e.aka ?? [], family: WHEEL_FAMILY(e), place: placeLabel(e), color: colorOf(e), assigned: Boolean(e.assigned) }));
+  return tableWith(overrides).map((e) => ({ word: e.word, aka: e.aka ?? [], family: WHEEL_FAMILY(e), place: placeLabel(e), color: colorFor(e), assigned: Boolean(e.assigned) }));
 }
 
 /** Words marked "not a flavour" on the assign page. */

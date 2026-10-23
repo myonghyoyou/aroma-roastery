@@ -49,7 +49,7 @@ export default async function AssignNotes() {
     })),
     ...noteTable(overrides).map((t) => ({
       word: t.word, status: t.assigned ? ('assigned' as const) : ('table' as const), count: uses.get(t.word) ?? 0,
-      family: t.family, color: t.color, place: t.place, placeKey: (overrides[t.word] && 'place' in overrides[t.word]) ? (overrides[t.word] as { place: string }).place : undefined,
+      family: t.family, color: t.color, place: t.place, placeKey: (() => { const v = overrides[t.word]; return v && 'place' in v ? (v.like ? `${v.place}|${v.like}` : v.place) : undefined; })(),
     })).sort((a, b) => b.count - a.count),
     ...ignoredWords(overrides).map((word) => ({ word, status: 'ignored' as const, count: 0 })),
   ];

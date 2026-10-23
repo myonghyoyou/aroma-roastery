@@ -1,10 +1,11 @@
 import { revalidateTag } from 'next/cache';
-import { PLACES } from '@/components/news-post-lab/notes';
+import { PLACES, isWordAt } from '@/components/news-post-lab/notes';
 import { CUPNOTES_TAG, cupnotesStoreReady, saveOverride, type PlaceKey } from '@/lib/cupnotes-store';
 
 /*
  * Saves one cup-note placement from /news-post-lab/notes/assign:
- *   POST { word, place }   place: a wheel place key, "ignore" (not a flavour) or "reset" (back to the table)
+ *   POST { word, place }   place: a wheel place key, optionally "|word" to take a table word's colour
+ *                          ("fruit/grape|적포도"), "ignore" (not a flavour) or "reset" (back to the table)
  * Needs the header x-admin-key equal to NOTES_ADMIN_KEY. Every page that shows cup notes reads the
  * placements through a cache tagged "cupnotes", which this expires.
  */
@@ -26,8 +27,13 @@ export async function POST(request: Request) {
 
   if (place === 'reset') await saveOverride(word, null);
   else if (place === 'ignore') await saveOverride(word, { ignore: true });
-  else if (PLACES.some((p) => p.key === place)) await saveOverride(word, { place: place as PlaceKey });
-  else return Response.json({ error: '분류가 올바르지 않습니다.' }, { status: 400 });
+  else {
+    const [at, like] = place.split('|') as [PlaceKey, string | undefined];
+    if (!PLACES.some((p) => p.key === at) || (like !== undefined && !isWordAt(at, like))) {
+      return Response.json({ error: '분류가 올바르지 않습니다.' }, { status: 400 });
+    }
+    await saveOverride(word, like ? { place: at, like } : { place: at });
+  }
 
   revalidateTag(CUPNOTES_TAG, { expire: 0 });
   return Response.json({ ok: true, word, place });

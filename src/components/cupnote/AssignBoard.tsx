@@ -104,7 +104,7 @@ function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Plac
       </div>
       <div className="cnab-now">
         {picked ? (
-          <CupNoteTag word={row.word} color={picked.color} place={picked.label} />
+          <CupNoteTag word={row.word} color={picked.color} place={picked.place} />
         ) : row.color && row.place ? (
           <CupNoteTag word={row.word} color={row.color} place={row.place} />
         ) : (
