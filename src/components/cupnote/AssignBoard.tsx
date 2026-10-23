@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { FAMILY_LABEL, FAMILY_ORDER, type NoteFamily } from '@/components/news-post-lab/notes';
+import type { NoteFamily } from '@/components/news-post-lab/notes';
 import { CupNoteTag } from './CupNoteTag';
+import { PlaceSelect, type PlaceOption } from './PlaceSelect';
 
 export type AssignRow = {
   word: string;
@@ -15,7 +16,7 @@ export type AssignRow = {
   place?: string;
   placeKey?: string;
 };
-type Place = { key: string; label: string; family: NoteFamily };
+type Place = PlaceOption;
 
 const TABS: { key: AssignRow['status']; label: string }[] = [
   { key: 'new', label: '새 단어' },
@@ -110,15 +111,7 @@ function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Plac
         )}
       </div>
       <div className="cnab-act">
-        {/* the first option is a placeholder: shown greyed while nothing is chosen, not choosable */}
-        <select aria-label={`${row.word} 분류`} value={choice} required onChange={(e) => setChoice(e.target.value)}>
-          <option value="" disabled hidden>분류 선택</option>
-          {FAMILY_ORDER.filter((f) => places.some((p) => p.family === f)).map((f) => (
-            <optgroup key={f} label={FAMILY_LABEL[f]}>
-              {places.filter((p) => p.family === f).map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
-            </optgroup>
-          ))}
-        </select>
+        <PlaceSelect value={choice} options={places} onChange={setChoice} label={`${row.word} 분류`} />
         <button type="button" className="npl-btn npl-btn--solid" disabled={!choice || busy} onClick={() => onSave(row.word, choice)}>저장</button>
         {row.status !== 'ignored' && <button type="button" className="npl-btn" disabled={busy} onClick={() => onSave(row.word, 'ignore')}>맛 아님</button>}
         {(row.status === 'assigned' || row.status === 'ignored') && <button type="button" className="npl-btn" disabled={busy} onClick={() => onSave(row.word, 'reset')}>되돌리기</button>}

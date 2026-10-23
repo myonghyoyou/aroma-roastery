@@ -247,8 +247,8 @@ const PLACE_ENTRY: Record<PlaceKey, { wheel: Wheel; sub: Sub }> = {
 };
 
 /** The places a word can be put, in the wheel's order, for the assign page's choices. */
-export const PLACES: { key: PlaceKey; label: string; family: NoteFamily }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).map((key) => ({
-  key, label: placeOf(PLACE_ENTRY[key]), family: WHEEL_FAMILY(PLACE_ENTRY[key]),
+export const PLACES: { key: PlaceKey; label: string; group: string; family: NoteFamily }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).map((key) => ({
+  key, label: placeOf(PLACE_ENTRY[key]), group: WHEEL_LABEL[PLACE_ENTRY[key].wheel], family: WHEEL_FAMILY(PLACE_ENTRY[key]),
 }));
 
 type Placed = Entry & { assigned?: boolean };
