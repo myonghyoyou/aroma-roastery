@@ -3,7 +3,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 /*
  * Cup-note placements chosen on /news-post-lab/notes/assign, kept in Upstash Redis next to the
  * Instagram token: for each word, a place on the flavour wheel (Manufact Coffee Ver. 2) (which sets its colour), or
- * "not a flavour". They extend and correct the built-in table (news-post-lab/notes.ts).
+ * "not a flavour". They extend and correct the built-in table (components/cupnote/notes.ts).
  * Server only. Writes need NOTES_ADMIN_KEY (see /api/cupnotes).
  */
 

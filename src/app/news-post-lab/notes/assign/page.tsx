@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AssignBoard, type AssignRow } from '@/components/cupnote/AssignBoard';
-import { PLACES, findNotes, ignoredWords, noteTable, unknownFlavours } from '@/components/news-post-lab/notes';
+import { PLACES, findNotes, ignoredWords, noteTable, unknownFlavours } from '@/components/cupnote/notes';
 import { SubPage } from '@/components/site/SubPage';
 import { cupnotesStoreReady, readOverrides } from '@/lib/cupnotes-store';
 import { getPosts, type Block, type Post } from '@/lib/content';

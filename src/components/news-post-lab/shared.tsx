@@ -3,7 +3,7 @@ import { formatPeriod, pickRelated, type NewsCardData } from '@/components/news/
 import { getPosts, getSiteSettings, type Block, type Photo, type Post, type SiteSettings } from '@/lib/content';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
 import { readOverrides } from '@/lib/cupnotes-store';
-import { beanProfile, type BeanProfile } from './bean';
+import { beanProfile, type BeanProfile } from '@/components/cupnote/bean';
 
 /** Everything a concept page needs about one news post. */
 export type NewsView = {

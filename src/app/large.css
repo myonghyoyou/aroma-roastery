@@ -74,26 +74,30 @@
 
   /* news */
   html .nws { max-width: calc(1240 * var(--u)); }
-  html .nws-post { --nws-col: calc(800 * var(--u)); }
-  html .nws-head h1, html .nws-hero-title { font-size: calc(58 * var(--u)); }
+  html .nws-head h1 { font-size: calc(58 * var(--u)); }
   html .nws-lead { font-size: calc(16 * var(--u)); }
-  html .nws-insta, html .nws-chip, html .nws-post-meta, html .nws-more { font-size: calc(14 * var(--u)); }
+  html .nws-insta, html .nws-chip { font-size: calc(14 * var(--u)); }
   html .nws-crumb, html .nws-count, html .nws-meta { font-size: calc(13 * var(--u)); }
   html .nws-pin { font-size: calc(12 * var(--u)); }
   html .nws-field-title { font-size: calc(28 * var(--u)); }
   html .nws-title { font-size: calc(22 * var(--u)); }
   html .nws-summary { font-size: calc(15 * var(--u)); }
-  html .nws-post-title { font-size: calc(46 * var(--u)); }
-  html .nws-post-summary, html .nws-body { font-size: calc(18 * var(--u)); }
-  html .nws-body h2, html .nws-body blockquote, html .nws-grid--related .nws-field-title { font-size: calc(24 * var(--u)); }
-  html .nws-related-head h2 { font-size: calc(26 * var(--u)); }
   html .nws-empty p { font-size: calc(17 * var(--u)); }
+  /* a news post (NewsPost) */
+  html .nwp-crumb, html .nwp-over, html .nwp-btn { font-size: calc(14 * var(--u)); }
+  html .nwp-title { font-size: calc(42 * var(--u)); }
+  html .nwp-cup-h, html .nwp-side-label { font-size: calc(13 * var(--u)); }
+  html .nwp-tiles b { font-size: calc(18 * var(--u)); }
+  html .nwp-tiles span { font-size: calc(12 * var(--u)); }
+  html .nwp-lead, html .nwp-body { font-size: calc(17 * var(--u)); }
+  html .nwp-side-title { font-size: calc(16 * var(--u)); }
+  html .nwp-img { max-height: min(74svh, calc(820 * var(--u))); }
 }
 
 /* wide screens only: the news list uses the whole width, four cards a row, like the archive sheet
    (a post keeps its reading width); a portrait screen keeps three */
 @media (min-width: 1921px) {
-  html .nws:not(.nws-post) { max-width: none; }
+  html .nws:not(.nwp-page-wrap) { max-width: none; }
   html .nws-grid:not(.nws-grid--related) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 

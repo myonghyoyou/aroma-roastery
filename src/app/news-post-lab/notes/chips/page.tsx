@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { BagLabel, ProseLine, SwatchCards, WheelMap, WheelSegments } from '@/components/cupnote/ChipVariants';
 import { CupNoteTags } from '@/components/cupnote/CupNoteTag';
-import { findNotes, type CupNote } from '@/components/news-post-lab/notes';
+import { findNotes, type CupNote } from '@/components/cupnote/notes';
 import { SubPage } from '@/components/site/SubPage';
 import { readOverrides } from '@/lib/cupnotes-store';
 import { getPosts, type Block } from '@/lib/content';

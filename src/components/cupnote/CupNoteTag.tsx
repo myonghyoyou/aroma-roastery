@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { FAMILY_COLOR, type NoteFamily } from '@/components/news-post-lab/notes';
+import { FAMILY_COLOR, type NoteFamily } from '@/components/cupnote/notes';
 import './cupnote.css';
 
 /*

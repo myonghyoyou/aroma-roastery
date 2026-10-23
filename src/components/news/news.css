@@ -106,51 +106,9 @@
 .nws-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-top: 40px; padding: 48px 0; border-bottom: 1px solid var(--nws-line); }
 .nws-empty p { margin: 0; font-size: 17px; color: var(--milk-2); }
 
-/* ---------- a notice ---------- */
-.nws-post { padding-top: clamp(112px, 18vh, 180px); }
-.nws-hero { position: relative; margin: 0; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--nws-r); background: rgba(251, 243, 232, .06); }
-.nws-hero .nws-img { transition: none; }
-.nws-hero--field .nws-field {
-  background:
-    radial-gradient(80% 90% at 100% 0%, rgba(var(--nws-tone), .6), transparent 66%),
-    radial-gradient(60% 70% at 0% 100%, rgba(var(--nws-tone), .14), transparent 72%),
-    linear-gradient(170deg, #34221A, #20150F);
-}
-.nws-hero-title {
-  position: absolute; left: 0; bottom: 0; z-index: 1; margin: 0; max-width: 14em;
-  padding: clamp(22px, 4vw, 56px);
-  font-size: clamp(30px, 4.4vw, 58px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.15;
-  word-break: keep-all; overflow-wrap: anywhere; text-wrap: balance; text-shadow: 0 1px 18px rgba(20, 12, 8, .35);
-}
-.nws-post-head { max-width: 46em; margin-top: clamp(28px, 4vh, 44px); }
-.nws-post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-.nws-period strong { font-weight: 700; color: var(--milk); }
-.nws-post-title { margin: 14px 0 0; max-width: 18em; font-size: clamp(28px, 3.2vw, 46px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; word-break: keep-all; overflow-wrap: anywhere; }
-.nws-post-summary { margin: 14px 0 0; max-width: 34em; font-size: 18px; line-height: 1.7; color: var(--milk-2); }
-
-.nws-body { max-width: 38em; margin-top: clamp(36px, 6vh, 64px); padding-top: clamp(28px, 4vh, 40px); border-top: 1px solid var(--nws-line); font-size: 18px; line-height: 1.85; word-break: keep-all; overflow-wrap: anywhere; }
-.nws-body p { margin: 0 0 1.3em; }
-.nws-body h2 { margin: 1.9em 0 .6em; font-size: clamp(20px, 1.6vw, 24px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.3; }
-.nws-body ul { list-style: none; margin: 0 0 1.4em; padding: 0; }
-.nws-body li { position: relative; padding-left: 1.1em; }
-.nws-body li::before { content: ""; position: absolute; left: 0; top: .78em; width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--nws-tone)); }
-.nws-body blockquote { margin: 1.8em 0; padding-left: 20px; border-left: 3px solid rgb(var(--nws-tone)); font-size: clamp(20px, 1.7vw, 24px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.45; }
-.nws-body blockquote p { margin: 0; }
-
-.nws-related { margin-top: clamp(80px, 13vh, 150px); }
-.nws-related-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; padding-bottom: 16px; border-bottom: 1px solid var(--nws-line); }
-.nws-related-head h2 { margin: 0; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; letter-spacing: -0.02em; }
-.nws-more, .nws-back a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
-.nws-more { font-size: 14px; }
+/* a notice's page is NewsPost (post.css); the related cards of the design study's A keep these */
 .nws-grid--related .nws-field-title { font-size: clamp(20px, 1.8vw, 24px); }
 @media (max-width: 719px) { .nws-grid--related { grid-template-columns: minmax(0, 1fr); } }
-.nws-back { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 48px 0 0; }
-
-@media (max-width: 700px) {
-  .nws-hero { aspect-ratio: 4 / 5; }
-  .nws-body { font-size: 17px; }
-  .nws-post-summary { font-size: 17px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .nws-img, .nws-field, .nws-chip { transition: none; }
@@ -159,17 +117,3 @@
 
 .nws-insta { margin: 10px 0 0; font-size: 14px; font-weight: 600; }
 .nws-insta a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
-
-/* ---------- a post: one reading column in the middle of the screen ----------
-   The list keeps the left edge every list on the site starts from (easy to scan); a post is read,
-   not scanned, so the cover photo, title, meta, body and links share one centred column of one width
-   (a wider photo over a narrower text read as misaligned); the related cards sit centred below. */
-.nws-post { --nws-col: 800px; margin-inline: auto; }
-.nws-post .nws-crumb, .nws-post .nws-hero, .nws-post-head, .nws-body, .nws-back { max-width: var(--nws-col); margin-inline: auto; }
-.nws-post .nws-body { max-width: var(--nws-col); }
-/* the end of the reading: a quiet row under a hairline, the list on the left, Instagram on the right */
-.nws-post .nws-back {
-  justify-content: space-between; align-items: center;
-  margin-top: clamp(40px, 6vh, 64px); padding-top: 20px; border-top: 1px solid var(--nws-line);
-}
-.nws-post .nws-back a { display: inline-flex; align-items: center; min-height: 44px; }

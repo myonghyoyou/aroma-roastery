@@ -3,7 +3,7 @@ import { TextBlocks } from '@/components/archive/TextBlocks';
 import type { Post } from '@/lib/content';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
 import { newsLabHref } from './concepts';
-import { Flipbook } from './Flipbook';
+import { Flipbook } from '@/components/news/Flipbook';
 import { FactList, type NewsView } from './shared';
 
 /*

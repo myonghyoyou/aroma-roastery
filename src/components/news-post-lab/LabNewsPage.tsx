@@ -15,7 +15,8 @@ import '@/components/archive/archive.css';
 import '@/components/news/news.css';
 import './lab.css';
 import './lab-dev.css';
-import './lab-f.css';
+// the chosen concept's own styles (NewsPost, Flipbook), which E's photos use too
+import '@/components/news/post.css';
 
 const CONCEPTS = { a: ConceptA, a2: ConceptA2, a3: ConceptA3, e: ConceptE, e2: ConceptE2, e3: ConceptE3, f: ConceptF };
 

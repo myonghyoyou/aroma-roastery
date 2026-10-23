@@ -2,13 +2,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CupNoteTags, LeafMark, toneStyle } from '@/components/cupnote/CupNoteTag';
 import { newsLabHref } from '@/components/news-post-lab/concepts';
-import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, findNotes, noteTable, unknownFlavours } from '@/components/news-post-lab/notes';
+import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, findNotes, noteTable, unknownFlavours } from '@/components/cupnote/notes';
 import { SubPage } from '@/components/site/SubPage';
 import { readOverrides } from '@/lib/cupnotes-store';
 import { getPosts, type Block, type Post } from '@/lib/content';
 import { formatDate } from '@/lib/post-utils';
 import '@/components/news-post-lab/lab.css';
-import '@/components/news-post-lab/lab-f.css';
 import '@/components/news-post-lab/notes.css';
 
 /*
@@ -34,7 +33,7 @@ export default async function NotesCheck() {
 
   return (
     <SubPage current="news">
-      <div className="nws npl npl-f ncheck">
+      <div className="nws npl ncheck">
         <header className="page-head ncheck-head">
           <h1>컵 노트 점검</h1>
           <p>

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, type CupNote } from '@/components/news-post-lab/notes';
+import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, type CupNote } from '@/components/cupnote/notes';
 import './chips.css';
 
 /*

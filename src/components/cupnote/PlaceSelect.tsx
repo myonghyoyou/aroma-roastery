@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import type { PlaceOption } from '@/components/news-post-lab/notes';
+import type { PlaceOption } from '@/components/cupnote/notes';
 
 export type { PlaceOption };
 

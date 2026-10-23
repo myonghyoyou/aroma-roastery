@@ -1,5 +1,5 @@
 import { revalidateTag } from 'next/cache';
-import { PLACES, isWordAt } from '@/components/news-post-lab/notes';
+import { PLACES, isWordAt } from '@/components/cupnote/notes';
 import { CUPNOTES_TAG, cupnotesStoreReady, saveOverride, type PlaceKey } from '@/lib/cupnotes-store';
 
 /*

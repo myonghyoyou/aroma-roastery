@@ -1,4 +1,4 @@
-/* The cup-note check page (/news-post-lab/notes). Tags reuse F's (lab-f.css). */
+/* The cup-note check page (/news-post-lab/notes). Tags are CupNoteTag (components/cupnote). */
 .ncheck { max-width: 1100px; }
 .ncheck-head { padding-bottom: 8px; }
 .ncheck-head p { max-width: 44em; }

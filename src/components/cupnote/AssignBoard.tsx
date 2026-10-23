@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import type { NoteFamily } from '@/components/news-post-lab/notes';
+import type { NoteFamily } from '@/components/cupnote/notes';
 import { CupNoteTag } from './CupNoteTag';
 import { PlaceSelect, type PlaceOption } from './PlaceSelect';
 
