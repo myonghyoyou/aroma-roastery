@@ -51,10 +51,9 @@
   html .footer-grid a { min-height: calc(44 * var(--u)); }
   html .copyright { font-size: calc(13 * var(--u)); margin-top: calc(48 * var(--u)); }
 
-  /* subpage heading, concept back button */
+  /* subpage heading */
   html .page-head h1 { font-size: calc(58 * var(--u)); }
   html .page-head p { font-size: calc(16 * var(--u)); }
-  html .lab-back { font-size: calc(14 * var(--u)); }
 
   /* archive */
   html .arc-head h1 { font-size: calc(56 * var(--u)); }

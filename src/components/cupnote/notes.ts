@@ -9,7 +9,7 @@
  * which readers found unintuitive; the colour groups below still order and group the lists.)
  * (Before: the SCA wheel, and before that the logo's four leaf colours, which put grape in yellow.)
  * Words the wheel does not name (한라봉, 금귤, 파파야 ...) go to the nearest place, marked "near".
- * A word the store uses that is not in this table is listed on /news-post-lab/notes/assign, where it
+ * A word the store uses that is not in this table is listed on /admin/cupnotes, where it
  * can be placed (saved in Redis, applied on top of this table).
  */
 

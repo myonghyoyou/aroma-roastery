@@ -35,13 +35,14 @@ export function AssignBoard({ rows, places, storeReady }: { rows: AssignRow[]; p
   const router = useRouter();
   const [tab, setTab] = useState<AssignRow['status']>(rows.some((r) => r.status === 'new') ? 'new' : 'table');
   const [key, setKey] = useState('');
+  const [remembered, setRemembered] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [said, setSaid] = useState<Record<string, string>>({});
 
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem(KEY_STORE);
-      if (saved) requestAnimationFrame(() => setKey(saved));
+      const saved = localStorage.getItem(KEY_STORE);
+      if (saved) requestAnimationFrame(() => { setKey(saved); setRemembered(true); });
     } catch {}
   }, []);
 
@@ -55,7 +56,8 @@ export function AssignBoard({ rows, places, storeReady }: { rows: AssignRow[]; p
       const res = await fetch('/api/cupnotes', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-key': key }, body: JSON.stringify({ word, place }) });
       const json = (await res.json()) as { ok?: boolean; error?: string };
       if (!res.ok) throw new Error(json.error ?? `저장하지 못했습니다 (${res.status})`);
-      try { sessionStorage.setItem(KEY_STORE, key); } catch {}
+      // a key that worked is remembered on this device, so the owner types it once
+      try { localStorage.setItem(KEY_STORE, key); setRemembered(true); } catch {}
       setSaid((s) => ({ ...s, [word]: place === 'ignore' ? '제외했습니다.' : place === 'reset' ? '기본으로 되돌렸습니다.' : '저장했습니다.' }));
       router.refresh();
     } catch (e) {
@@ -69,20 +71,27 @@ export function AssignBoard({ rows, places, storeReady }: { rows: AssignRow[]; p
     <div className="cnab">
       <div className="cnab-key">
         <label htmlFor="cnab-key">관리 키</label>
-        <input id="cnab-key" type="password" value={key} onChange={(e) => setKey(e.target.value)} autoComplete="off" placeholder="NOTES_ADMIN_KEY" />
+        {remembered ? (
+          <>
+            <span className="cnab-saved">이 기기에 저장되어 있습니다.</span>
+            <button type="button" className="adm-btn" onClick={() => { try { localStorage.removeItem(KEY_STORE); } catch {} setKey(''); setRemembered(false); }}>이 기기에서 지우기</button>
+          </>
+        ) : (
+          <input id="cnab-key" type="password" value={key} onChange={(e) => setKey(e.target.value)} autoComplete="off" placeholder="처음 한 번만 넣으면 이 기기에서 기억합니다" />
+        )}
         {!storeReady && <p className="cnab-warn">이 환경에는 저장소가 연결되어 있지 않아 저장할 수 없습니다. 실제 사이트에서 사용해 주세요.</p>}
       </div>
 
       <div className="cnab-tabs" role="tablist" aria-label="단어 종류">
         {TABS.map((t) => (
-          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className="npl-btn cnab-tab" onClick={() => setTab(t.key)}>
+          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className="adm-btn cnab-tab" onClick={() => setTab(t.key)}>
             {t.label} <span>{counts[t.key]}</span>
           </button>
         ))}
       </div>
 
       {shown.length === 0 ? (
-        <p className="ncheck-empty">{tab === 'new' ? '배치할 새 단어가 없습니다.' : '해당하는 단어가 없습니다.'}</p>
+        <p className="adm-empty">{tab === 'new' ? '배치할 새 단어가 없습니다.' : '해당하는 단어가 없습니다.'}</p>
       ) : (
         <ul className="cnab-rows">
           {shown.map((r) => <Row key={r.word} row={r} places={places} busy={busy === r.word} said={said[r.word]} onSave={save} />)}
@@ -113,9 +122,9 @@ function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Plac
       </div>
       <div className="cnab-act">
         <PlaceSelect value={choice} options={places} onChange={setChoice} label={`${row.word} 분류`} />
-        <button type="button" className="npl-btn npl-btn--solid" disabled={!choice || busy} onClick={() => onSave(row.word, choice)}>저장</button>
-        {row.status !== 'ignored' && <button type="button" className="npl-btn" disabled={busy} onClick={() => onSave(row.word, 'ignore')}>맛 아님</button>}
-        {(row.status === 'assigned' || row.status === 'ignored') && <button type="button" className="npl-btn" disabled={busy} onClick={() => onSave(row.word, 'reset')}>되돌리기</button>}
+        <button type="button" className="adm-btn adm-btn--solid" disabled={!choice || busy} onClick={() => onSave(row.word, choice)}>저장</button>
+        {row.status !== 'ignored' && <button type="button" className="adm-btn" disabled={busy} onClick={() => onSave(row.word, 'ignore')}>맛 아님</button>}
+        {(row.status === 'assigned' || row.status === 'ignored') && <button type="button" className="adm-btn" disabled={busy} onClick={() => onSave(row.word, 'reset')}>되돌리기</button>}
       </div>
       {said && <p className="cnab-said" role="status">{said}</p>}
     </li>

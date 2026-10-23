@@ -15,8 +15,8 @@ function Name({ hit }: { hit: Hit }) {
 }
 
 /*
- * The assign page's place picker, design B of the picker study (/news-post-lab/notes/picker): the
- * field itself is the search. Focused with no query, the list is grouped by the wheel's 대분류, each
+ * The place picker on /admin/cupnotes (design B of the 2026-10-23 picker study): the field itself
+ * is the search. Focused with no query, the list is grouped by the wheel's 대분류, each
  * 2차 분류 over its table words; typing filters it by placeSearch.ts (words, other spellings, 초성,
  * place names), best first, each row naming its place. A combobox by the ARIA pattern: arrows move,
  * Home/End jump, Enter picks, Esc or a click outside closes, × clears the choice.

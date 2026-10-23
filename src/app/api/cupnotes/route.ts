@@ -3,7 +3,7 @@ import { PLACES, isWordAt } from '@/components/cupnote/notes';
 import { CUPNOTES_TAG, cupnotesStoreReady, saveOverride, type PlaceKey } from '@/lib/cupnotes-store';
 
 /*
- * Saves one cup-note placement from /news-post-lab/notes/assign:
+ * Saves one cup-note placement from /admin/cupnotes:
  *   POST { word, place }   place: a wheel place key, optionally "|word" to take a table word's colour
  *                          ("fruit/grape|적포도"), "ignore" (not a flavour) or "reset" (back to the table)
  * Needs the header x-admin-key equal to NOTES_ADMIN_KEY. Every page that shows cup notes reads the
