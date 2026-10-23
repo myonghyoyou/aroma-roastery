@@ -298,13 +298,13 @@ const PLACE_ENTRY: Record<PlaceKey, { wheel: Wheel; sub: Sub }> = {
  * colour), then every word the built-in table has there, so a placed word can take that word's
  * colour ("그레이프" in 과일 > 포도, coloured as 적포도). A word choice's key is "place|word".
  */
-export type PlaceOption = { key: string; label: string; group: string; family: NoteFamily; color: string; place: string; word?: string };
+export type PlaceOption = { key: string; label: string; group: string; family: NoteFamily; color: string; place: string; word?: string; aka?: string[] };
 export const PLACES: PlaceOption[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).flatMap((key) => {
   const at = PLACE_ENTRY[key];
   const base = { group: WHEEL_LABEL[at.wheel], family: WHEEL_FAMILY(at), place: placeOf(at) };
   return [
     { key, label: placeOf(at), color: SUB_COLOR[at.sub], ...base },
-    ...NOTES.filter((e) => e.wheel === at.wheel && e.sub === at.sub).map((e) => ({ key: `${key}|${e.word}`, label: e.word, color: colorOf(e), word: e.word, ...base })),
+    ...NOTES.filter((e) => e.wheel === at.wheel && e.sub === at.sub).map((e) => ({ key: `${key}|${e.word}`, label: e.word, color: colorOf(e), word: e.word, aka: e.aka ?? [], ...base })),
   ];
 });
 

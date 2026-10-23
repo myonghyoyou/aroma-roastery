@@ -44,7 +44,7 @@ export default async function NotesCheck() {
 
         <section className="ncheck-sec" aria-labelledby="ncheck-add">
           <h2 id="ncheck-add">분류표에 없는 단어 <span>{toAdd.length}개</span></h2>
-          <p className="ncheck-note"><Link href="/news-post-lab/notes/assign" className="npl-btn">분류 배치하기</Link> <Link href="/news-post-lab/notes/chips" className="npl-btn">표시 시안 보기</Link></p>
+          <p className="ncheck-note"><Link href="/news-post-lab/notes/assign" className="npl-btn">분류 배치하기</Link> <Link href="/news-post-lab/notes/chips" className="npl-btn">표시 시안 보기</Link> <Link href="/news-post-lab/notes/picker" className="npl-btn">분류 선택 검색 시안</Link></p>
           <p className="ncheck-note">글 {all.length}개에서 &lsquo;같은&rsquo;, &lsquo;향&rsquo;, &lsquo;처럼&rsquo; 앞에 온 낱말 가운데 표에 없는 것입니다. 맛이면 표에 더하고, 비유(상표 이름 등)면 그대로 둡니다.</p>
           {toAdd.length === 0 ? (
             <p className="ncheck-empty">새로 더할 단어가 없습니다.</p>

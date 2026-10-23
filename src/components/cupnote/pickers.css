@@ -1,0 +1,83 @@
+/* =====================================================================
+   Searchable place picker study (PickerStudy.tsx): four designs, prefix pks-. Square corners on the
+   panels, 2px on the controls, milk on the roast, the colour square as each option's lead.
+   ===================================================================== */
+.pks { --pks-line: rgba(251, 243, 232, .4); --pks-rule: rgba(251, 243, 232, .16); position: relative; width: 300px; max-width: 100%; }
+.pks-swatch { flex: none; display: inline-block; box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .28); }
+.pks mark { color: inherit; background: none; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; font-weight: 800; }
+
+/* the closed picker */
+.pks-trigger, .pks-field {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 42px; padding: 0 12px;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--milk); text-align: left;
+  background: transparent; border: 1px solid var(--pks-line); border-radius: 2px; cursor: pointer;
+}
+.pks-trigger:hover, .pks-trigger[aria-expanded="true"], .pks-field.is-open, .pks-field:hover { border-color: var(--milk); }
+.pks-trigger:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
+.pks-trigger.is-empty .pks-value { color: var(--milk-2); font-weight: 500; }
+.pks-value { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pks-caret { width: 8px; height: 8px; margin: -4px 2px 0 6px; border-right: 1.5px solid var(--milk-2); border-bottom: 1.5px solid var(--milk-2); transform: rotate(45deg); }
+.pks-trigger[aria-expanded="true"] .pks-caret { margin-top: 4px; transform: rotate(225deg); }
+.pks-field { cursor: text; }
+.pks-input { flex: 1; min-width: 0; height: 40px; padding: 0; font: inherit; color: var(--milk); background: transparent; border: 0; outline: none; }
+.pks-input::placeholder { color: var(--milk-2); font-weight: 500; }
+.pks-clear { flex: none; width: 24px; height: 24px; padding: 0; font: inherit; font-size: 16px; line-height: 1; color: var(--milk-2); background: none; border: 0; cursor: pointer; }
+.pks-clear:hover { color: var(--milk); }
+
+/* the open panel */
+.pks-panel {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 30; width: 340px; max-width: calc(100vw - 32px);
+  background: #23170F; border: 1px solid var(--pks-line); box-shadow: 0 14px 36px rgba(10, 6, 4, .6);
+}
+.pks-panel--flush { width: 100%; min-width: 300px; }
+.pks-panel--wide { width: 520px; }
+.pks-search {
+  display: block; width: 100%; height: 44px; padding: 0 14px; font: inherit; font-size: 14px; color: var(--milk);
+  background: rgba(251, 243, 232, .05); border: 0; border-bottom: 1px solid var(--pks-rule); outline: none;
+}
+.pks-search::placeholder { color: var(--milk-2); }
+.pks-list { list-style: none; max-height: 340px; margin: 0; padding: 6px 0; overflow-y: auto; overscroll-behavior: contain; }
+.pks-group { margin: 0; padding: 8px 14px 4px; font-size: 12px; font-weight: 700; color: var(--milk-2); }
+.pks-row { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 0 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.pks-row.is-word { padding-left: 34px; font-weight: 500; color: var(--milk-2); }
+.pks-row.is-flat { padding-left: 14px; color: var(--milk); }
+.pks-row.is-active { color: var(--milk); background: rgba(251, 243, 232, .1); }
+.pks-name { flex: 1; min-width: 0; }
+.pks-ctx { flex: none; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--milk-2); }
+.pks-empty { margin: 0; padding: 18px 14px; font-size: 13px; line-height: 1.6; color: var(--milk-2); }
+.pks-foot { margin: 0; padding: 8px 14px; font-size: 12px; color: var(--milk-2); border-top: 1px solid var(--pks-rule); }
+
+/* C: two columns */
+.pks-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); height: 360px; }
+.pks-col { list-style: none; margin: 0; padding: 6px 0; overflow-y: auto; overscroll-behavior: contain; }
+.pks-col + .pks-col { border-left: 1px solid var(--pks-rule); }
+.pks-colrow { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 0 14px; font: inherit; font-size: 14px; font-weight: 600; color: var(--milk-2); text-align: left; background: none; border: 0; cursor: pointer; }
+.pks-colrow:hover, .pks-colrow:focus-visible, .pks-colrow.is-on { color: var(--milk); background: rgba(251, 243, 232, .1); outline: none; }
+.pks-colrow.is-base { color: var(--milk); border-bottom: 1px solid var(--pks-rule); }
+.pks-chev { margin-left: auto; color: var(--milk-2); }
+
+/* D: palette */
+.pks-pal { max-height: 380px; overflow-y: auto; overscroll-behavior: contain; padding: 4px 0 10px; }
+.pks-pal-sec + .pks-pal-sec { border-top: 1px solid var(--pks-rule); }
+.pks-tiles { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; margin: 0; padding: 4px 14px 10px; }
+.pks-tile { display: flex; flex-direction: column; gap: 5px; width: 100%; padding: 4px; font: inherit; font-size: 12px; font-weight: 600; color: var(--milk-2); text-align: left; background: none; border: 1px solid transparent; cursor: pointer; }
+.pks-tile:hover, .pks-tile:focus-visible { color: var(--milk); border-color: var(--pks-line); outline: none; }
+.pks-tile.is-on { color: var(--milk); border-color: var(--milk); }
+.pks-tile-chip { display: block; height: 26px; box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .2); }
+.pks-tile-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 599px) {
+  .pks-panel--wide { width: calc(100vw - 32px); }
+  .pks-cols { grid-template-columns: minmax(0, 1fr); height: auto; max-height: 420px; overflow-y: auto; }
+  .pks-col + .pks-col { border-left: 0; border-top: 1px solid var(--pks-rule); }
+}
+
+/* the study page */
+.pkd-row { display: grid; grid-template-columns: 120px 180px minmax(0, 340px); align-items: center; gap: 12px 20px; padding: 18px 0 220px; }
+/* the last demo needs room for the tallest panel, or it slides under the footer (both sit at z-index 2) */
+.ncheck-sec:last-child .pkd-row { padding-bottom: 460px; }
+.pkd-word { font-size: 17px; }
+.pkd-none { font-size: 13px; color: var(--milk-2); }
+.pk-rules { display: grid; gap: 8px; margin: 0; padding-left: 1.1em; font-size: 15px; line-height: 1.7; color: var(--milk-2); }
+.pk-rules b { color: var(--milk); margin-right: 6px; }
+@media (max-width: 699px) { .pkd-row { grid-template-columns: 1fr; padding-bottom: 380px; } }
