@@ -13,6 +13,7 @@ export type AssignRow = {
   count: number;
   context?: string;
   family?: NoteFamily;
+  color?: string;
   place?: string;
   placeKey?: string;
 };
@@ -103,9 +104,9 @@ function Row({ row, places, busy, said, onSave }: { row: AssignRow; places: Plac
       </div>
       <div className="cnab-now">
         {picked ? (
-          <CupNoteTag word={row.word} family={picked.family} place={picked.label} />
-        ) : row.family && row.place ? (
-          <CupNoteTag word={row.word} family={row.family} place={row.place} />
+          <CupNoteTag word={row.word} color={picked.color} place={picked.label} />
+        ) : row.color && row.place ? (
+          <CupNoteTag word={row.word} color={row.color} place={row.place} />
         ) : (
           <span className="cnab-none">{row.status === 'ignored' ? '맛 아님' : '미분류'}</span>
         )}

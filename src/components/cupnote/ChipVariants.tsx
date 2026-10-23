@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, type CupNote, type NoteFamily } from '@/components/news-post-lab/notes';
+import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, type CupNote } from '@/components/news-post-lab/notes';
 import './chips.css';
 
 /*
@@ -17,15 +17,15 @@ const lum = (hex: string) => {
   return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
 };
 /** text that reads on a block of this colour */
-const inkOn = (family: NoteFamily) => (lum(FAMILY_COLOR[family]) > 0.3 ? 'var(--char)' : 'var(--milk)');
-const toneVars = (family: NoteFamily) => ({ '--c': FAMILY_COLOR[family], '--ink': inkOn(family) }) as CSSProperties;
+const inkOn = (color: string) => (lum(color) > 0.3 ? 'var(--char)' : 'var(--milk)');
+const toneVars = (color: string) => ({ '--c': color, '--ink': inkOn(color) }) as CSSProperties;
 
 /** 1. The wheel's outer ring: solid square blocks in the wheel's colour, set edge to edge like its segments. */
 export function WheelSegments({ notes }: { notes: CupNote[] }) {
   return (
     <ul className="chv-seg" aria-label="컵 노트">
       {notes.map((n) => (
-        <li key={n.word} style={toneVars(n.family)}>
+        <li key={n.word} style={toneVars(n.color)}>
           <span className="chv-seg-word">{n.word}</span>
           <span className="chv-seg-place">{FAMILY_LABEL[n.family]}</span>
         </li>
@@ -40,7 +40,7 @@ export function ProseLine({ notes }: { notes: CupNote[] }) {
     <p className="chv-prose">
       {notes.map((n, i) => (
         <span key={n.word}>
-          <span className="chv-prose-word" style={toneVars(n.family)} title={n.place}>{n.word}</span>
+          <span className="chv-prose-word" style={toneVars(n.color)} title={n.place}>{n.word}</span>
           {i < notes.length - 1 ? ', ' : ''}
         </span>
       ))}
@@ -55,7 +55,7 @@ export function BagLabel({ notes }: { notes: CupNote[] }) {
       <p className="chv-label-head">컵 노트</p>
       <p className="chv-label-words">{notes.map((n) => n.word).join(' / ')}</p>
       <p className="chv-label-bar" aria-hidden="true">
-        {notes.map((n) => <span key={n.word} style={toneVars(n.family)} />)}
+        {notes.map((n) => <span key={n.word} style={toneVars(n.color)} />)}
       </p>
     </div>
   );
@@ -67,7 +67,7 @@ export function SwatchCards({ notes }: { notes: CupNote[] }) {
     <ul className="chv-swatch" aria-label="컵 노트">
       {notes.map((n) => (
         <li key={n.word}>
-          <span className="chv-swatch-chip" style={toneVars(n.family)} aria-hidden="true" />
+          <span className="chv-swatch-chip" style={toneVars(n.color)} aria-hidden="true" />
           <span className="chv-swatch-word">{n.word}</span>
           <span className="chv-swatch-place">{FAMILY_LABEL[n.family]}</span>
         </li>
@@ -99,7 +99,7 @@ export function WheelMap({ notes }: { notes: CupNote[] }) {
       <ul className="chv-map-list" aria-label="컵 노트">
         {notes.map((n) => (
           <li key={n.word}>
-            <span className="chv-map-dot" style={toneVars(n.family)} aria-hidden="true" />
+            <span className="chv-map-dot" style={toneVars(n.color)} aria-hidden="true" />
             <span className="chv-map-word">{n.word}</span>
             <span className="chv-map-place">{FAMILY_LABEL[n.family]}</span>
           </li>

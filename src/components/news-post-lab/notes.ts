@@ -2,8 +2,11 @@
  * Cup notes, filed by the Coffee Flavor Wheel Ver. 2 (Manufact Coffee, 2026.01), a Korean wheel
  * the client chose on 2026-10-22 (data/images/플레이버 휠 ver.2 가로.jpg). Every word the store uses
  * sits where that wheel puts it (대분류 > 2차 분류), and its colour is the wheel's own, sampled from
- * the image: the 대분류's colour, except fruit, which takes its 2차 분류's colour (귤, 열대과일,
- * 베리, 포도, 핵과류), since fruit is where the store's notes sit most.
+ * the image through its embedded CMYK profile: the colour of the word's own segment on the outer
+ * ring (딸기 red, 블루베리 navy, 망고 yellow), as the wheel paints it. A word the wheel does not name
+ * borrows the colour of the wheel word nearest in taste (한라봉 from 오렌지, 체리 from 자두); failing
+ * that, its 2차 분류's colour. (A colour per group, 2026-10-22, put 딸기 in the berry group's purple,
+ * which readers found unintuitive; the colour groups below still order and group the lists.)
  * (Before: the SCA wheel, and before that the logo's four leaf colours, which put grape in yellow.)
  * Words the wheel does not name (한라봉, 금귤, 파파야 ...) go to the nearest place, marked "near".
  * A word the store uses that is not in this table is listed on /news-post-lab/notes/assign, where it
@@ -43,11 +46,56 @@ export const FAMILY_LABEL: Record<NoteFamily, string> = {
   citrus: '과일 > 귤', tropical: '과일 > 열대과일', berry: '과일 > 베리', grape: '과일 > 포도', stone: '과일 > 핵과류',
   flowerTea: '꽃과 차', herbVeg: '허브와 채소', nutty: '고소한', sweet: '단맛', fermented: '발효된', other: '그 밖에',
 };
-// sampled from the wheel image (median of a patch inside each ring segment)
+// sampled from the wheel image through its CMYK profile (median of a patch inside each segment)
 export const FAMILY_COLOR: Record<NoteFamily, string> = {
-  citrus: '#FC940D', tropical: '#CDB700', berry: '#7B04D0', grape: '#2700A5', stone: '#F79E2A',
-  flowerTea: '#FCE051', herbVeg: '#1D9C00', nutty: '#A77651', sweet: '#25100F', fermented: '#F7FBD6', other: '#060808',
+  citrus: '#F4A702', tropical: '#D7B600', berry: '#901977', grape: '#491E69', stone: '#F2AF33',
+  flowerTea: '#FDE064', herbVeg: '#037A37', nutty: '#B68558', sweet: '#40170E', fermented: '#F9F8E1', other: '#070506',
 };
+
+/** each 2차 분류's own colour on the middle ring, for a placed word the outer ring does not name */
+const SUB_COLOR: Record<Sub, string> = {
+  citrus: '#F4A702', tropical: '#D7B600', berry: '#901977', grape: '#491E69', stone: '#F2AF33',
+  tea: '#A05E6B', flower: '#DF3064', spice: '#746850', herb: '#718E2B', veg: '#209F4C',
+  grain: '#806C3F', nut: '#4A392A', sugar: '#D2CF99', milk: '#FCFAF3', cacao: '#733311',
+  alcohol: '#DDCB60', chemical: '#21203B', wood: '#292321', smoky: '#403B38',
+};
+
+/** the outer ring: each word's own segment colour, sampled from the image */
+const WORD_COLOR: Record<string, string> = {
+  귤: '#FCC43C', 오렌지: '#F4841C', 라임: '#BCBC1C', 레몬: '#FCEC0C', 베르가못: '#E4E41C', 자몽: '#EC5C1C',
+  파인애플: '#F4EC04', 리치: '#EC5444', 키위: '#ACCC04', 바나나: '#FCCC04', 코코넛: '#F4F4BC', 망고: '#FCCC04',
+  패션후르츠: '#94143C', 석류: '#A4141C', 용과: '#AC0C54', 수박: '#1C743C', 멜론: '#ACD464', 딸기: '#D40C1C',
+  산딸기: '#C4141C', 베리: '#AC3C44', 라즈베리: '#DC0C2C', 블루베리: '#1C345C', 크렌베리: '#6C1424', 블랙베리: '#2C2C3C',
+  청포도: '#9CC41C', 샤인머스캣: '#D4D444', 적포도: '#642C5C', 건포도: '#3C0C0C', 복숭아: '#F49C84', 백도: '#F4CC94',
+  천도: '#ECB404', 황도: '#F4B404', 무화과: '#B44434', 사과: '#DC3414', 청사과: '#94C45C', 적사과: '#AC141C',
+  배: '#D4BC3C', 감: '#EC7404', 자두: '#B4141C', 건자두: '#4C2C2C', 살구: '#F4A444', 참외: '#FCD43C',
+  루이보스: '#8C4424', 우롱차: '#C49C04', 국화차: '#E4C44C', 백차: '#DCC47C', 녹차: '#649C34', 홍차: '#A42C14',
+  장미: '#9C0C14', 히비스커스: '#E42C14', 재스민: '#FCF4C4', 고수: '#7CB434', 카레: '#F4B404', 바닐라: '#B49C7C',
+  깨: '#C48C4C', 생강: '#FCD44C', 후추: '#645C3C', 시나몬: '#AC541C', 팔각: '#6C3C2C', 레몬그라스: '#F4EC5C',
+  아카시아: '#ECECC4', 라벤더: '#8C549C', 캐모마일: '#ECC44C', 로즈마리: '#647C44', 바질: '#7CAC6C', 페퍼민트: '#6CAC2C',
+  애플민트: '#84C45C', 인삼: '#E4BC74', 건초: '#C4BC8C', 토마토: '#E43414', 오이: '#6CB42C', 파프리카: '#447C2C',
+  현미: '#ECCC94', 시리얼: '#FCCC34', 보리: '#E4C464', 누룽지: '#D4AC6C', 숭늉: '#E4D4BC', 토스트: '#CCA46C',
+  쌀: '#FCF4E4', 밀: '#ECD48C', 통밀: '#9C643C', 빵: '#CCB484', 옥수수: '#FCE40C', 팝콘: '#D4AC6C', 감자: '#DCBC6C',
+  고구마: '#8C3414', 땅콩: '#845C34', 호두: '#B4944C', 아몬드: '#BC6C2C', 피칸: '#DC6C0C', 피스타치오: '#C4B43C',
+  헤이즐넛: '#ECDCB4', 마카다미아: '#F4E4D4', 밤: '#9C442C', 캐슈넛: '#E4D4A4', 백설탕: '#FCF4EC', 시럽: '#ECAC44',
+  메이플시럽: '#8C4414', 꿀: '#E49404', 황설탕: '#84542C', 흑설탕: '#84542C', 당밀: '#1C1C0C', 캐러멜: '#9C4C14',
+  토피: '#AC7444', 달고나: '#E48C04', 크림: '#FCFCEC', 버터: '#F4ECAC', 초콜렛: '#44140C', 밀크초콜렛: '#AC6424',
+  다크초콜렛: '#341C14', 코코아: '#542C24', 위스키: '#BC3C34', 와인: '#940C4C', 요거트: '#FCFCE4', 치즈: '#FCBC4C',
+  샴페인: '#FCECC4',
+};
+
+/*
+ * The store's word for a wheel word ("감귤" is the wheel's "귤"), or, for a word the wheel does not
+ * name, the wheel word nearest in taste whose colour it borrows.
+ */
+const COLOR_FROM: Record<string, string> = {
+  감귤: '귤', 패션프룻: '패션후르츠', 크랜베리: '크렌베리', 포도: '적포도', 꽃향: '재스민',
+  한라봉: '오렌지', 금귤: '귤', 유자: '레몬', 체리: '자두', 파파야: '망고', 구아바: '리치', 블랙커런트: '블랙베리',
+  얼그레이: '홍차', 꽃차: '국화차', 라일락: '라벤더', 정향: '팔각', 유칼립투스: '페퍼민트', 허브: '로즈마리',
+  견과: '헤이즐넛', 열대과일: '파인애플', 연유: '크림', 조청: '메이플시럽', 럼: '위스키', 호박: '고구마',
+};
+
+const colorOf = (e: { word: string; sub: Sub }) => WORD_COLOR[e.word] ?? WORD_COLOR[COLOR_FROM[e.word]] ?? SUB_COLOR[e.sub];
 
 type Entry = {
   /** the word as shown */
@@ -112,7 +160,8 @@ const NOTES: Entry[] = [
   { word: '자두', ...f('stone'), re: /(?<!건)자두/ },
   { word: '건자두', ...f('stone') },
   { word: '살구', ...f('stone') },
-  { word: '체리', aka: ['블랙체리'], ...f('stone') },
+  { word: '참외', ...f('stone') },
+  { word: '체리', aka: ['블랙체리'], ...f('stone'), near: true },
 
   // 꽃과 차 > 차
   { word: '루이보스', wheel: 'flowerTea', sub: 'tea' },
@@ -225,7 +274,7 @@ const NOTES: Entry[] = [
 const WHEEL_FAMILY = (e: { wheel: Wheel; sub: Sub }): NoteFamily =>
   e.wheel === 'fruit' ? (e.sub as Extract<NoteFamily, 'citrus' | 'tropical' | 'berry' | 'grape' | 'stone'>) : e.wheel;
 
-export type CupNote = { word: string; family: NoteFamily; place: string };
+export type CupNote = { word: string; family: NoteFamily; place: string; color: string };
 
 /** Where a note sits: "과일 > 핵과류", with "(가까운 분류)" for words the wheel does not name. */
 function placeOf(e: { wheel: Wheel; sub: Sub; near?: boolean }): string {
@@ -247,8 +296,8 @@ const PLACE_ENTRY: Record<PlaceKey, { wheel: Wheel; sub: Sub }> = {
 };
 
 /** The places a word can be put, in the wheel's order, for the assign page's choices. */
-export const PLACES: { key: PlaceKey; label: string; group: string; family: NoteFamily }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).map((key) => ({
-  key, label: placeOf(PLACE_ENTRY[key]), group: WHEEL_LABEL[PLACE_ENTRY[key].wheel], family: WHEEL_FAMILY(PLACE_ENTRY[key]),
+export const PLACES: { key: PlaceKey; label: string; group: string; family: NoteFamily; color: string }[] = (Object.keys(PLACE_ENTRY) as PlaceKey[]).map((key) => ({
+  key, label: placeOf(PLACE_ENTRY[key]), group: WHEEL_LABEL[PLACE_ENTRY[key].wheel], family: WHEEL_FAMILY(PLACE_ENTRY[key]), color: SUB_COLOR[PLACE_ENTRY[key].sub],
 }));
 
 type Placed = Entry & { assigned?: boolean };
@@ -278,7 +327,7 @@ export function findNotes(caption: string, overrides?: NoteOverrides): CupNote[]
   }
   // a longer word wins over one inside it ("레몬그라스" over "레몬", "블랙체리" kept as "체리")
   const kept = hits.filter((h) => !hits.some((o) => o !== h && o.len > h.len && o.at <= h.at && h.at + h.len <= o.at + o.len));
-  return kept.sort((a, b) => a.at - b.at).slice(0, 6).map(({ e }) => ({ word: e.word, family: WHEEL_FAMILY(e), place: placeLabel(e) }));
+  return kept.sort((a, b) => a.at - b.at).slice(0, 6).map(({ e }) => ({ word: e.word, family: WHEEL_FAMILY(e), place: placeLabel(e), color: colorOf(e) }));
 }
 
 // words that stand before 향, 같은, 처럼 in a caption but are not flavours
@@ -305,7 +354,7 @@ export function unknownFlavours(caption: string, overrides: NoteOverrides = {}):
 
 /** The whole table with the saved placements, for the check and assign pages. */
 export function noteTable(overrides?: NoteOverrides): (CupNote & { aka: string[]; assigned: boolean })[] {
-  return tableWith(overrides).map((e) => ({ word: e.word, aka: e.aka ?? [], family: WHEEL_FAMILY(e), place: placeLabel(e), assigned: Boolean(e.assigned) }));
+  return tableWith(overrides).map((e) => ({ word: e.word, aka: e.aka ?? [], family: WHEEL_FAMILY(e), place: placeLabel(e), color: colorOf(e), assigned: Boolean(e.assigned) }));
 }
 
 /** Words marked "not a flavour" on the assign page. */

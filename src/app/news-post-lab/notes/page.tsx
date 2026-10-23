@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CupNoteTags, LeafMark, toneStyle } from '@/components/cupnote/CupNoteTag';
 import { newsLabHref } from '@/components/news-post-lab/concepts';
-import { FAMILY_LABEL, FAMILY_ORDER, findNotes, noteTable, unknownFlavours } from '@/components/news-post-lab/notes';
+import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, findNotes, noteTable, unknownFlavours } from '@/components/news-post-lab/notes';
 import { SubPage } from '@/components/site/SubPage';
 import { readOverrides } from '@/lib/cupnotes-store';
 import { getPosts, type Block, type Post } from '@/lib/content';
@@ -39,7 +39,7 @@ export default async function NotesCheck() {
           <h1>컵 노트 점검</h1>
           <p>
             매장 글에서 맛 표현으로 쓰였는데 분류표에 없는 단어, 원두 소식마다 뽑힌 컵 노트, 그리고 분류표 전체입니다.
-            분류와 색은 커피 플레이버 휠 Ver.2(Manufact Coffee, 2026.01)를 따릅니다. 색은 휠의 대분류 색이고, 과일만 2차 분류(귤, 열대과일, 베리, 포도, 핵과류)의 색을 씁니다.
+            분류와 색은 커피 플레이버 휠 Ver.2(Manufact Coffee, 2026.01)를 따릅니다. 색은 휠 바깥 고리에서 그 단어 칸의 색이고, 휠에 없는 단어는 맛이 가장 가까운 단어의 색을 씁니다.
           </p>
         </header>
 
@@ -87,11 +87,11 @@ export default async function NotesCheck() {
           <div className="ncheck-table">
             {FAMILY_ORDER.filter((f) => table.some((t) => t.family === f)).map((f) => (
               <div key={f} className="ncheck-family" style={toneStyle(f)}>
-                <h3><LeafMark family={f} />{FAMILY_LABEL[f]}</h3>
+                <h3><LeafMark color={FAMILY_COLOR[f]} />{FAMILY_LABEL[f]}</h3>
                 <ul>
                   {table.filter((t) => t.family === f).map((t) => (
                     <li key={t.word}>
-                      <b>{t.word}</b>
+                      <b><span className="ncheck-swatch" style={{ background: t.color }} aria-hidden="true" />{t.word}</b>
                       {t.aka.length > 0 && <span className="ncheck-aka">{t.aka.join(', ')}</span>}
                       <span className="ncheck-place">{t.place}</span>
                     </li>

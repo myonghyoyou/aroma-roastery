@@ -4,9 +4,9 @@ import './cupnote.css';
 
 /*
  * A cup note, drawn with the brand's own mark: the aroma symbol's four leaves, all four in the
- * note's colour from the flavour wheel (its 대분류, or for fruit its 2차 분류), each leaf a step
- * lighter, so the logo's shape carries the wheel's colour. The wheel's darkest colours (단맛, 그 밖에,
- * 포도) would vanish on the roast background, so those tags get a milk outline on the leaves and the
+ * note's colour from the flavour wheel (its own outer-ring segment, see notes.ts), each leaf a step
+ * lighter, so the logo's shape carries the wheel's colour. The wheel's darkest colours (초콜렛, 블랙베리,
+ * 건포도 ...) would vanish on the roast background, so those tags get a milk outline on the leaves and the
  * pill. The note's place on the wheel shows on hover or keyboard focus, and is read out with the word.
  */
 
@@ -21,19 +21,20 @@ const LEAVES: { d: string; alpha: number }[] = [
 /** "#E8604C" -> "232, 96, 76", for rgba() in the stylesheet */
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
 
-export const toneStyle = (family: NoteFamily) => ({ '--tone': rgb(FAMILY_COLOR[family]) }) as CSSProperties;
+/** a colour, or a colour group's colour, as the --tone variable */
+export const toneStyle = (c: NoteFamily | string) => ({ '--tone': rgb(c.startsWith('#') ? c : FAMILY_COLOR[c as NoteFamily]) }) as CSSProperties;
 
 /** True for a colour too dark to show on the roast background (relative luminance under 0.06). */
-export function isDark(family: NoteFamily): boolean {
+export function isDark(color: string): boolean {
   const lin = [1, 3, 5].map((i) => {
-    const c = parseInt(FAMILY_COLOR[family].slice(i, i + 2), 16) / 255;
+    const c = parseInt(color.slice(i, i + 2), 16) / 255;
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2] < 0.06;
 }
 
 /** The symbol in one note colour. */
-export function LeafMark({ family, className = 'cnt-mark' }: { family: NoteFamily; className?: string }) {
+export function LeafMark({ color, className = 'cnt-mark' }: { color: string; className?: string }) {
   return (
     <svg className={className} viewBox="190 68 216 144" aria-hidden="true" focusable="false">
       {LEAVES.map((l, i) => (
@@ -41,19 +42,19 @@ export function LeafMark({ family, className = 'cnt-mark' }: { family: NoteFamil
           key={i}
           d={l.d}
           transform="matrix(1,0,0,-1,0,391)"
-          fill={FAMILY_COLOR[family]}
+          fill={color}
           fillOpacity={l.alpha}
-          {...(isDark(family) ? { stroke: 'rgba(251, 243, 232, .6)', strokeWidth: 6 } : {})}
+          {...(isDark(color) ? { stroke: 'rgba(251, 243, 232, .6)', strokeWidth: 6 } : {})}
         />
       ))}
     </svg>
   );
 }
 
-export function CupNoteTag({ word, family, place }: { word: string; family: NoteFamily; place: string }) {
+export function CupNoteTag({ word, color, place }: { word: string; color: string; place: string }) {
   return (
-    <span className={isDark(family) ? 'cnt is-dark' : 'cnt'} style={toneStyle(family)} tabIndex={0}>
-      <LeafMark family={family} />
+    <span className={isDark(color) ? 'cnt is-dark' : 'cnt'} style={toneStyle(color)} tabIndex={0}>
+      <LeafMark color={color} />
       <span className="cnt-word">{word}</span>
       <span className="cnt-sr">, 플레이버 휠 {place}</span>
       <span className="cnt-tip" aria-hidden="true">{place}</span>
@@ -62,11 +63,11 @@ export function CupNoteTag({ word, family, place }: { word: string; family: Note
 }
 
 /** A row of tags, as a list. */
-export function CupNoteTags({ notes, label = '컵 노트' }: { notes: { word: string; family: NoteFamily; place: string }[]; label?: string }) {
+export function CupNoteTags({ notes, label = '컵 노트' }: { notes: { word: string; color: string; place: string }[]; label?: string }) {
   return (
     <ul className="cnt-list" aria-label={label}>
       {notes.map((n) => (
-        <li key={n.word}><CupNoteTag {...n} /></li>
+        <li key={n.word}><CupNoteTag word={n.word} color={n.color} place={n.place} /></li>
       ))}
     </ul>
   );

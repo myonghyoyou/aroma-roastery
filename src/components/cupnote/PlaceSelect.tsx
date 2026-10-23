@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { FAMILY_COLOR, type NoteFamily } from '@/components/news-post-lab/notes';
+import type { NoteFamily } from '@/components/news-post-lab/notes';
 
-export type PlaceOption = { key: string; label: string; group: string; family: NoteFamily };
+export type PlaceOption = { key: string; label: string; group: string; family: NoteFamily; color: string };
 
 /*
  * The assign page's place picker: a button that opens a list grouped by the wheel's ëŒ€ë¶„ë¥˜
@@ -92,7 +92,7 @@ export function PlaceSelect({ value, options, onChange, label, placeholder = 'ë¶
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={(e) => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); show(); } }}
       >
-        {picked && <span className="psel-swatch" style={{ background: FAMILY_COLOR[picked.family] }} aria-hidden="true" />}
+        {picked && <span className="psel-swatch" style={{ background: picked.color }} aria-hidden="true" />}
         <span className="psel-value">{picked ? picked.label : placeholder}</span>
         <span className="psel-caret" aria-hidden="true" />
       </button>
@@ -125,7 +125,7 @@ export function PlaceSelect({ value, options, onChange, label, placeholder = 'ë¶
                       onPointerEnter={() => setActive(n)}
                       onClick={() => pick(n)}
                     >
-                      <span className="psel-swatch" style={{ background: FAMILY_COLOR[o.family] }} aria-hidden="true" />
+                      <span className="psel-swatch" style={{ background: o.color }} aria-hidden="true" />
                       <span>{o.label}</span>
                     </li>
                   );
