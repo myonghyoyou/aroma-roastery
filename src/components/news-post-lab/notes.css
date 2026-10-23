@@ -55,33 +55,38 @@
   .cnab-act { justify-content: flex-start; }
 }
 
-/* the place picker (PlaceSelect): a button and a grouped list, each option led by its colour */
-.psel { position: relative; }
-.psel-button {
-  display: inline-flex; align-items: center; gap: 10px; min-width: 220px; min-height: 40px; padding: 0 12px;
-  font: inherit; font-size: 14px; font-weight: 600; color: var(--milk); text-align: left;
-  background: transparent; border: 1px solid var(--npl-line); border-radius: 2px; cursor: pointer;
+/* the place picker (PlaceSelect): a search field over a list, each option led by its colour */
+.psel { position: relative; width: 280px; max-width: 100%; }
+.psel-field {
+  display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 8px 0 12px;
+  font-size: 14px; font-weight: 600; color: var(--milk);
+  border: 1px solid var(--npl-line); border-radius: 2px; cursor: text;
 }
-.psel-button:hover, .psel-button[aria-expanded="true"] { border-color: var(--milk); }
-.psel-button:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
-.psel-button.is-empty .psel-value { color: var(--milk-2); font-weight: 500; }
-.psel-value { flex: 1; }
-.psel-caret { width: 8px; height: 8px; margin: -4px 2px 0 6px; border-right: 1.5px solid var(--milk-2); border-bottom: 1.5px solid var(--milk-2); transform: rotate(45deg); }
-.psel-button[aria-expanded="true"] .psel-caret { margin-top: 4px; transform: rotate(225deg); }
+.psel-field:hover, .psel-field.is-open { border-color: var(--milk); }
+.psel-field:focus-within { outline: 2px solid var(--milk); outline-offset: 2px; }
+.psel-input { flex: 1; min-width: 0; height: 38px; padding: 0; font: inherit; color: var(--milk); background: transparent; border: 0; outline: none; text-overflow: ellipsis; }
+.psel-input::placeholder { color: var(--milk-2); font-weight: 500; }
+/* open on a chosen value: the choice stays as the placeholder, readable */
+.psel-field.is-open .psel-input::placeholder { color: rgba(251, 243, 232, .5); }
+.psel-clear { flex: none; width: 26px; height: 26px; padding: 0; font: inherit; font-size: 17px; line-height: 1; color: var(--milk-2); background: none; border: 0; cursor: pointer; }
+.psel-clear:hover, .psel-clear:focus-visible { color: var(--milk); }
 .psel-swatch { flex: none; width: 12px; height: 12px; box-shadow: inset 0 0 0 1px rgba(251, 243, 232, .28); }
+.psel mark { color: inherit; background: none; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; font-weight: 800; }
 
-.psel-list {
-  position: absolute; top: calc(100% + 4px); left: 0; z-index: 20; min-width: 100%; width: max-content; max-height: min(60vh, 420px);
-  margin: 0; padding: 6px 0; list-style: none; overflow-y: auto; overscroll-behavior: contain;
-  background: #23170F; border: 1px solid var(--npl-line); box-shadow: 0 12px 32px rgba(10, 6, 4, .55); outline: none;
+/* main and the footer share z-index 2, so an open list near the bottom would slide under the footer */
+main:has(.psel-panel) { z-index: 3; }
+.psel-panel {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 20; width: max(100%, 320px); max-width: calc(100vw - 32px);
+  background: #23170F; border: 1px solid var(--npl-line); box-shadow: 0 12px 32px rgba(10, 6, 4, .55);
 }
-.psel-list > li + li { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--npl-rule); }
-.psel-group { margin: 0; padding: 6px 14px 4px; font-size: 12px; font-weight: 700; color: var(--milk-2); }
-.psel-items { list-style: none; margin: 0; padding: 0; }
-.psel-option { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 14px 0 22px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.psel-list { max-height: min(60vh, 380px); margin: 0; padding: 6px 0; list-style: none; overflow-y: auto; overscroll-behavior: contain; }
+.psel-group { margin: 0; padding: 10px 14px 4px; font-size: 12px; font-weight: 700; color: var(--milk-2); }
+.psel-group:not(:first-child) { margin-top: 4px; border-top: 1px solid var(--npl-rule); }
+.psel-option { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
 /* a table word under its place: indented, lighter, its own colour */
-.psel-option.is-word { min-height: 32px; padding-left: 40px; font-weight: 500; color: var(--milk-2); }
-.psel-option.is-word.is-active, .psel-option.is-word[aria-selected="true"] { color: var(--milk); }
-.psel-option.is-active { background: rgba(251, 243, 232, .1); }
-.psel-option[aria-selected="true"] { color: var(--milk); background: rgba(251, 243, 232, .16); }
-.psel-option[aria-selected="true"]::after { content: ""; width: 10px; height: 5px; margin-left: auto; border-left: 2px solid var(--milk); border-bottom: 2px solid var(--milk); transform: rotate(-45deg) translate(1px, -2px); }
+.psel-option.is-word { min-height: 32px; padding-left: 34px; font-weight: 500; color: var(--milk-2); }
+.psel-option.is-active { color: var(--milk); background: rgba(251, 243, 232, .1); }
+.psel-option.is-picked::after { content: ""; flex: none; width: 10px; height: 5px; margin-left: 4px; border-left: 2px solid var(--milk); border-bottom: 2px solid var(--milk); transform: rotate(-45deg) translate(1px, -2px); }
+.psel-name { flex: 1; min-width: 0; }
+.psel-ctx { flex: none; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--milk-2); }
+.psel-empty { margin: 0; padding: 18px 14px; font-size: 13px; line-height: 1.6; color: var(--milk-2); }
