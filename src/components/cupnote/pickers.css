@@ -75,7 +75,7 @@
 /* the study page */
 .pkd-row { display: grid; grid-template-columns: 120px 180px minmax(0, 340px); align-items: center; gap: 12px 20px; padding: 18px 0 220px; }
 /* the last demo needs room for the tallest panel, or it slides under the footer (both sit at z-index 2) */
-.ncheck-sec:last-child .pkd-row { padding-bottom: 460px; }
+.ncheck-sec:last-child .pkd-row { padding-bottom: 500px; }
 .pkd-word { font-size: 17px; }
 .pkd-none { font-size: 13px; color: var(--milk-2); }
 .pk-rules { display: grid; gap: 8px; margin: 0; padding-left: 1.1em; font-size: 15px; line-height: 1.7; color: var(--milk-2); }
