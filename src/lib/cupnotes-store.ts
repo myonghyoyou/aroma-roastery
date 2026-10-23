@@ -4,7 +4,7 @@ import { cacheLife, cacheTag } from 'next/cache';
  * Cup-note placements chosen on /admin/cupnotes, kept in Upstash Redis next to the
  * Instagram token: for each word, a place on the flavour wheel (Manufact Coffee Ver. 2) (which sets its colour), or
  * "not a flavour". They extend and correct the built-in table (components/cupnote/notes.ts).
- * Server only. Writes need NOTES_ADMIN_KEY (see /api/cupnotes).
+ * Server only. Writes need the /admin sign-in (see /api/cupnotes).
  */
 
 export type PlaceKey =

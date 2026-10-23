@@ -3,8 +3,21 @@
    site: milk on the roast field, 2px on small controls. Tags are CupNoteTag (components/cupnote).
    ===================================================================== */
 .adm { --adm-rule: rgba(251, 243, 232, .22); --adm-line: rgba(251, 243, 232, .4); max-width: 1100px; margin-inline: auto; padding-bottom: clamp(48px, 8vh, 96px); }
+.adm--narrow { max-width: 560px; }
 .adm-head { padding-bottom: 8px; }
 .adm-head p { max-width: 44em; }
+.adm-head-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+/* sign-in: one field and one button */
+.adm-login { display: grid; gap: 10px; padding-top: 22px; border-top: 1px solid var(--adm-rule); }
+.adm-login label { font-size: 14px; font-weight: 700; }
+.adm-login-row { display: flex; gap: 8px; }
+.adm-login input { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; font: inherit; font-size: 16px; color: var(--milk); background: transparent; border: 1px solid var(--adm-line); border-radius: 2px; }
+.adm-login input:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
+.adm-login input[aria-invalid="true"] { border-color: #EDBE00; }
+.adm-login .adm-btn { min-height: 44px; }
+.adm-login .adm-btn:disabled { opacity: .6; cursor: default; }
+.adm-login-error { margin: 0; font-size: 14px; font-weight: 600; color: #EDBE00; }
 
 .adm-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 16px;
@@ -38,12 +51,7 @@
 
 /* the assign board (/admin/cupnotes) */
 .cnab { margin-top: 8px; }
-.cnab-key { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 16px 0; border-top: 1px solid var(--adm-rule); border-bottom: 1px solid var(--adm-rule); }
-.cnab-key label { font-size: 14px; font-weight: 700; }
-.cnab-key input { min-height: 40px; width: min(100%, 340px); padding: 0 12px; font: inherit; font-size: 14px; color: var(--milk); background: transparent; border: 1px solid var(--adm-line); border-radius: 2px; }
-.cnab-key input:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
-.cnab-saved { font-size: 14px; color: var(--milk-2); }
-.cnab-warn { flex-basis: 100%; margin: 0; font-size: 13px; color: #EDBE00; }
+.cnab-warn { margin: 0; padding: 14px 0; font-size: 13px; color: #EDBE00; border-top: 1px solid var(--adm-rule); }
 .cnab-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
 .cnab-tab[aria-selected="true"] { border-color: var(--milk); background: rgba(251, 243, 232, .08); }
 .cnab-tab span { font-family: var(--display); font-size: 12px; color: var(--milk-2); }

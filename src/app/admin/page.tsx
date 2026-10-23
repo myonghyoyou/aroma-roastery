@@ -9,9 +9,10 @@ import { readOverrides } from '@/lib/cupnotes-store';
 import { getPosts } from '@/lib/content';
 import { formatDate } from '@/lib/post-utils';
 import '@/components/admin/admin.css';
+import { signOut } from './actions';
 
 /*
- * The owner's way in (/admin, by URL only): what is waiting on the cup notes, one button to it, and
+ * The owner's way in (/admin, by URL only, behind the sign-in in proxy.ts): what is waiting on the cup notes, one button to it, and
  * the latest bean arrivals with the notes their posts came out as, to look over at a glance.
  */
 export const metadata: Metadata = { title: 'aroma 관리' };
@@ -28,8 +29,11 @@ export default async function AdminHome() {
     <SubPage>
       <div className="adm">
         <header className="page-head adm-head">
-          <h1>관리</h1>
-          <p>이 주소를 휴대폰 홈 화면에 추가해 두면 다음부터 바로 들어올 수 있습니다.</p>
+          <div className="adm-head-row">
+            <h1>관리</h1>
+            <form action={signOut}><button type="submit" className="adm-btn">나가기</button></form>
+          </div>
+          <p>이 주소를 휴대폰 홈 화면에 추가해 두면 다음부터 바로 들어올 수 있습니다. 다른 사람의 기기에서 들어왔다면 나가기를 눌러 주세요.</p>
         </header>
 
         <section className="adm-todo" aria-labelledby="adm-todo">
