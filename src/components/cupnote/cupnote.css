@@ -1,23 +1,20 @@
 /* =====================================================================
-   Cup-note tag (CupNoteTag): the aroma symbol's four leaves in the note's colour from the flavour
-   wheel (Manufact Coffee Ver. 2) (set inline as --tone, an "r, g, b" triple), the word, and its wheel place on hover or focus.
+   Cup-note tag (CupNoteTag): the word on a wash of its flavour-wheel colour (set inline as --tone, an
+   "r, g, b" triple), and its wheel place on hover or focus. Text and colour only.
    ===================================================================== */
 .cnt-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
 
 .cnt {
   --tone: 230, 88, 50;
-  position: relative; display: inline-flex; align-items: center; gap: 9px; min-height: 38px; padding: 0 15px 0 11px;
+  position: relative; display: inline-flex; align-items: center; min-height: 36px; padding: 0 15px;
   font-size: 15px; font-weight: 700; line-height: 1; color: var(--milk); white-space: nowrap;
-  background: rgba(var(--tone), .14); border: 1px solid rgba(var(--tone), .55); border-radius: 999px;
+  background: rgba(var(--tone), .32); border: 1px solid rgba(var(--tone), .9); border-radius: 999px;
   cursor: default; outline: none; transition: background .2s ease, border-color .2s ease;
 }
-.cnt:hover, .cnt:focus-visible { background: rgba(var(--tone), .24); border-color: rgba(var(--tone), .9); }
-.cnt.is-dark { background: rgba(var(--tone), .6); border-color: rgba(251, 243, 232, .45); }
+.cnt:hover, .cnt:focus-visible { background: rgba(var(--tone), .45); border-color: rgb(var(--tone)); }
+.cnt.is-dark { background: rgba(var(--tone), .75); border-color: rgba(251, 243, 232, .45); }
 .cnt.is-dark:hover, .cnt.is-dark:focus-visible { background: rgba(var(--tone), .85); border-color: rgba(251, 243, 232, .75); }
 .cnt:focus-visible { box-shadow: 0 0 0 2px var(--char), 0 0 0 4px var(--milk); }
-
-/* the mark: the symbol's four leaves in the note's colour, each a step lighter */
-.cnt-mark { flex: none; width: 24px; height: 16px; overflow: visible; }
 
 .cnt-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
@@ -29,10 +26,5 @@
 }
 .cnt-tip::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -5px; border: 5px solid transparent; border-top-color: var(--milk); }
 .cnt:hover .cnt-tip, .cnt:focus-visible .cnt-tip { opacity: 1; transform: translate(-50%, 0); }
-
-/* a key of the colours in a post: the mark in each colour, named beside it */
-.cnt-key { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 10px 0 0; font-size: 12px; font-weight: 600; color: var(--milk-2); }
-.cnt-key-item { display: inline-flex; align-items: center; gap: 6px; }
-.cnt-key-item .cnt-mark { width: 18px; height: 12px; }
 
 @media (prefers-reduced-motion: reduce) { .cnt, .cnt-tip { transition: none; } }

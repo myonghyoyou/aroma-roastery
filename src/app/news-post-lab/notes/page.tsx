@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CupNoteTags, LeafMark, toneStyle } from '@/components/cupnote/CupNoteTag';
+import { CupNoteTags, toneStyle } from '@/components/cupnote/CupNoteTag';
 import { newsLabHref } from '@/components/news-post-lab/concepts';
 import { FAMILY_COLOR, FAMILY_LABEL, FAMILY_ORDER, findNotes, noteTable, unknownFlavours } from '@/components/cupnote/notes';
 import { SubPage } from '@/components/site/SubPage';
@@ -86,7 +86,7 @@ export default async function NotesCheck() {
           <div className="ncheck-table">
             {FAMILY_ORDER.filter((f) => table.some((t) => t.family === f)).map((f) => (
               <div key={f} className="ncheck-family" style={toneStyle(f)}>
-                <h3><LeafMark color={FAMILY_COLOR[f]} />{FAMILY_LABEL[f]}</h3>
+                <h3><span className="ncheck-swatch" style={{ background: FAMILY_COLOR[f] }} aria-hidden="true" />{FAMILY_LABEL[f]}</h3>
                 <ul>
                   {table.filter((t) => t.family === f).map((t) => (
                     <li key={t.word}>
