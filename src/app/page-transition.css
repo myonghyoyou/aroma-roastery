@@ -1,0 +1,35 @@
+/* =====================================================================
+   Page transitions between home, archive and news: the field carries on.
+   On a 'tx-nav' navigation (header and footer links between home, archive and news) the page being
+   left goes as .tx-out and the page arriving comes as .tx-in. Pseudo-elements of the transition
+   belong to <html>, so the selectors attach to :root directly, without a space.
+
+   The live home field and the still subpage field share one name and blend in 0.3s. Copy never
+   moves (the home page's rule): the old content fades away in 0.2s, the new content fades in over
+   0.5s. Opacity only: a blur on snapshots several screens tall tripled the dropped frames in
+   recorded traces (2026-10-25). The header is not lifted out: it is absolutely placed, so from the
+   footer it would fly in from above the screen.
+   React takes the page's floor (root) out of every transition (view-transition-name: none on
+   <html>), so whatever is not lifted out shows live underneath: the espresso background.
+   ===================================================================== */
+
+::view-transition { pointer-events: none; }
+/* page content above the field lifted out of it */
+::view-transition-group(.tx-out),
+::view-transition-group(.tx-in) { z-index: 1; }
+
+#field,
+.sub-field { view-transition-name: grain-field; }
+::view-transition-group(grain-field) { animation-duration: .3s; }
+::view-transition-old(.tx-out) { animation: tx-fade-out .2s ease-out both; }
+::view-transition-new(.tx-in) { animation: tx-fade-in .5s cubic-bezier(.33, 1, .68, 1) .05s both; }
+
+@keyframes tx-fade-in { from { opacity: 0; } }
+@keyframes tx-fade-out { to { opacity: 0; } }
+
+/* reduced motion: a plain 200ms fade */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(.tx-out) { animation: tx-fade-out .2s ease both; }
+  ::view-transition-new(.tx-in) { animation: tx-fade-in .2s ease both; }
+  ::view-transition-group(grain-field) { animation-duration: .2s; }
+}

@@ -4,6 +4,7 @@ import './globals.css';
 import './sub.css';
 // last: the large-screen sizes (past 1920px) override the page styles above
 import './large.css';
+import './page-transition.css';
 
 // Korean and body text: SUIT (OFL). The hero slogan: General Sans (Indian Type Foundry, free for
 // commercial and web use via Fontshare), the open alternative to the licensed PP Neue Montreal.

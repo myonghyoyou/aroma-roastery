@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ViewTransition } from 'react';
 import { GrainStage } from '@/components/home/GrainStage';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { BrandLink } from '@/components/site/BrandLink';
@@ -27,6 +28,12 @@ export default async function Home() {
   const hasSample = entries.some((p) => p.sample);
 
   return (
+    // on a 'tx-nav' navigation the page fades in and out over the field (page-transition.css)
+    <ViewTransition
+      enter={{ 'tx-nav': 'tx-in', default: 'none' }}
+      exit={{ 'tx-nav': 'tx-out', default: 'none' }}
+      default="none"
+    >
     <GrainStage slots={slots}>
       <SiteHeader home />
 
@@ -104,5 +111,6 @@ export default async function Home() {
 
       <SiteFooter settings={settings} />
     </GrainStage>
+    </ViewTransition>
   );
 }
