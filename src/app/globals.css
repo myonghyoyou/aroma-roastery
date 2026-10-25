@@ -227,36 +227,40 @@ main { text-shadow: var(--halo); }
   .store-facts { flex-direction: column; row-gap: 20px; }
 }
 
-/* ---------- rail: one thin mark per panel stop on the home page, the current one lit ---------- */
+/* ---------- rail: a strip of film perforations, one per panel stop on the home page ----------
+   Each stop is a small hole in the strip; the current one is filled and warm, with the same amber
+   light the copy comes in with. The holes sit close, two hole-heights apart, so they read as one strip. */
 .rail {
   position: fixed; right: max(4px, calc(var(--gutter) - 22px)); top: 50%; transform: translateY(-50%); z-index: 20;
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column;
   /* asleep until the page moves (the engine adds .is-awake); it fades out slowly, back in quickly */
   opacity: 0; pointer-events: none; transition: opacity .3s ease;
 }
 .rail.is-awake, .rail:focus-within { opacity: 1; pointer-events: auto; transition-duration: .2s; }
-/* the button is a 24px wide target; the mark itself is a 2px line inside it */
-.rail button { position: relative; display: block; width: 24px; height: clamp(20px, calc(var(--vh) * 4.4), 40px); padding: 0; border: 0; background: none; cursor: pointer; }
+/* the button is a 24 x 18px target; the hole itself is 6 x 9px inside it.
+   The lit hole switches at once: a fading swap left both marks grey for a moment. */
+.rail button { position: relative; display: block; width: 24px; height: 18px; padding: 0; border: 0; background: none; cursor: pointer; }
 .rail button::before {
-  content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; border-radius: 1px;
-  background: rgba(251, 243, 232, .3); box-shadow: 0 0 6px rgba(26, 17, 13, .35);
-  /* the lit mark switches at once: a fading swap left both marks grey for a moment */
-  transition: width .2s, margin-left .2s;
+  content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 9px; transform: translate(-50%, -50%);
+  border: 1px solid rgba(251, 243, 232, .4); border-radius: 2px;
+  box-shadow: 0 0 6px rgba(26, 17, 13, .35);
 }
-.rail button:hover::before { background: rgba(251, 243, 232, .6); }
-.rail button[aria-current="true"]::before { width: 3px; margin-left: -1.5px; background: var(--milk); }
+.rail button:hover::before { border-color: rgba(251, 243, 232, .75); }
+.rail button[aria-current="true"]::before {
+  border-color: var(--milk); background: var(--milk);
+  box-shadow: 0 0 3px rgba(239, 140, 40, .5), 0 0 12px rgba(239, 112, 0, .45);
+}
 .rail button:focus-visible { outline: 2px solid var(--milk); outline-offset: 2px; }
 /* covers the screen for a moment while a rail jump of two panels or more cuts to its panel;
    below the rail, so the lit mark stays visible through the cut */
 .jump-cover { position: fixed; inset: 0; z-index: 19; background: var(--char); opacity: 0; pointer-events: none; transition: opacity 220ms ease; }
 .jump-cover.is-on { opacity: 1; }
 
-/* on a phone the rail is about half as tall and finer, and the copy keeps clear of it */
+/* on a phone the strip is smaller, and the copy keeps clear of it */
 @media (max-width: 600px) {
-  .rail { right: 4px; gap: 4px; }
-  .rail button { width: 18px; height: clamp(12px, calc(var(--vh) * 2.2), 18px); }
-  .rail button::before { width: 1.5px; margin-left: -0.75px; }
-  .rail button[aria-current="true"]::before { width: 2px; margin-left: -1px; }
+  .rail { right: 4px; }
+  .rail button { width: 18px; height: 14px; }
+  .rail button::before { width: 4px; height: 6px; }
   .store-copy, .entry-copy { padding-right: 26px; }
   .hero-sentence { right: 26px; }
 }
