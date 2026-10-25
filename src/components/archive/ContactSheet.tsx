@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { ArchiveCategory } from '@/lib/content';
@@ -7,6 +8,8 @@ import { CATEGORY_LABEL, formatDate } from '@/lib/post-utils';
 import { sheetHref, type SheetItem } from './types';
 
 const PAGE = 48;
+// the sheet's column widths (archive.css, and large.css for tall portrait screens)
+const CELL_SIZES = '(orientation: portrait) and (min-width: 1200px) and (min-height: 1800px) 34vw, (max-width: 699px) 34vw, (max-width: 1099px) 25vw, 17vw';
 const CATEGORIES: ArchiveCategory[] = ['roasting', 'cupping', 'event', 'store'];
 type CatFilter = 'all' | ArchiveCategory;
 type YearFilter = 'all' | string;
@@ -146,25 +149,25 @@ export function ContactSheet({ items }: { items: SheetItem[] }) {
                 href={sheetHref(item.slug)}
                 className={second ? 'arc-shot has-alt' : 'arc-shot'}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                {/* a cell is a column of the sheet wide, so it gets a photo that size, not the original */}
+                <Image
                   src={item.photo.src}
                   width={item.photo.w}
                   height={item.photo.h}
+                  sizes={CELL_SIZES}
                   alt={item.photo.alt}
                   loading={i < 12 ? 'eager' : 'lazy'}
-                  decoding="async"
                 />
                 {second && (
-                  // eslint-disable-next-line @next/next/no-img-element -- the description, shown on hover; the post page names it
-                  <img
+                  // the description, shown on hover; the post page names it
+                  <Image
                     className="arc-shot-alt"
                     src={second.photo.src}
                     width={second.photo.w}
                     height={second.photo.h}
+                    sizes={CELL_SIZES}
                     alt=""
                     loading="lazy"
-                    decoding="async"
                   />
                 )}
                 {item.photo.fromVideo && <span className="arc-video">영상</span>}

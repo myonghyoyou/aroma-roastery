@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
 import { cardHref, type NewsCardData } from './types';
@@ -32,13 +33,14 @@ export function NewsCard({
     >
       <span className="nws-visual">
         {card.cover ? (
-          // eslint-disable-next-line @next/next/no-img-element -- plain still, sized by the frame
-          <img
+          // a still filling the frame, at the card's width rather than the original's
+          <Image
             className="nws-img"
             src={card.cover.src}
             alt=""
+            fill
+            sizes="(max-width: 599px) 100vw, (max-width: 999px) 50vw, 34vw"
             loading={eager ? 'eager' : 'lazy'}
-            decoding="async"
           />
         ) : (
           <span className="nws-field" aria-hidden="true" />
