@@ -22,6 +22,8 @@ export function SiteHeader({ current, home = false }: { current?: Section; home?
       )}
       <nav aria-label="주요 메뉴">
         <ul>
+          {/* the symbol already leads home, but not everyone reads a logo as a button */}
+          <li>{home ? <a href="#top">홈</a> : <Link href="/">홈</Link>}</li>
           {/* store info sits in the middle of the home scroll, so it gets its own way in from every page */}
           <li>{home ? <a href="#store">매장 정보</a> : <Link href="/#store">매장 정보</Link>}</li>
           {NAV.map((n) => (
