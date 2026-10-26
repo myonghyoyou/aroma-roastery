@@ -109,7 +109,7 @@ export default async function Home() {
         </section>
       </main>
 
-      <SiteFooter settings={settings} />
+      <SiteFooter settings={settings} home />
     </GrainStage>
     </ViewTransition>
   );

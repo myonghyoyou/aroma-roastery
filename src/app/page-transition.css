@@ -7,8 +7,8 @@
    The live home field and the still subpage field share one name and blend in 0.3s. Copy never
    moves (the home page's rule): the old content fades away in 0.2s, the new content fades in over
    0.5s. Opacity only: a blur on snapshots several screens tall tripled the dropped frames in
-   recorded traces (2026-10-25). The header is not lifted out: it is absolutely placed, so from the
-   footer it would fly in from above the screen.
+   recorded traces (2026-10-25). The header is fixed at the top of every page, so it is lifted out
+   and stays put while the pages change under it.
    React takes the page's floor (root) out of every transition (view-transition-name: none on
    <html>), so whatever is not lifted out shows live underneath: the espresso background.
    ===================================================================== */
@@ -21,6 +21,8 @@
 #field,
 .sub-field { view-transition-name: grain-field; }
 ::view-transition-group(grain-field) { animation-duration: .3s; }
+.topbar { view-transition-name: site-header; }
+::view-transition-group(site-header) { z-index: 2; animation-duration: .2s; }
 ::view-transition-old(.tx-out) { animation: tx-fade-out .2s ease-out both; }
 ::view-transition-new(.tx-in) { animation: tx-fade-in .5s cubic-bezier(.33, 1, .68, 1) .05s both; }
 

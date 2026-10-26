@@ -66,8 +66,9 @@ img { display: block; max-width: 100%; }
 .ph-fallback { display: none; }
 .no-gl .ph-fallback { display: block; width: min(100%, 420px); aspect-ratio: 4 / 3; object-fit: cover; margin-top: 24px; }
 
+/* fixed, so the menu that sent the reader to a panel is still there when they arrive */
 .topbar {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 30;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   padding: 12px var(--gutter); color: var(--milk);
 }
@@ -76,7 +77,18 @@ img { display: block; max-width: 100%; }
 .topbar nav { grid-column: 3; justify-self: end; }
 .topbar ul { list-style: none; display: flex; gap: clamp(14px, 2vw, 30px); margin: 0; padding: 0; }
 .topbar ul a { text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; text-shadow: var(--halo); }
-.topbar ul a:hover { text-decoration: underline; text-underline-offset: 5px; }
+/* hover only where there is a pointer: on a phone a tapped item would keep the line in the fixed bar */
+@media (hover: hover) { .topbar ul a:hover { text-decoration: underline; text-underline-offset: 5px; } }
+/* a faint shade behind the bar keeps it readable over bright photos; it comes in over the first half
+   screen of scroll, so the opening screen stays as it was (always on where scroll timelines are missing) */
+.topbar::before {
+  content: ""; position: absolute; inset: 0 0 -28px; z-index: -1; pointer-events: none;
+  background: linear-gradient(rgba(26, 17, 13, .55), rgba(26, 17, 13, 0));
+}
+@supports (animation-timeline: scroll()) {
+  .topbar::before { animation: topbar-shade linear both; animation-timeline: scroll(root); animation-range: 0 50vh; }
+}
+@keyframes topbar-shade { from { opacity: 0; } to { opacity: 1; } }
 
 /* the symbol in its own four colours: a one colour mask merged the leaves into a single blob */
 .symbol { display: block; height: auto; }
@@ -216,7 +228,7 @@ main { text-shadow: var(--halo); }
   .store-facts { row-gap: 28px; }
   .entries li:nth-child(even) .entry-copy { margin-left: 0; }
   .footer-grid { grid-template-columns: 1fr; }
-  .footer-grid ul { justify-self: start; text-align: left; display: flex; gap: 20px; }
+  .footer-grid ul { justify-self: start; text-align: left; display: flex; flex-wrap: wrap; gap: 4px 20px; }
 }
 @media (max-width: 600px) {
   .topbar { grid-template-columns: auto 1fr; }
