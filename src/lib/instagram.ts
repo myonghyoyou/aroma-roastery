@@ -175,7 +175,10 @@ function parseCaption(caption = ''): Parsed {
   return { title: titleLine, paragraphs, tags };
 }
 
-function toPhotos(m: IgMedia, size: (c: IgChild) => { w: number; h: number }): Photo[] {
+/** The site's own address for a live photo, fixed per Instagram media id (see app/ig/[id]/route.ts). */
+export const igPhotoPath = (id: string) => `/ig/${id}`;
+
+function toPhotos(m: IgMedia, size: (c: IgChild) => { w: number; h: number }, live: boolean): Photo[] {
   const parts: IgChild[] = m.media_type === 'CAROUSEL_ALBUM'
     ? m.children?.data ?? []
     : [m as unknown as IgChild];
@@ -184,7 +187,9 @@ function toPhotos(m: IgMedia, size: (c: IgChild) => { w: number; h: number }): P
     if (!src) return [];
     const isVideo = c.media_type === 'VIDEO';
     return [{
-      kind: 'image' as const, src, alt: c.alt ?? '', ...size(c),
+      // Instagram's link changes on every read (a per-request _nc_gid), which made each hourly
+      // refresh a new photo to the image resizer; the fixed path keeps its cache
+      kind: 'image' as const, src: live ? igPhotoPath(c.id) : src, alt: c.alt ?? '', ...size(c),
       fromVideo: isVideo || undefined,
       video: isVideo ? c.media_url : undefined,
     }];
@@ -196,7 +201,7 @@ export function igToPost(m: IgMedia, size: (c: IgChild) => { w: number; h: numbe
   const caption = sane(m.caption ?? '');
   const { title, paragraphs, tags } = parseCaption(caption);
   if (tags.includes(EXCLUDE_TAG)) return null;
-  const photos = toPhotos(m, size);
+  const photos = toPhotos(m, size, !sample);
   if (!photos.length) return null;
   const date = kstDate(m.timestamp);
   const category = tags.map((t) => CATEGORY_TAGS[t]).find(Boolean);
@@ -291,7 +296,7 @@ async function measure(url: string): Promise<{ w: number; h: number } | null> {
 // Instagram's usual portrait frame, used when a file cannot be measured
 const FALLBACK = { w: 1080, h: 1350 };
 
-async function livePosts(token: string): Promise<Post[]> {
+async function livePosts(token: string): Promise<{ posts: Post[]; media: Record<string, string> }> {
   const feed = await fetchFeed(token);
   const sizes = new Map<string, { w: number; h: number }>();
   const children = feed.flatMap((m) => (m.media_type === 'CAROUSEL_ALBUM' ? m.children?.data ?? [] : [m as IgChild]));
@@ -301,23 +306,30 @@ async function livePosts(token: string): Promise<Post[]> {
       if (src) sizes.set(c.id, (await measure(src)) ?? FALLBACK);
     }));
   }
-  return feed.flatMap((m) => igToPost(m, (c) => sizes.get(c.id) ?? FALLBACK, false) ?? []);
+  // where each fixed photo path reads from right now
+  const media: Record<string, string> = {};
+  for (const c of children) {
+    const src = c.media_type === 'VIDEO' ? c.thumbnail_url : c.media_url;
+    if (src) media[c.id] = src;
+  }
+  return { posts: feed.flatMap((m) => igToPost(m, (c) => sizes.get(c.id) ?? FALLBACK, false) ?? []), media };
 }
 
 /**
  * Posts from Instagram, news and archive mixed, with `live` false while the sample feed stands in
  * (the account is not connected yet).
  */
-export async function getInstagramPosts(): Promise<{ live: boolean; posts: Post[] }> {
+export async function getInstagramPosts(): Promise<{ live: boolean; posts: Post[]; media: Record<string, string> }> {
   'use cache';
   // media links from Instagram expire after a while, so the feed is read again every hour
   cacheLife('hours');
   cacheTag(INSTAGRAM_TAG);
   const token = (await readToken())?.token ?? process.env.INSTAGRAM_TOKEN;
   // a failed read throws on purpose: the site keeps serving the last good copy instead of samples
-  if (token) return { live: true, posts: await livePosts(token) };
+  if (token) return { live: true, ...(await livePosts(token)) };
   return {
     live: false,
+    media: {},
     posts: MOCK_INSTAGRAM.flatMap((m) => igToPost(m, (c) => ({ w: c.width ?? FALLBACK.w, h: c.height ?? FALLBACK.h }), true) ?? []),
   };
 }

@@ -5,8 +5,12 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   images: {
-    // the store's Instagram photos, resized to the size they are shown at (signed URLs, so any query)
-    remotePatterns: [{ protocol: "https", hostname: "**.cdninstagram.com" }],
+    // Instagram photos come through /ig/<id> (a fixed address per photo), so each size is made once
+    // and kept for a month instead of the default 4 hours
+    minimumCacheTTL: 2678400,
+    // the photos are at most 1440px wide: no sizes above that, so fewer copies to make per photo
+    deviceSizes: [640, 828, 1080, 1440],
+    imageSizes: [256, 384],
   },
   experimental: {
     // keep Next.js's upgrade nudges to security advisories only
