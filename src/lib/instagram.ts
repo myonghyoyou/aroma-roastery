@@ -333,3 +333,20 @@ export async function getInstagramPosts(): Promise<{ live: boolean; posts: Post[
     posts: MOCK_INSTAGRAM.flatMap((m) => igToPost(m, (c) => ({ w: c.width ?? FALLBACK.w, h: c.height ?? FALLBACK.h }), true) ?? []),
   };
 }
+
+/**
+ * The current file link of one photo, asked of Instagram for that photo alone. The fixed photo
+ * addresses (/ig/<id>) use this first: reading the whole feed for it took long enough on a fresh
+ * server (six pages, then measuring every photo) that the image resizer gave up on the photo.
+ */
+export async function igMediaUrl(id: string): Promise<string | null> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(INSTAGRAM_TAG);
+  const token = (await readToken())?.token ?? process.env.INSTAGRAM_TOKEN;
+  if (!token) return null;
+  const res = await fetch(`https://graph.instagram.com/${id}?fields=media_type,media_url,thumbnail_url&access_token=${token}`);
+  if (!res.ok) return null;
+  const m = (await res.json()) as Pick<IgMedia, 'media_type' | 'media_url' | 'thumbnail_url'>;
+  return (m.media_type === 'VIDEO' ? m.thumbnail_url : m.media_url) ?? null;
+}
