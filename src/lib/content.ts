@@ -89,8 +89,6 @@ export type Post = {
   /** every photo of the post in reading order (archive posts carry many) */
   photos?: Photo[];
   body: Block[];
-  /** a clip for the home page's colour field; list and post pages always show photos */
-  homeClip?: Media;
   /** the post on Instagram, for archive posts read from the live feed */
   permalink?: string;
   /** the caption had no words (only an emoji or nothing), so the title is made from the date */
@@ -117,20 +115,6 @@ const SAMPLE_SETTINGS: SiteSettings = {
   // both clips carry a generator mark in the lower right corner: trimmed off, never shown
   passageMedia: { src: '/assets/video/barista-pouring.mp4', kind: 'video', alt: '바리스타가 드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-barista-pourover-bar.jpg', trimRight: 0.05, trimBottom: 0.06 },
   storeMedia: { src: '/assets/video/coffee-pour-tap.mp4', kind: 'video', alt: '커피 탭에서 유리잔으로 커피가 내려지는 모습', poster: '/assets/img/photo-coffee-tap-bar.jpg', focusY: 0.62, trimBottom: 0.13 },
-};
-
-// clips the home page plays for its four featured posts
-const CLIP = {
-  serverSteam: { src: '/assets/video/server-steaming.mp4', kind: 'video', alt: '김이 오르는 서버와 원두 카드', crop: 9 / 16, poster: '/assets/img/photo-kainamui-card-steam.jpg' },
-  dripper: { src: '/assets/video/dripper-pour.mp4', kind: 'video', alt: '드리퍼에 물을 붓는 모습', poster: '/assets/img/photo-pourover-dripper-closeup.jpg', focusY: 0.38, trimBottom: 0.12 },
-  serverVapor: { src: '/assets/video/server-vapor.mp4', kind: 'video', alt: '김이 오르는 유리 서버와 바리스타', poster: '/assets/img/photo-server-barista-bokeh.jpg', focusY: 0.6, trimBottom: 0.12 },
-  cupPour: { src: '/assets/video/cup-pour.mp4', kind: 'video', alt: '서버에서 잔으로 커피를 따르는 모습', poster: '/assets/img/photo-coffee-pour-cup.jpg', focusY: 0.55, trimBottom: 0.12 },
-} satisfies Record<string, Media>;
-const HOME_CLIPS: Record<string, Media> = {
-  'october-store-hours': CLIP.serverVapor,
-  'autumn-cupping-session': CLIP.serverSteam,
-  'roasting-profile-kenya': CLIP.dripper,
-  'brew-bar-september': CLIP.cupPour,
 };
 
 // placeholder notices: neutral copy only, every one is shown with a "예시" tag until real posts exist
@@ -263,22 +247,14 @@ const SAMPLE_NEWS: Post[] = [
   },
 ];
 
-/**
- * Every post, newest first, with the home page's clips attached. The sample posts have clips picked
- * for them; live posts (whose slugs nobody knows in advance) take the clips in order, newest first.
- */
+/** Every post, newest first. */
 async function allPosts(): Promise<Post[]> {
   'use cache';
   cacheLife('hours');
   cacheTag(INSTAGRAM_TAG);
   // connected, news and archive both come from Instagram; until then the sample notices stand in
   const ig = await getInstagramPosts();
-  const posts = (ig.live ? ig.posts : [...SAMPLE_NEWS, ...ig.posts]).sort((a, b) => b.date.localeCompare(a.date));
-  if (posts.some((p) => HOME_CLIPS[p.slug])) {
-    return posts.map((p) => (HOME_CLIPS[p.slug] ? { ...p, homeClip: HOME_CLIPS[p.slug] } : p));
-  }
-  const pool = Object.values(HOME_CLIPS);
-  return posts.map((p, i) => (i < pool.length ? { ...p, homeClip: pool[i] } : p));
+  return (ig.live ? ig.posts : [...SAMPLE_NEWS, ...ig.posts]).sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {

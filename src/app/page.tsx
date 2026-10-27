@@ -1,15 +1,14 @@
-import Link from 'next/link';
 import { ViewTransition } from 'react';
 import { GrainStage } from '@/components/home/GrainStage';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { BrandLink } from '@/components/site/BrandLink';
 import { SiteHeader } from '@/components/site/SiteHeader';
-import { formatDate, getPosts, getSiteSettings, postHref, TYPE_LABEL, type Media, type Post } from '@/lib/content';
+import { getSiteSettings, type Media } from '@/lib/content';
 import { SLOT_COUNT } from '@/lib/grain-field/engine';
 
-const HOME_ENTRIES = SLOT_COUNT - 2; // slots 0 and 1 belong to the passage and the store
-
-// filler for unused slots: never surfaced, because no zone on the page points at it
+// filler for the slots after the passage and the store: never surfaced, because no zone on the page
+// points at it. The news entries that used them (each with its own clip) left the home page on
+// 2026-10-27: the news has its own page, and four fewer videos load here
 const EMPTY_SLOT: Media = { src: '/assets/img/photo-barista-pourover-bar.jpg', kind: 'image', alt: '' };
 
 function FallbackImage({ media }: { media: Media }) {
@@ -20,12 +19,9 @@ function FallbackImage({ media }: { media: Media }) {
 }
 
 export default async function Home() {
-  const [settings, posts] = await Promise.all([getSiteSettings(), getPosts()]);
-  // the newest posts that carry a home clip: each one owns a shader slot
-  const entries = posts.filter((p): p is Post & { homeClip: Media } => !!p.homeClip).slice(0, HOME_ENTRIES);
-  const slots: Media[] = [settings.passageMedia, settings.storeMedia, ...entries.map((p) => p.homeClip)];
+  const settings = await getSiteSettings();
+  const slots: Media[] = [settings.passageMedia, settings.storeMedia];
   while (slots.length < SLOT_COUNT) slots.push(EMPTY_SLOT);
-  const hasSample = entries.some((p) => p.sample);
 
   return (
     // on a 'tx-nav' navigation the page fades in and out over the field (page-transition.css)
@@ -84,28 +80,6 @@ export default async function Home() {
           </dl>
           <FallbackImage media={settings.storeMedia} />
           </div>
-        </section>
-
-        <section className="archive" id="archive" aria-labelledby="archive-title">
-          <div className="archive-head" data-panel>
-            <h2 id="archive-title">기록과 소식</h2>
-            {hasSample && <span className="tag-sample">예시</span>}
-          </div>
-          {/* each entry's cover is surfaced by the shader while the entry crosses the middle of the screen */}
-          <ol className="entries">
-            {entries.map((p, i) => (
-              <li key={p.slug} data-photo={i + 2}>
-                <div className="panel-copy entry-copy" data-panel>
-                <div className="meta">
-                  <span>{TYPE_LABEL[p.type]}</span>
-                  <time dateTime={p.date}>{formatDate(p.date)}</time>
-                </div>
-                <h3><Link href={postHref(p)}>{p.title}</Link></h3>
-                <FallbackImage media={p.homeClip} />
-                </div>
-              </li>
-            ))}
-          </ol>
         </section>
       </main>
 

@@ -10,7 +10,8 @@ import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
  * approved draft; the behaviour is the same, and mountGrainField returns a cleanup so the page can
  * be left and re-entered on client navigation without leaking listeners, triggers or GL state.
  *
- * Texture slots: 0 passage, 1 store, 2-5 archive entries. The DOM marks its zones with data-photo.
+ * Texture slots: 0 passage, 1 store, 2-5 the home page's post entries (none since 2026-10-27; the
+ * page fills them with one still that no zone shows). The DOM marks its zones with data-photo.
  */
 
 export const SLOT_COUNT = 6;

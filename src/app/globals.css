@@ -147,7 +147,7 @@ main { text-shadow: var(--halo); }
 .panel-copy { position: sticky; top: 0; height: calc(var(--vh) * 100); display: flex; flex-direction: column; }
 .store { height: calc(var(--vh) * 160); }
 .store-copy { justify-content: flex-end; padding: calc(var(--vh) * 24) var(--gutter) clamp(56px, calc(var(--vh) * 10), 120px); }
-.store h2, .archive h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.store h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
 .store h2 { margin-bottom: 20px; }
 .store-address { margin: 0; font-style: normal; font-weight: 700; font-size: clamp(36px, 6.4vw, 108px); line-height: 1.15; letter-spacing: -0.035em; max-width: 16ch; }
 .store-address small { display: block; margin-top: .4em; font-size: .36em; font-weight: 600; letter-spacing: -0.02em; color: var(--milk-2); }
@@ -173,31 +173,16 @@ main { text-shadow: var(--halo); }
 /* explicit underline: Tailwind's preflight resets links to no decoration */
 .store-facts dd a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
 
-/* ---------- archive: one entry per screen, its photo surfaces behind it ---------- */
-.archive { padding: 0 var(--gutter) calc(var(--vh) * 10); }
-.archive-head { position: sticky; top: clamp(84px, calc(var(--vh) * 13), 130px); z-index: 1; display: flex; align-items: center; gap: 12px; }
-.archive h2 { font-size: clamp(28px, 2.8vw, 40px); letter-spacing: -0.03em; line-height: 1.2; }
-/* honest marker: titles and dates below are placeholders, not real records */
+/* honest marker on placeholder posts (the news and archive pages) */
 .tag-sample { font-size: 12px; font-weight: 600; line-height: 1; padding: 5px 8px; border: 1px solid currentColor; border-radius: 2px; white-space: nowrap; text-shadow: none; }
-/* the list starts half a screen below the heading, so the heading has settled at its sticky place before
-   the first entry arrives */
-.entries { list-style: none; margin: calc(var(--vh) * 48) 0 0; padding: 0; }
-/* each entry's copy is only as tall as its text and sticks at the middle of the screen. A full-screen
-   layer would need a whole screen of scroll to leave before the next one could stick; this one hands
-   over within its own height, so free scrolling crosses little empty field between two entries */
-.entries li { height: calc(var(--vh) * 100); }
-.entry-copy { top: calc(var(--vh) * 50); height: auto; transform: translateY(-50%); max-width: min(92vw, 1040px); }
-.entries li:nth-child(even) .entry-copy { margin-left: 14vw; }
-.entries .meta { display: flex; gap: 16px; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-.entries h3 { margin: 8px 0 0; font-size: clamp(30px, 4.4vw, 68px); font-weight: 700; line-height: 1.15; letter-spacing: -0.035em; }
 
 /* ---------- footer: back on the field, now deep roast ---------- */
 .site-footer { padding: clamp(64px, calc(var(--vh) * 14), 160px) var(--gutter) 32px; overflow: hidden; position: relative; }
-/* home: the footer is at least 60% of a screen tall, its content at the bottom. The last entry's copy,
-   photo and the archive heading leave once that entry has scrolled up past the middle of the screen,
-   and the page can only scroll as far as the footer is tall. The footer grows with the screen width
-   (the wordmark), so on a tall, narrow screen (a portrait monitor) it was too short and the last
-   entry stayed half visible behind the wordmark. */
+/* home: the footer is at least 60% of a screen tall, its content at the bottom. The last panel's copy
+   and photo leave once it has scrolled up past the middle of the screen, and the page can only scroll
+   as far as the footer is tall. The footer grows with the screen width (the wordmark), so on a tall,
+   narrow screen (a portrait monitor) it was too short and the last panel stayed half visible behind
+   the wordmark. */
 .site-footer:has(.footer-mark) { min-height: calc(var(--vh) * 60); display: flex; flex-direction: column; justify-content: flex-end; }
 /* a soft amber light behind the home wordmark as it comes in (the engine drives --mark-glow on the
    footer, 0 elsewhere); it hangs on the wordmark itself, so it stays behind it however tall the footer */
@@ -226,7 +211,6 @@ main { text-shadow: var(--halo); }
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
   .store-facts { row-gap: 28px; }
-  .entries li:nth-child(even) .entry-copy { margin-left: 0; }
   .footer-grid { grid-template-columns: 1fr; }
   .footer-grid ul { justify-self: start; text-align: left; display: flex; flex-wrap: wrap; gap: 4px 20px; }
 }
@@ -273,9 +257,6 @@ main { text-shadow: var(--halo); }
   .rail { right: 4px; }
   .rail button { width: 18px; height: 14px; }
   .rail button::before { width: 4px; height: 6px; }
-  .store-copy, .entry-copy { padding-right: 26px; }
+  .store-copy { padding-right: 26px; }
   .hero-sentence { right: 26px; }
 }
-
-/* archive titles: give the line room instead of a one-word-per-line column */
-.entries h3 { max-width: 16em; }
