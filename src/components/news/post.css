@@ -5,7 +5,7 @@
    ===================================================================== */
 .nwp {
   --nwp-rule: rgba(251, 243, 232, .22); --nwp-line: rgba(251, 243, 232, .4); --nwp-cell: rgba(251, 243, 232, .06);
-  padding-top: clamp(92px, 13vh, 136px);
+  padding-top: var(--sub-top);
 }
 
 .nwp-crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0; font-size: 14px; font-weight: 600; color: var(--milk-2); }

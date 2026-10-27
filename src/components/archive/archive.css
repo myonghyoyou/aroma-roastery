@@ -16,9 +16,9 @@
 }
 
 /* ---------- heading ---------- */
-.arc-head { padding: clamp(120px, 20vh, 200px) 0 clamp(28px, 4vh, 44px); }
+.arc-head { padding: var(--sub-top) 0 var(--sub-head-after); }
 .arc-head-row { display: flex; align-items: center; gap: 14px; }
-.arc-head h1 { margin: 0; font-size: clamp(34px, 4vw, 56px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
+.arc-head h1 { margin: 0; font-size: var(--sub-h1); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
 .arc-lead { margin: 14px 0 0; font-size: 16px; color: var(--milk-2); max-width: 32em; }
 
 /* ---------- filters with counts ---------- */
@@ -142,7 +142,7 @@
 /* ---------- detail: the spread (concept B, chosen 2026-10-21) ----------
    The bean card and its description open side by side at one height, a short caption under them,
    the caption text in a reading column, and every way out on one row at the foot. */
-.arc-post { padding-top: clamp(92px, 13vh, 136px); }
+.arc-post { padding-top: var(--sub-top); }
 .arc-sp-crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
 .arc-sp-crumb a { color: var(--milk); text-decoration: underline; text-underline-offset: 4px; }
 

@@ -7,6 +7,16 @@
    The four leaf colours glow at the top of a deep roast, with film grain.
    ===================================================================== */
 .sub { position: relative; min-height: 100vh; min-height: 100svh; isolation: isolate; }
+/* every subpage starts its first line (a list page's title, a post's crumb) at the same height, so
+   moving between them nothing jumps. The list pages used to start 20vh down, a post 13vh: on a phone
+   the title sat 100px under the top bar and the first card below the fold. Its own sizes and spacing
+   are here too, so the news and archive headings cannot drift apart again */
+.sub {
+  --sub-top: clamp(92px, 13vh, 136px);
+  --sub-h1: clamp(34px, 4vw, 56px);
+  --sub-head-after: clamp(28px, 4vh, 44px);
+}
+@media (max-width: 600px) { .sub { --sub-top: 92px; --sub-h1: 32px; --sub-head-after: 24px; } }
 .sub-field {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -22,9 +32,9 @@
 .cover-empty { display: block; width: 100%; height: 100%; }
 
 /* page heading of the list pages */
-.page-head { padding: clamp(120px, 20vh, 200px) 0 clamp(40px, 6vh, 72px); }
+.page-head { padding: var(--sub-top) 0 var(--sub-head-after); }
 .page-head-row { display: flex; align-items: center; gap: 14px; }
-.page-head h1 { margin: 0; font-size: clamp(34px, 4vw, 58px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
+.page-head h1 { margin: 0; font-size: var(--sub-h1); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
 .page-head p { margin: 14px 0 0; font-size: 16px; color: var(--milk-2); max-width: 30em; }
 
 /* ---------- news: text first ---------- */
@@ -41,7 +51,7 @@
 }
 
 /* ---------- a post ---------- */
-.article-head { position: relative; padding: clamp(120px, 20vh, 200px) 0 clamp(36px, 6vh, 56px); }
+.article-head { position: relative; padding: var(--sub-top) 0 clamp(36px, 6vh, 56px); }
 .article-figure { position: relative; margin: 0; max-width: 1100px; aspect-ratio: 16 / 10; overflow: hidden; background: rgba(251, 243, 232, .06); }
 .article-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 0 0 14px; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
 .article-meta a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }

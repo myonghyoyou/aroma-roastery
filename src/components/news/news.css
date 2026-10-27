@@ -26,11 +26,11 @@
 .nws a:focus-visible, .nws button:focus-visible { outline: 2px solid var(--milk); outline-offset: 4px; border-radius: var(--nws-r); }
 
 /* ---------- heading ---------- */
-.nws-head { padding: clamp(120px, 20vh, 200px) 0 clamp(32px, 5vh, 56px); }
+.nws-head { padding: var(--sub-top) 0 var(--sub-head-after); }
 .nws-crumb { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; font-size: 13px; font-weight: 600; color: var(--milk-2); }
 .nws-crumb a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
 .nws-head-row { display: flex; align-items: center; gap: 14px; }
-.nws-head h1 { margin: 0; font-size: clamp(34px, 4vw, 58px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
+.nws-head h1 { margin: 0; font-size: var(--sub-h1); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
 .nws-lead { margin: 14px 0 0; max-width: 30em; font-size: 16px; color: var(--milk-2); }
 
 /* ---------- chips ---------- */
