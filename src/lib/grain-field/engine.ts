@@ -481,9 +481,32 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
         const foot = footerEl;
         gsap.set(wordmark, { autoAlpha: 0 });
         let markIn: gsap.core.Timeline | null = null;
+        // Leaving upwards it fades with the scroll while its top runs from 80% of the screen to the
+        // bottom edge, from wherever its entrance had got to. It used to be hidden in one frame at 80%,
+        // with a band of the wordmark still on screen under it, and read as a blink.
+        let leaving: { a: number; g: number } | null = null;
+        ScrollTrigger.create({
+          trigger: wordmark, start: 'top bottom', end: 'top 80%',
+          onUpdate: (self) => {
+            if (self.direction >= 0) return;
+            if (!leaving) {
+              markIn?.kill(); markIn = null;
+              leaving = { a: Number(gsap.getProperty(wordmark, 'opacity')) || 0, g: Number(gsap.getProperty(foot, '--mark-glow')) || 0 };
+            }
+            gsap.set(wordmark, { autoAlpha: leaving.a * self.progress });
+            gsap.set(foot, { '--mark-glow': leaving.g * self.progress });
+          },
+          onLeaveBack: () => {
+            leaving = null;
+            markIn?.kill(); markIn = null;
+            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter' });
+            gsap.set(foot, { '--mark-glow': 0 });
+          },
+        });
         ScrollTrigger.create({
           trigger: wordmark, start: 'top 80%',
           onEnter: () => {
+            leaving = null;
             markIn?.kill();
             gsap.set(wordmark, { autoAlpha: 0, filter: 'blur(14px) sepia(0.4) brightness(1.18) saturate(1.3)' });
             gsap.set(foot, { '--mark-glow': 0 });
@@ -492,11 +515,6 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
               .to(wordmark, { autoAlpha: 1, duration: 1.8, ease: 'sine.out' }, 0.15)
               .to(wordmark, { filter: 'blur(0px) sepia(0) brightness(1) saturate(1)', duration: 2.4, ease: 'power2.out' }, 0.15)
               .to(foot, { '--mark-glow': 0.3, duration: 2.2, ease: 'sine.inOut' }, 1.5);
-          },
-          onLeaveBack: () => {
-            markIn?.kill(); markIn = null;
-            gsap.set(wordmark, { autoAlpha: 0, clearProps: 'filter' });
-            gsap.set(foot, { '--mark-glow': 0 });
           },
         });
       }
