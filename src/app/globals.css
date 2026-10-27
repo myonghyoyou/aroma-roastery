@@ -220,7 +220,15 @@ main { text-shadow: var(--halo); }
   .topbar .brand .symbol { width: 42px; }
   .topbar nav { grid-column: 2; }
   .topbar ul { gap: 14px; }
-  .store-facts { flex-direction: column; row-gap: 20px; }
+  /* the facts stacked one per row were taller than a short phone (an SE, or any phone with the
+     address bar showing), so the copy rose under the top bar and 매장 정보 sat on the logo. Two to a row
+     (the hours side by side, the maps beside the store) fits it; the top padding keeps clear of the bar
+     and `safe` keeps the heading below it even if a screen is shorter still */
+  .store-copy { justify-content: safe flex-end; padding-top: 84px; padding-bottom: 40px; }
+  .store h2 { margin-bottom: 14px; }
+  .store-facts { display: grid; grid-template-columns: repeat(2, auto); justify-content: start; column-gap: 24px; row-gap: 14px; margin-top: 28px; }
+  .store-facts dt { margin-bottom: 2px; }
+  .store-facts dd.store-links { column-gap: .75em; }
 }
 
 /* ---------- rail: a strip of film perforations, one per panel stop on the home page ----------
