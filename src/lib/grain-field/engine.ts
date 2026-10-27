@@ -439,8 +439,16 @@ export function mountGrainField(root: HTMLElement, canvas: HTMLCanvasElement, sl
           onLeave: reset,
           onLeaveBack: reset,
         });
-        // the stretch the old scrubbed fade in covered: the panel stop sits just after it
-        const settledIn = ScrollTrigger.create({ trigger: scope, start: () => `top ${stickAt(el)}px`, end: () => `top ${stickAt(el) - 0.12 * screenH()}px` });
+        // the stretch the old scrubbed fade in covered: the panel stop sits just after it.
+        // Leaving upwards, the copy fades with the scroll across it, as it does leaving downwards before
+        // its release; without this it was cut at the panel's top edge in one frame while the panel
+        // above came in, and read as a blink. Going down it stays at full strength (the lines' own
+        // timed entrance shows it), and it is whole again whenever the stretch is entered from above.
+        const settledIn = ScrollTrigger.create({
+          trigger: scope, start: () => `top ${stickAt(el)}px`, end: () => `top ${stickAt(el) - 0.12 * screenH()}px`,
+          onUpdate: (self) => { if (self.direction < 0) gsap.set(el, { autoAlpha: self.progress }); },
+          onEnter: () => gsap.set(el, { autoAlpha: 1 }),
+        });
         // The archive heading leaves with the last entry: its own section ends below the footer's top,
         // a point the page can never scroll to on a screen taller than the footer, so the heading
         // stayed over the footer at the last stop.
