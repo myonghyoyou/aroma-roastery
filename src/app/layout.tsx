@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import { openGraphFor, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 import './globals.css';
 import './sub.css';
 // last: the large-screen sizes (past 1920px) override the page styles above
@@ -21,11 +22,22 @@ const generalSans = localFont({
   display: 'swap',
 });
 
+// open to search since 2026-10-27 (the store's own domain); /admin and, while it is out of the menu,
+// the archive keep themselves out. Search-console ownership tags come from the environment.
 export const metadata: Metadata = {
-  title: 'aroma roastery',
-  description: '아로마 로스터리는 설득력 있는 스페셜티 커피를 로스팅 합니다. 서울시 강서구 마곡중앙8로 5길 63 디엠프라자 107호.',
-  // private MVP until the public launch: keep it out of search results
-  robots: { index: false, follow: false },
+  metadataBase: new URL(SITE_URL),
+  title: { default: `${SITE_NAME} | 마곡 스페셜티 커피 로스터리`, template: `%s | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: openGraphFor('/'),
+  twitter: { card: 'summary_large_image' },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: {
+      ...(process.env.NAVER_SITE_VERIFICATION ? { 'naver-site-verification': process.env.NAVER_SITE_VERIFICATION } : {}),
+      ...(process.env.BING_SITE_VERIFICATION ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION } : {}),
+    },
+  },
 };
 
 export const viewport: Viewport = {

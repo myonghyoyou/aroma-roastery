@@ -3,11 +3,14 @@ import { CardFeed } from '@/components/news/CardFeed';
 import { toFeed } from '@/components/news/types';
 import { SubPage } from '@/components/site/SubPage';
 import { getPosts, getSiteSettings } from '@/lib/content';
+import { openGraphFor } from '@/lib/site';
 import '@/components/news/news.css';
 
 export const metadata: Metadata = {
-  title: '소식 | aroma roastery',
-  description: '영업시간, 휴무, 원두 입고, 행사 소식을 카드 한 장씩 모았습니다.',
+  title: '소식',
+  description: '아로마 로스터리의 원두 입고, 영업시간, 휴무, 행사 소식입니다.',
+  alternates: { canonical: '/news' },
+  openGraph: openGraphFor('/news'),
 };
 
 /* News: concept C (card feed), chosen in review. Posts come from Instagram (posts with written captions), see instagram.ts. */

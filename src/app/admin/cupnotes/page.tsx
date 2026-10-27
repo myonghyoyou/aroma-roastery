@@ -15,7 +15,7 @@ import '@/components/admin/admin.css';
  * sets its colour) or mark as not a flavour; and every word already placed, to move. Saved to Redis
  * through /api/cupnotes with the admin key.
  */
-export const metadata: Metadata = { title: '컵 노트 분류 | aroma 관리' };
+export const metadata: Metadata = { title: { absolute: '컵 노트 분류 | aroma 관리' } };
 
 export default async function AdminCupNotes() {
   const [news, archive, overrides] = await Promise.all([getPosts('news'), getPosts('archive'), readOverrides()]);

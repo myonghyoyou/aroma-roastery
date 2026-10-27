@@ -15,7 +15,7 @@ import { signOut } from './actions';
  * The owner's way in (/admin, by URL only, behind the sign-in in proxy.ts): what is waiting on the cup notes, one button to it, and
  * the latest bean arrivals with the notes their posts came out as, to look over at a glance.
  */
-export const metadata: Metadata = { title: 'aroma 관리' };
+export const metadata: Metadata = { title: { absolute: 'aroma 관리' } };
 
 const RECENT = 6;
 const SHOWN_WORDS = 8;

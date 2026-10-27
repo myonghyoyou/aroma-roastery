@@ -30,6 +30,8 @@ export type Media = {
 export type SiteSettings = {
   address: { line1: string; line2: string; building: string; storeName: string };
   hours: { label: string; value: string }[];
+  /** for search engines, maps and AI answers (structured data, llms.txt); not shown on the page */
+  phone: string;
   /** Naver Map */
   mapUrl: string;
   kakaoMapUrl: string;
@@ -108,6 +110,7 @@ const SAMPLE_SETTINGS: SiteSettings = {
     { label: '평일', value: '08:00-18:00' },
     { label: '주말·공휴일', value: '12:00-18:00' },
   ],
+  phone: '070-5534-5345',
   mapUrl: 'https://naver.me/GoDXYZG3',
   kakaoMapUrl: 'https://place.map.kakao.com/927360490',
   storeUrl: 'https://smartstore.naver.com/aroma_roastery',

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { ViewTransition } from 'react';
 import { GrainStage } from '@/components/home/GrainStage';
 import { SiteFooter } from '@/components/site/SiteFooter';
@@ -5,6 +6,9 @@ import { BrandLink } from '@/components/site/BrandLink';
 import { SiteHeader } from '@/components/site/SiteHeader';
 import { getSiteSettings, type Media } from '@/lib/content';
 import { SLOT_COUNT } from '@/lib/grain-field/engine';
+import { jsonLdHtml, storeJsonLd } from '@/lib/site';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 // filler for the slots after the passage and the store: never surfaced, because no zone on the page
 // points at it. The news entries that used them (each with its own clip) left the home page on
@@ -34,6 +38,8 @@ export default async function Home() {
       <SiteHeader home />
 
       <main>
+        {/* the store for search engines and AI answers: address, hours, phone, maps, store, Instagram */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(storeJsonLd(settings))} />
         <section className="hero" id="top">
           <h1 className="hero-sentence">
             <span className="l">아로마 로스터리는</span>
