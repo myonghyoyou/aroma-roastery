@@ -77,7 +77,7 @@ export function NewsPost({
 
           {tiles.length > 0 && (
             <ul className={`nwp-tiles is-${Math.min(tiles.length, 4)}`}>
-              {tiles.map((t) => <li key={t.label}><b>{t.value}</b><span>{t.label}</span></li>)}
+              {tiles.map((t) => <li key={t.label}><span>{t.label}</span><b>{t.value}</b></li>)}
             </ul>
           )}
 

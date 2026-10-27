@@ -46,7 +46,7 @@
 .nwp-cup { margin-top: 22px; }
 .nwp-cup-h { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: var(--milk-2); }
 
-/* the profile: value large, label small, on one hairline grid */
+/* the profile: label small above, value large below, on one hairline grid */
 .nwp-tiles { --n: 2; list-style: none; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1px; margin: 24px 0 0; padding: 0; background: var(--nwp-rule); border: 1px solid var(--nwp-rule); }
 .nwp-tiles.is-1 { --n: 1; }
 .nwp-tiles.is-3 { --n: 3; }
@@ -81,7 +81,8 @@ a.nwp-side:hover .nwp-side-title { text-decoration: underline; text-underline-of
   .nwp-nav { grid-template-columns: 1fr 1fr; }
   .nwp-nav > .nwp-btn { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
 }
-@media (max-width: 399px) { .nwp-tiles.is-3 { --n: 2; } }
+/* three tiles on a narrow phone: two, then the third across the row, so no cell stands empty */
+@media (max-width: 399px) { .nwp-tiles.is-3 { --n: 2; } .nwp-tiles.is-3 li:last-child { grid-column: 1 / -1; } }
 
 /* on a screen wider than the post's 1240px the post sits in the middle, not against the left edge */
 .nwp-page-wrap { margin-inline: auto; }
