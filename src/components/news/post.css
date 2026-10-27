@@ -24,7 +24,16 @@
 
 /* the photos (Flipbook): one at a time, arrows and a page count under them */
 .nwp-book { position: sticky; top: 96px; }
-.nwp-page { display: flex; justify-content: center; background: var(--nwp-cell); touch-action: pan-y; }
+.nwp-page { display: flex; justify-content: center; overflow: hidden; background: var(--nwp-cell); touch-action: pan-y; }
+/* a turn: the new photo slides in from the side it was turned towards (none on the first photo) */
+.nwp-turn { display: flex; justify-content: center; width: 100%; }
+.nwp-turn[data-dir] { animation: nwp-turn .42s cubic-bezier(.22, .7, .2, 1) both; }
+.nwp-turn[data-dir="prev"] { --from: -14%; }
+@keyframes nwp-turn { from { opacity: 0; transform: translateX(var(--from, 14%)); } }
+@media (prefers-reduced-motion: reduce) {
+  .nwp-turn[data-dir] { animation-duration: .2s; }
+  @keyframes nwp-turn { from { opacity: 0; } }
+}
 .nwp-img { display: block; width: auto; max-width: 100%; height: auto; max-height: min(74svh, 820px); }
 .nwp-controls { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 12px; }
 .nwp-arrow {
