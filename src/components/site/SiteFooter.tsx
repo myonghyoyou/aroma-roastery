@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { SiteSettings } from '@/lib/content';
+import { ARCHIVE_IN_MENU } from './SiteHeader';
 
 /**
  * Footer shared by every page: address, hours and links, the same places as the top menu. The large
@@ -30,7 +31,7 @@ export function SiteFooter({ settings, mark = true, home = false }: { settings: 
         <ul>
           <li>{home ? <a href="#top">홈</a> : <Link href="/" transitionTypes={types}>홈</Link>}</li>
           <li>{home ? <a href="#store">매장 정보</a> : <Link href="/#store" transitionTypes={types}>매장 정보</Link>}</li>
-          <li><Link href="/archive" transitionTypes={types}>아카이브</Link></li>
+          {ARCHIVE_IN_MENU && <li><Link href="/archive" transitionTypes={types}>아카이브</Link></li>}
           <li><Link href="/news" transitionTypes={types}>소식</Link></li>
           <li><a href={storeUrl} target="_blank" rel="noopener">스토어</a></li>
           <li><a href={instagram.url} target="_blank" rel="noopener">Instagram</a></li>

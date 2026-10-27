@@ -2,8 +2,11 @@ import Link from 'next/link';
 
 type Section = 'archive' | 'news';
 
+/** The archive is out of the menus for now (2026-10-27, its photos load too slowly); its pages still open by URL. */
+export const ARCHIVE_IN_MENU = false;
+
 const NAV: { href: string; label: string; section: Section }[] = [
-  { href: '/archive', label: '아카이브', section: 'archive' },
+  ...(ARCHIVE_IN_MENU ? [{ href: '/archive', label: '아카이브', section: 'archive' as const }] : []),
   { href: '/news', label: '소식', section: 'news' },
 ];
 
