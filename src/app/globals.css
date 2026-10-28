@@ -79,14 +79,16 @@ img { display: block; max-width: 100%; }
 .topbar ul a { text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; text-shadow: var(--halo); }
 /* hover only where there is a pointer: on a phone a tapped item would keep the line in the fixed bar */
 @media (hover: hover) { .topbar ul a:hover { text-decoration: underline; text-underline-offset: 5px; } }
-/* a faint shade behind the bar keeps it readable over bright photos; it comes in over the first half
-   screen of scroll, so the opening screen stays as it was (always on where scroll timelines are missing) */
+/* the roast colour behind the bar, so the page scrolling under it does not show through the logo and
+   the menu (a half shade let headings and buttons read through on phones); a short soft edge below. It
+   comes in over the first 120px of scroll, so the opening screen stays as it was (always on where
+   scroll timelines are missing) */
 .topbar::before {
-  content: ""; position: absolute; inset: 0 0 -28px; z-index: -1; pointer-events: none;
-  background: linear-gradient(rgba(26, 17, 13, .55), rgba(26, 17, 13, 0));
+  content: ""; position: absolute; inset: 0 0 -16px; z-index: -1; pointer-events: none;
+  background: linear-gradient(rgba(26, 17, 13, .94) calc(100% - 16px), rgba(26, 17, 13, 0));
 }
 @supports (animation-timeline: scroll()) {
-  .topbar::before { animation: topbar-shade linear both; animation-timeline: scroll(root); animation-range: 0 50vh; }
+  .topbar::before { animation: topbar-shade linear both; animation-timeline: scroll(root); animation-range: 0 120px; }
 }
 @keyframes topbar-shade { from { opacity: 0; } to { opacity: 1; } }
 
