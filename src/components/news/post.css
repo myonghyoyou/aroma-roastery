@@ -48,8 +48,6 @@
 .nwp-info { max-width: 32em; }
 .nwp-over { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0; font-size: 14px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
 .nwp-origin { font-weight: 700; color: var(--milk); }
-.nwp-topic { display: inline-flex; align-items: center; gap: 7px; color: var(--milk); }
-.nwp-topic::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgb(var(--nws-tone)); }
 .nwp-title { margin: 10px 0 0; font-size: clamp(28px, 2.8vw, 42px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; word-break: keep-all; }
 
 .nwp-cup { margin-top: 22px; }

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
+import { formatDate } from '@/lib/post-utils';
 import { cardHref, type NewsCardData } from './types';
 
 /*
@@ -54,7 +54,6 @@ export function NewsCard({
       <span className="nws-text">
         <span className="nws-meta" id={metaId}>
           {card.pinned && <span className="nws-pin">고정</span>}
-          <span className="nws-topic">{TOPIC_LABEL[card.topic]}</span>
           <time dateTime={card.date}>{formatDate(card.date)}</time>
         </span>
         {!isField && (

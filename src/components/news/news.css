@@ -33,25 +33,9 @@
 .nws-head h1 { margin: 0; font-size: var(--sub-h1); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
 .nws-lead { margin: 14px 0 0; max-width: 30em; font-size: 16px; color: var(--milk-2); }
 
-/* ---------- chips ---------- */
-.nws-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-bottom: 18px; border-bottom: 1px solid var(--nws-line); }
-.nws-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.nws-chip {
-  appearance: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin: 0; padding: 0 14px;
-  font: inherit; font-size: 14px; font-weight: 600; color: var(--milk); background: transparent;
-  border: 1px solid rgba(251, 243, 232, .3); border-radius: var(--nws-r); cursor: pointer;
-  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
-}
-.nws-chip[data-topic]:not([data-topic="all"])::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--nws-tone)); }
-.nws-chip-n { font-weight: 500; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-.nws-chip:hover { border-color: var(--milk); }
-.nws-chip[aria-pressed="true"] { background: var(--milk); color: var(--char); border-color: var(--milk); }
-.nws-chip[aria-pressed="true"] .nws-chip-n { color: rgba(26, 17, 13, .65); }
-.nws-count { margin: 0; font-size: 13px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-
 /* ---------- grid ---------- */
 .nws-grid {
-  list-style: none; margin: clamp(28px, 4vh, 44px) 0 0; padding: 0;
+  list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: var(--nws-gap); row-gap: clamp(36px, 5vh, 56px); align-items: start;
 }
@@ -86,8 +70,6 @@
 
 .nws-text { display: block; padding-top: 16px; min-width: 0; }
 .nws-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; font-weight: 600; color: var(--milk-2); font-variant-numeric: tabular-nums; }
-.nws-topic { display: inline-flex; align-items: center; gap: 7px; color: var(--milk); }
-.nws-topic::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--nws-tone)); }
 .nws-pin { font-size: 12px; line-height: 1; padding: 4px 7px; color: var(--milk); border: 1px solid rgba(251, 243, 232, .4); border-radius: var(--nws-r); }
 .nws-title { margin: 8px 0 0; font-size: clamp(18px, 1.5vw, 22px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.35; word-break: keep-all; overflow-wrap: anywhere; }
 .nws-summary { display: block; margin-top: 6px; font-size: 15px; line-height: 1.6; color: var(--milk-2); word-break: keep-all; overflow-wrap: anywhere; }
@@ -103,7 +85,7 @@
 }
 
 /* ---------- empty ---------- */
-.nws-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-top: 40px; padding: 48px 0; border-bottom: 1px solid var(--nws-line); }
+.nws-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 48px 0; border-bottom: 1px solid var(--nws-line); }
 .nws-empty p { margin: 0; font-size: 17px; color: var(--milk-2); }
 
 /* a notice's page is NewsPost (post.css); the related cards of the design study's A keep these */
@@ -111,7 +93,7 @@
 @media (max-width: 719px) { .nws-grid--related { grid-template-columns: minmax(0, 1fr); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .nws-img, .nws-field, .nws-chip { transition: none; }
+  .nws-img, .nws-field { transition: none; }
   .nws-card:hover .nws-img { transform: none; }
 }
 

@@ -3,7 +3,7 @@ import { TextBlocks } from '@/components/archive/TextBlocks';
 import type { BeanProfile } from '@/components/cupnote/bean';
 import { CupNoteTags } from '@/components/cupnote/CupNoteTag';
 import type { Block, Photo, Post } from '@/lib/content';
-import { TOPIC_LABEL, formatDate } from '@/lib/post-utils';
+import { formatDate } from '@/lib/post-utils';
 import { Flipbook } from './Flipbook';
 import { LIST_HREF, formatPeriod } from './types';
 import './post.css';
@@ -12,7 +12,7 @@ import './post.css';
  * A news post (concept F of the post study, chosen 2026-10-23): the posted photos turned one at a
  * time on the left, large; beside them, read top down, the origin and date, the bean's name, its cup
  * notes (each in its own colour from the flavour wheel), the profile as value/label tiles, the store's
- * words and the way to buy. A notice keeps the same frame with its topic, date and period as tiles.
+ * words and the way to buy. A notice keeps the same frame with its date and period as tiles.
  * The newer post, the list and the older post close the page on one band, apart from the photos'
  * own arrows. `hrefOf` makes the neighbours' links, so the design study keeps its own addresses.
  */
@@ -38,7 +38,6 @@ export function NewsPost({
         bean.process && { value: bean.process, label: '가공' },
       ]
     : [
-        { value: TOPIC_LABEL[topic], label: '분류' },
         { value: formatDate(post.date), label: '올린 날' },
         post.period && { value: formatPeriod(post.period), label: '해당 기간' },
       ]
@@ -48,8 +47,6 @@ export function NewsPost({
     <article className="nwp" data-topic={topic}>
       <p className="nwp-crumb">
         <Link href={LIST_HREF}>소식</Link>
-        <span aria-hidden="true">/</span>
-        <span>{TOPIC_LABEL[topic]}</span>
       </p>
 
       <div className="nwp-split">
@@ -62,7 +59,7 @@ export function NewsPost({
 
         <div className="nwp-info">
           <p className="nwp-over">
-            {bean?.origin ? <span className="nwp-origin">{bean.origin}</span> : <span className="nwp-topic">{TOPIC_LABEL[topic]}</span>}
+            {bean?.origin && <span className="nwp-origin">{bean.origin}</span>}
             <time dateTime={post.date}>{bean ? '입고 ' : ''}{formatDate(post.date)}</time>
             {post.sample && <span className="tag-sample">예시</span>}
           </p>
