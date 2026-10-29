@@ -85,14 +85,14 @@ img { display: block; max-width: 100%; }
    child's blur would see nothing behind it. It comes in over the first 120px of scroll, so the opening
    screen stays as it was (always on where scroll timelines are missing) */
 .topbar {
-  background-color: rgba(26, 17, 13, .26);
-  -webkit-backdrop-filter: blur(12px) saturate(1.12); backdrop-filter: blur(12px) saturate(1.12);
+  background-color: rgba(26, 17, 13, .14);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
 @supports (animation-timeline: scroll()) {
   .topbar { animation: topbar-glass linear both; animation-timeline: scroll(root); animation-range: 0 120px; }
 }
 @keyframes topbar-glass {
-  from { background-color: rgba(26, 17, 13, 0); -webkit-backdrop-filter: blur(0) saturate(1); backdrop-filter: blur(0) saturate(1); }
+  from { background-color: rgba(26, 17, 13, 0); -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); }
 }
 
 /* the symbol in its own four colours: a one colour mask merged the leaves into a single blob */
