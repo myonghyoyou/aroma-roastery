@@ -10,14 +10,18 @@ const NAV: { href: string; label: string; section: Section }[] = [
   { href: '/news', label: '소식', section: 'news' },
 ];
 
-/** Top bar shared by every page. On the home page the symbol scrolls back to the top instead of navigating. */
+/**
+ * Top bar shared by every page. On the home page the symbol scrolls back to the top instead of navigating.
+ * The news pages give it a faint glass (globals.css); the mark rides on this page's own bar, since a page
+ * left behind stays in the document, hidden, and a selector looking for it would keep the glass on at home.
+ */
 export function SiteHeader({ current, home = false }: { current?: Section; home?: boolean }) {
   const symbol = (
     // eslint-disable-next-line @next/next/no-img-element -- small inline SVG logo
     <img className="symbol" src="/assets/logo/aroma-symbol.svg" alt="" />
   );
   return (
-    <header className="topbar">
+    <header className={current === 'news' ? 'topbar topbar--glass' : 'topbar'}>
       {home ? (
         <a className="brand" href="#top" aria-label="aroma 처음으로">{symbol}</a>
       ) : (

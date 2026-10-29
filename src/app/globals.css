@@ -79,18 +79,18 @@ img { display: block; max-width: 100%; }
 .topbar ul a { text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; text-shadow: var(--halo); }
 /* hover only where there is a pointer: on a phone a tapped item would keep the line in the fixed bar */
 @media (hover: hover) { .topbar ul a:hover { text-decoration: underline; text-underline-offset: 5px; } }
-/* frosted glass on the bar, on the news pages only (.nws: the list and a post), where photos and titles
+/* frosted glass on the bar, on the news pages only (the list and a post), where photos and titles
    scroll up under the logo and the menu: they soften instead of reading through, while the field's glow
    still shows.
    It sits on the bar itself, not a pseudo element: the bar's view-transition-name makes it a backdrop
    root, so a child's blur would see nothing behind it. It comes in over the first 120px of scroll, so
    the opening screen stays as it was (always on where scroll timelines are missing) */
-:root:has(.nws) .topbar {
+.topbar--glass {
   background-color: rgba(26, 17, 13, .08);
   -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
 }
 @supports (animation-timeline: scroll()) {
-  :root:has(.nws) .topbar { animation: topbar-glass linear both; animation-timeline: scroll(root); animation-range: 0 120px; }
+  .topbar--glass { animation: topbar-glass linear both; animation-timeline: scroll(root); animation-range: 0 120px; }
 }
 @keyframes topbar-glass {
   from { background-color: rgba(26, 17, 13, 0); -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); }
