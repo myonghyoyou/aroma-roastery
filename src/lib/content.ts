@@ -107,7 +107,7 @@ const SAMPLE_SETTINGS: SiteSettings = {
     storeName: '아로마로스터리',
   },
   hours: [
-    { label: '평일', value: '08:00-18:00' },
+    { label: '평일', value: '08:30-17:30' },
     { label: '주말·공휴일', value: '12:00-18:00' },
   ],
   phone: '070-5534-5345',
